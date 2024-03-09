@@ -40,16 +40,16 @@
         <input id="chat-input" type="text" placeholder="Type a message and press Enter">
     </div>
 </div>
+<div id="user-count" style="margin-top: 20px;">Connected Users: 0</div>
 
 <script src="https://cdn.socket.io/4.0.0/socket.io.js"></script>
-
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const socket = io();
 
         const chatInput = document.getElementById('chat-input');
         const chatWindow = document.getElementById('chat-window');
+        const userCount = document.getElementById('user-count');
 
         chatInput.addEventListener('keypress', function(event) {
             console.log(event.key)
@@ -68,6 +68,10 @@
             messageElement.textContent = message;
             chatWindow.appendChild(messageElement);
             chatWindow.scrollTop = chatWindow.scrollHeight;
+        });
+
+        socket.on('user count', function(count) {
+            userCount.textContent = 'Connected Users: ' + count;
         });
     });
 </script>

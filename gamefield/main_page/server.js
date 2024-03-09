@@ -14,13 +14,19 @@ const server = http.createServer((req, res) => {
 });
 
 const io = socketIo(server);
+let userCount = 0;
 
 io.on('connection', (socket) => {
-    console.log('A user connected');
+    userCount++;
+    io.emit('user count', userCount);
 
     socket.on('chat message', (message) => {
-        console.log('Received message:', message);
         io.emit('chat message', message);
+    });
+
+    socket.on('disconnect', () => {
+        userCount--;
+        io.emit('user count', userCount);
     });
 });
 
