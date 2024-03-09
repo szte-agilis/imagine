@@ -2,10 +2,10 @@
   "name": "gamefield",
   "version": "1.0.0",
   "description": "Node.js gamefield.",
-  "main": "main_page/server.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node main_page/server.js"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "Me",
