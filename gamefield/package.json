@@ -1,13 +1,18 @@
 {
   "name": "gamefield",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "description": "Node.js gamefield.",
+  "main": "main_page/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node main_page/server.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "author": "Me",
+  "license": "ISC",
+  "dependencies": {
+    "http": "^0.0.0",
+    "fs": "^0.0.0",
+    "socket.io": "^4.7.4"
+  }
 }

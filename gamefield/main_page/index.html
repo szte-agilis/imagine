@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <title>Page with Iframe and Chat Input</title>
+    <style>
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        #container {
+            width: 100%;
+            display: flex;
+        }
+        iframe {
+            flex: 1;
+            height: 400px;
+        }
+        #chat-window {
+            flex: auto;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-right: 10px;
+            width: calc(100% - 10px);
+        }
+        #chat-input {
+            width: calc(100% - 22px);
+            padding: 5px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="container">
+    <iframe src="https://example.com"></iframe>
+    <div id="chat-container">
+        <div id="chat-window"></div>
+        <input id="chat-input" type="text" placeholder="Type a message and press Enter">
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.0.0/socket.io.js"></script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const socket = io();
+
+        const chatInput = document.getElementById('chat-input');
+        const chatWindow = document.getElementById('chat-window');
+
+        chatInput.addEventListener('keypress', function(event) {
+            console.log(event.key)
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const message = chatInput.value.trim();
+                if (message !== '') {
+                    socket.emit('chat message', message);
+                    chatInput.value = '';
+                }
+            }
+        });
+
+        socket.on('chat message', function(message) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            chatWindow.appendChild(messageElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        });
+    });
+</script>
+</body>
+</html>
