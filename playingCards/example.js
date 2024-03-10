@@ -8,13 +8,11 @@ function App() {
     const click = color => {
         setColor(color)
     }
-    /* This is where we actually
-       change background color */
+    
     useEffect(() => {
         document.body.style.backgroundColor = color
-    }, [color])
-    /* Display clickable
-        button */
+    }, [color]) 
+
     if(color.valueOf() == "#2A9D8F"){
         return (<div className = "App">
             <button onClick = {
