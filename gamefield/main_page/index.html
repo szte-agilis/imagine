@@ -3,6 +3,7 @@
 <head>
     <title>Page with Iframe and Chat Input</title>
     <style>
+        /* Styling for chat container and its elements */
         #chat-container {
             display: flex;
             flex-direction: column;
@@ -34,15 +35,21 @@
 </head>
 <body>
 <div id="container">
-    <iframe src="https://example.com"></iframe>
+    <!-- Embedding teszt.html page within an iframe -->
+    <iframe src="teszt.html"></iframe>
     <div id="chat-container">
+        <!-- Chat window for displaying messages -->
         <div id="chat-window"></div>
+        <!-- Input field for typing chat messages -->
         <label for="chat-input"></label><input id="chat-input" type="text" placeholder="Type a message and press Enter">
     </div>
 </div>
+<!-- Displaying the count of connected users -->
 <div id="user-count" style="margin-top: 20px;">Connected Users: 0</div>
 
+<!-- Including the Socket.io client library -->
 <script src="https://cdn.socket.io/4.0.0/socket.io.js"></script>
+<!-- Including the chat.js script for chat functionality -->
 <script src="chat.js"></script>
 
 </body>
