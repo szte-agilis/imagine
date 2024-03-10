@@ -8,13 +8,16 @@
 <body>
 <button id="myButton" onclick="changeText()">Click me!</button>
 
+<!-- Load the socket.io client -->
 <script src="https://cdn.socket.io/4.0.0/socket.io.js"></script>
 <script>
-    var socket = io();
+    var socket = io(); // Initialize a WebSocket connection
     function changeText() {
+        // Emit an event when the button is clicked
         socket.emit('button clicked');
     }
 
+    // Listen for button change events from the server to update the button's text
     socket.on('button change', function(text) {
         var button = document.getElementById("myButton");
         button.innerText = text;
