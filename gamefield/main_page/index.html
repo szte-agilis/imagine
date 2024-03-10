@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <title>Page with Iframe and Chat Input</title>
+    <style>
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        #container {
+            width: 100%;
+            display: flex;
+        }
+        iframe {
+            flex: 1;
+            height: 400px;
+        }
+        #chat-window {
+            flex: auto;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-right: 10px;
+            width: calc(100% - 10px);
+        }
+        #chat-input {
+            width: calc(100% - 22px);
+            padding: 5px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="container">
+    <iframe src="https://example.com"></iframe>
+    <div id="chat-container">
+        <div id="chat-window"></div>
+        <label for="chat-input"></label><input id="chat-input" type="text" placeholder="Type a message and press Enter">
+    </div>
+</div>
+<div id="user-count" style="margin-top: 20px;">Connected Users: 0</div>
+
+<script src="https://cdn.socket.io/4.0.0/socket.io.js"></script>
+<script src="chat.js"></script>
+
+</body>
+</html>
