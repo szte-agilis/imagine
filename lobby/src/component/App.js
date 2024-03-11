@@ -1,5 +1,5 @@
 import React from "react";
-import { signInAnonymously } from "firebase/auth";
+import { signInAnonymously, getIdToken } from "firebase/auth";
 import { auth } from "../lib/firebase-app";
 import "./App.css";
 
@@ -22,10 +22,14 @@ export default class App extends React.Component {
     const credentials = await signInAnonymously(auth);
     // await updateCurrentUser(auth, { displayName: this.state.username });
     console.log("User signed in anonymously with uid:", credentials.user.uid);
+    const token = await getIdToken(credentials.user);
 
     await fetch("/lobby/join", {
       method: "POST",
-      body: JSON.stringify({ username: this.state.username }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username: this.state.username, token }),
     });
   };
   render() {
