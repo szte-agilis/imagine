@@ -2,11 +2,13 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const socketIo = require('socket.io');
+//get route to imagine folder
+const parentDir = path.join(__dirname, '..')+'/';
 
 // Create an HTTP server
 const server = http.createServer((req, res) => {
     // Determine the file path based on the incoming request URL
-    let filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
+    let filePath = req.url === '/' ? parentDir+'gamefield/main_page/index.html' : parentDir+req.url;
     const extname = String(path.extname(filePath)).toLowerCase();
     const mimeTypes = {
         '.html': 'text/html',
@@ -21,7 +23,7 @@ const server = http.createServer((req, res) => {
         if (error) {
             if(error.code === 'ENOENT') {
                 // Serve index.html if the requested file is not found
-                fs.readFile(path.join(__dirname, 'index.html'), function(error, content) {
+                fs.readFile(path.join(parentDir, '404/error.html'), function(error, content) {
                     res.writeHead(404, { 'Content-Type': 'text/html' });
                     res.end(content, 'utf-8');
                 });
