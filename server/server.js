@@ -7,12 +7,11 @@ const parentDir = path.join(__dirname, '..')+'/';
 
 const server = http.createServer((req, res) => {
     let filePath = req.url === '/' ? parentDir+'/lobby_placeholder/join.html' : parentDir+req.url;
-    const extname = String(path.extname(filePath)).toLowerCase();
+    const extname = path.extname(filePath).toLowerCase();
     const mimeTypes = {
         '.html': 'text/html',
         '.js': 'application/javascript',
     };
-
     const contentType = mimeTypes[extname] || 'application/octet-stream';
 
     fs.readFile(filePath, function(error, content) {
