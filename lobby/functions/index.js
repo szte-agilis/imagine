@@ -19,6 +19,11 @@ router.get("/", (req, res) => {
   res.send("Hello from Firebase!");
 });
 
+router.post("/join", (req, res) => {
+  logger.debug(req);
+  res.send("Hello from Firebase!");
+});
+
 // handle errors
 app.use((err, req, res, next) => {
   res.status(500).send(err);
