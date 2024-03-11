@@ -61,6 +61,12 @@ io.on('connection', (socket) => {
         io.emit('chat message', `${username}: ${msg}`); // Emit 'chat message' event with the username and message
     });
 
+    // Broadcast the button change event
+    socket.on('button clicked', () => {
+        const newText = "Clicked!";
+        io.emit('button change', newText);
+    });
+
     // Handle disconnection
     socket.on('disconnect', () => {
         delete users[socket.id]; // Remove the user from the users object upon disconnection
