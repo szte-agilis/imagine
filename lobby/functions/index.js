@@ -12,6 +12,7 @@ const logger = require("firebase-functions/logger");
 const express = require("express");
 const { initializeApp } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
+const jwt = require("jsonwebtoken");
 
 initializeApp();
 
@@ -21,15 +22,33 @@ const router = express.Router();
 async function requireAuth(req, res, next) {
   const { token } = req.body;
   if (!token) {
-    res.status(401).send("Unauthorized");
+    res.status(401).send("Missing token, unauthorized");
     return;
   }
   try {
-    const tokenData = await getAuth().verifyIdToken(token);
-    req.user = tokenData.uid;
+    let userId;
+    if (
+      ["localhost", "127.0.0.1", "::1"].includes(req.hostname) &&
+      process.env.NODE_ENV !== "production"
+    ) {
+      // Fix for local development
+      logger.warn("Using local development token");
+      const tokenData = jwt.decode(token, process.env.JWT_SECRET);
+      userId = tokenData["user_id"];
+    } else {
+      const tokenData = await getAuth().verifyIdToken(token);
+      userId = tokenData.uid;
+    }
+
+    if (!userId) {
+      res.status(401).send("Unauthorized, Invalid token");
+      return;
+    }
+    req.user = userId;
     next();
   } catch (err) {
     logger.error(err);
+    logger.error(token);
     res.status(401).send("Unauthorized");
   }
 }
