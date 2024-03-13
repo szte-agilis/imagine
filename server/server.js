@@ -15,9 +15,8 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(parentDir, '/lobby_placeholder/join.html'));
 });
 
+let users = {};
 io.on('connection', (socket) => {
-    let users = {};
-
     socket.on('new user', (username) => {
         users[socket.id] = username;
         io.emit('user list', Object.values(users));
