@@ -9,7 +9,10 @@
 <button id="myButton" onclick="changeText()">Click me!</button>
 
 <!-- Load the socket.io client -->
-<script src="/server/node_modules/socket.io/client-dist/socket.io.js"></script>
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"
+    integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4"
+    crossorigin="anonymous"></script>
+
 <script>
     const socket = io(); // Initialize a WebSocket connection
     function changeText() {
