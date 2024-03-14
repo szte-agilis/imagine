@@ -7,12 +7,25 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const parentDir = path.join(__dirname, '..') + '/';
+const parentDir = path.join(__dirname, '..');
+const LOBBY_STATIC_ROOT = path.join(parentDir, '/lobby_placeholder');
+const GAME_STATIC_ROOT = path.join(parentDir, '/gamefield');
+const CARDS_STATIC_ROOT = path.join(parentDir, '/cards');
+const COMMON_STATIC = path.join(parentDir, '/common');
 
 app.use(express.static(parentDir));
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(parentDir, '/lobby_placeholder/join.html'));
+    res.sendFile(path.join(LOBBY_STATIC_ROOT, '/join.html'));
+});
+
+app.all('*', (req, res) => {
+    res.status(404).sendFile(path.join(COMMON_STATIC, '/404.html'));
+});
+
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).sendFile(path.join(COMMON_STATIC, '/500.html'));
 });
 
 let users = {};
@@ -28,7 +41,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('button clicked', () => {
-        const newText = "Clicked!";
+        const newText = 'Clicked!';
         io.emit('button change', newText);
     });
 
