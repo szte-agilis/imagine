@@ -41,7 +41,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('button clicked', () => {
-        const newText = "Clicked!";
+        const newText = 'Clicked!';
         io.emit('button change', newText);
     });
 

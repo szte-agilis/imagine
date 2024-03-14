@@ -1,3 +1,6 @@
+.husky/_
+
+
 .idea/
 .vs/
 node_modules/
