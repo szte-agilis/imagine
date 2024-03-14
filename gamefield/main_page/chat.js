@@ -1,35 +1,51 @@
-// Ensure the DOM is fully loaded before executing the script
+// This event listener waits for the DOM content to be fully loaded before executing the provided function
 document.addEventListener('DOMContentLoaded', function() {
-    // Establish a connection to the server-side Socket.io instance
+    // Retrieve the username from local storage
+    const username = localStorage.getItem('username');
+    // Initialize a WebSocket connection
     const socket = io();
 
-    // Grab references to DOM elements
+    // Emit a 'new user' event to the server with the retrieved username
+    socket.emit('new user', username);
+
+    // Get references to the chat input, chat window, and user list elements
     const chatInput = document.getElementById('chat-input');
     const chatWindow = document.getElementById('chat-window');
-    const userCount = document.getElementById('user-count');
+    const userListElement = document.getElementById('user-list');
 
-    // Listen for the 'Enter' keypress to send a chat message
+    // Event listener for keypress events on the chat input
     chatInput.addEventListener('keypress', function(event) {
+        // Check if the pressed key is Enter
         if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent the default action to avoid form submission
-            const message = chatInput.value.trim(); // Trim whitespace from the message
+            event.preventDefault(); // Prevent the default behavior of Enter key (e.g., submitting a form)
+            // Trim whitespace from the message and check if it's not empty
+            const message = chatInput.value.trim();
             if (message !== '') {
-                socket.emit('chat message', message); // Emit the message to the server
-                chatInput.value = ''; // Clear the input field after sending
+                // Emit a 'chat message' event to the server with the message content
+                socket.emit('chat message', message);
+                chatInput.value = ''; // Clear the chat input after sending the message
             }
         }
     });
 
-    // Listen for incoming chat messages to display them
+    // Event listener for receiving 'chat message' events from the server
     socket.on('chat message', function(message) {
-        const messageElement = document.createElement('div'); // Create a new div for the message
-        messageElement.textContent = message; // Set the message text
-        chatWindow.appendChild(messageElement); // Append the message to the chat window
-        chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to the latest message
+        // Create a new div element to display the received message
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message; // Set the text content of the message element
+        chatWindow.appendChild(messageElement); // Append the message element to the chat window
+        chatWindow.scrollTop = chatWindow.scrollHeight; // Scroll to the bottom of the chat window
     });
 
-    // Update the displayed user count as it changes
-    socket.on('user count', function(count) {
-        userCount.textContent = 'Connected Users: ' + count;
+    // Event listener for receiving 'user list' events from the server
+    socket.on('user list', function(usernames) {
+        userListElement.innerHTML = ''; // Clear the user list element
+        // Iterate over the array of usernames received from the server
+        usernames.forEach((username) => {
+            // Create a new div element for each username and append it to the user list
+            const userElement = document.createElement('div');
+            userElement.textContent = username; // Set the text content of the user element
+            userListElement.appendChild(userElement); // Append the user element to the user list
+        });
     });
 });

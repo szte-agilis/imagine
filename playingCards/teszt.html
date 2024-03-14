@@ -9,9 +9,12 @@
 <button id="myButton" onclick="changeText()">Click me!</button>
 
 <!-- Load the socket.io client -->
-<script src="https://cdn.socket.io/4.0.0/socket.io.js"></script>
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"
+    integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4"
+    crossorigin="anonymous"></script>
+
 <script>
-    var socket = io(); // Initialize a WebSocket connection
+    const socket = io(); // Initialize a WebSocket connection
     function changeText() {
         // Emit an event when the button is clicked
         socket.emit('button clicked');
@@ -19,7 +22,7 @@
 
     // Listen for button change events from the server to update the button's text
     socket.on('button change', function(text) {
-        var button = document.getElementById("myButton");
+        const button = document.getElementById("myButton");
         button.innerText = text;
     });
 </script>

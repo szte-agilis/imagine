@@ -3,7 +3,7 @@
 <head>
     <title>Page with Iframe and Chat Input</title>
     <style>
-        /* Styling for chat container and its elements */
+        /* CSS styling for chat and iframe container */
         #chat-container {
             display: flex;
             flex-direction: column;
@@ -36,7 +36,7 @@
 <body>
 <div id="container">
     <!-- Embedding teszt.html page within an iframe -->
-    <iframe src="teszt.html"></iframe>
+    <iframe src="/playingCards/teszt.html"></iframe>
     <div id="chat-container">
         <!-- Chat window for displaying messages -->
         <div id="chat-window"></div>
@@ -45,12 +45,15 @@
     </div>
 </div>
 <!-- Displaying the count of connected users -->
-<div id="user-count" style="margin-top: 20px;">Connected Users: 0</div>
+<div id="user-list" style="margin-top: 20px;"></div>
 
 <!-- Including the Socket.io client library -->
-<script src="https://cdn.socket.io/4.0.0/socket.io.js"></script>
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"
+    integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4"
+    crossorigin="anonymous"></script>
+
 <!-- Including the chat.js script for chat functionality -->
-<script src="chat.js"></script>
+<script src="/gamefield/main_page/chat.js"></script>
 
 </body>
 </html>
