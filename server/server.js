@@ -31,7 +31,10 @@ app.use((err, req, res, next) => {
 let users = {};
 let drawerSocketId = null;
 let drawerAssigned = false;
+let buttonState = 'Click me!';
 io.on('connection', (socket) => {
+    socket.emit('button change', buttonState);
+
     socket.on('new user', (username) => {
         users[socket.id] = username;
         if (!drawerAssigned) {
@@ -52,6 +55,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('button clicked', (username) => {
+        buttonState = `${username} clicked the button`;
         // Broadcast the new button text, including the username of the drawer who clicked
         io.emit('button change', `${username} clicked the button`);
     });
