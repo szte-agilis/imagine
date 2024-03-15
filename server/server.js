@@ -29,13 +29,16 @@ app.use((err, req, res, next) => {
 });
 
 let users = {};
+let drawerSocketId = null;
 let drawerAssigned = false;
 io.on('connection', (socket) => {
     socket.on('new user', (username) => {
         users[socket.id] = username;
         if (!drawerAssigned) {
             drawerAssigned = true;
+            drawerSocketId = socket.id;
             socket.emit('Drawer', true);
+            io.emit('chat message', `${username} is now the drawer`);
         } else {
             socket.emit('Drawer', false);
         }
@@ -54,6 +57,24 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
+        if (drawerSocketId === socket.id) {
+            const remainingUserIds = Object.keys(users).filter(
+                (id) => id !== socket.id
+            );
+            if (remainingUserIds.length > 0) {
+                drawerSocketId = remainingUserIds[0];
+                const newDrawerUsername = users[drawerSocketId];
+                io.to(drawerSocketId).emit('Drawer', true);
+                io.emit(
+                    'chat message',
+                    `${newDrawerUsername} is now the drawer`
+                );
+            } else {
+                drawerAssigned = false;
+                drawerSocketId = null;
+            }
+        }
+
         delete users[socket.id];
         io.emit('user list', Object.values(users));
     });

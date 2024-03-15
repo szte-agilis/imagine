@@ -43,7 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (canDraw) {
             chatInput.style.display = 'none';
             guesserIframe.style.display = 'none';
+            drawerIframe.style.display = '';
         } else {
+            chatInput.style.display = '';
+            guesserIframe.style.display = '';
             drawerIframe.style.display = 'none';
         }
     });
