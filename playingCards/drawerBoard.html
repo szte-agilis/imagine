@@ -15,10 +15,20 @@
 
 <script>
     const socket = io();
+    let sessionId = sessionStorage.getItem('sessionId');
+
+    if (!sessionId) {
+        sessionId = Math.random().toString(36).substr(2, 9);
+        sessionStorage.setItem('sessionId', sessionId);
+    }
+
+    const localStorageKey = `username-${sessionId}`;
+
     function changeText() {
-        const username = localStorage.getItem('username');
+        const username = localStorage.getItem(localStorageKey);
         socket.emit('button clicked', username);
     }
+
     socket.on('button change', function(text) {
         const button = document.getElementById("myButton");
         button.innerText = text;

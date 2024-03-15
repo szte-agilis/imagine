@@ -1,12 +1,23 @@
 // This event listener waits for the DOM content to be fully loaded before executing the provided function
 document.addEventListener('DOMContentLoaded', function() {
-    // Retrieve the username from local storage
-    const username = localStorage.getItem('username');
-    // Initialize a WebSocket connection
     const socket = io();
 
-    // Emit a 'new user' event to the server with the retrieved username
-    socket.emit('new user', username);
+
+    let sessionId = sessionStorage.getItem('sessionId');
+
+    if (!sessionId) {
+        sessionId = Math.random().toString(36).substr(2, 9);
+        sessionStorage.setItem('sessionId', sessionId);
+    }
+
+    const localStorageKey = `username-${sessionId}`;
+    const username = localStorage.getItem(localStorageKey);
+
+    if (username) {
+        socket.emit('new user', username);
+    } else {
+        console.error('Username is not set in localStorage.');
+    }
 
     // Get references to the chat input, chat window, and user list elements
     const drawerIframe = document.getElementById('drawer-iframe');
