@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatInput = document.getElementById('chat-input');
     const chatWindow = document.getElementById('chat-window');
     const userListElement = document.getElementById('user-list');
+    const passDrawerButton = document.getElementById('passDrawerButton');
+
+    passDrawerButton.addEventListener('click', function() {
+        socket.emit('pass drawer');
+    });
 
     // Event listener for keypress events on the chat input
     chatInput.addEventListener('keypress', function(event) {
@@ -44,10 +49,12 @@ document.addEventListener('DOMContentLoaded', function() {
             chatInput.style.display = 'none';
             guesserIframe.style.display = 'none';
             drawerIframe.style.display = '';
+            passDrawerButton.style.display = '';
         } else {
             chatInput.style.display = '';
             guesserIframe.style.display = '';
             drawerIframe.style.display = 'none';
+            passDrawerButton.style.display = 'none';
         }
     });
 

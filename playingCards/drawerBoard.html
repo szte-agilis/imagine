@@ -14,12 +14,11 @@
         crossorigin="anonymous"></script>
 
 <script>
-    const socket = io(); // Initialize a WebSocket connection
+    const socket = io();
     function changeText() {
-        // Emit an event when the button is clicked
-        socket.emit('button clicked');
+        const username = localStorage.getItem('username');
+        socket.emit('button clicked', username);
     }
-    // Listen for button change events from the server to update the button's text
     socket.on('button change', function(text) {
         const button = document.getElementById("myButton");
         button.innerText = text;

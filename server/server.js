@@ -51,9 +51,24 @@ io.on('connection', (socket) => {
         io.emit('chat message', `${username}: ${msg}`);
     });
 
-    socket.on('button clicked', () => {
-        const newText = 'Clicked!';
-        io.emit('button change', newText);
+    socket.on('button clicked', (username) => {
+        // Broadcast the new button text, including the username of the drawer who clicked
+        io.emit('button change', `${username} clicked the button`);
+    });
+
+    socket.on('pass drawer', () => {
+        const userIds = Object.keys(users);
+        const currentDrawerIndex = userIds.indexOf(drawerSocketId);
+        let nextDrawerIndex = (currentDrawerIndex + 1) % userIds.length;
+        drawerSocketId = userIds[nextDrawerIndex];
+
+        userIds.forEach((id) => {
+            io.to(id).emit('Drawer', false);
+        });
+
+        io.to(drawerSocketId).emit('Drawer', true);
+        const newDrawerUsername = users[drawerSocketId];
+        io.emit('chat message', `${newDrawerUsername} is now the drawer`); // Announce the new drawer
     });
 
     socket.on('disconnect', () => {
