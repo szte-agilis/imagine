@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     socket.emit('new user', username);
 
     // Get references to the chat input, chat window, and user list elements
+    const drawerIframe = document.getElementById('drawer-iframe');
+    const guesserIframe = document.getElementById('guesser-iframe');
     const chatInput = document.getElementById('chat-input');
     const chatWindow = document.getElementById('chat-window');
     const userListElement = document.getElementById('user-list');
@@ -35,6 +37,15 @@ document.addEventListener('DOMContentLoaded', function() {
         messageElement.textContent = message; // Set the text content of the message element
         chatWindow.appendChild(messageElement); // Append the message element to the chat window
         chatWindow.scrollTop = chatWindow.scrollHeight; // Scroll to the bottom of the chat window
+    });
+
+    socket.on('Drawer', function(canDraw) {
+        if (canDraw) {
+            chatInput.style.display = 'none';
+            guesserIframe.style.display = 'none';
+        } else {
+            drawerIframe.style.display = 'none';
+        }
     });
 
     // Event listener for receiving 'user list' events from the server

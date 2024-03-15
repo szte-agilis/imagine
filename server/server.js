@@ -29,9 +29,17 @@ app.use((err, req, res, next) => {
 });
 
 let users = {};
+let drawerAssigned = false;
 io.on('connection', (socket) => {
     socket.on('new user', (username) => {
         users[socket.id] = username;
+        if (!drawerAssigned) {
+            drawerAssigned = true;
+            socket.emit('Drawer', true);
+        } else {
+            socket.emit('Drawer', false);
+        }
+
         io.emit('user list', Object.values(users));
     });
 
@@ -50,6 +58,10 @@ io.on('connection', (socket) => {
         io.emit('user list', Object.values(users));
     });
 });
+
+drawer = () => {
+    return true;
+};
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
