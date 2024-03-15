@@ -69,15 +69,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    const currentUserUsername = localStorage.getItem(localStorageKey);
     // Event listener for receiving 'user list' events from the server
     socket.on('user list', function(usernames) {
         userListElement.innerHTML = ''; // Clear the user list element
         // Iterate over the array of usernames received from the server
         usernames.forEach((username) => {
-            // Create a new div element for each username and append it to the user list
             const userElement = document.createElement('div');
-            userElement.textContent = username; // Set the text content of the user element
-            userListElement.appendChild(userElement); // Append the user element to the user list
+            userElement.textContent = username;
+
+            if (username === currentUserUsername) {
+                // Apply the highlighting style
+                userElement.classList.add('current-user');
+            }
+
+            userListElement.appendChild(userElement);
         });
     });
 });
