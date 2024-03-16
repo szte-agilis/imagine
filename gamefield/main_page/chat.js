@@ -10,11 +10,11 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.setItem('sessionId', sessionId);
     }
 
-    const localStorageKey = `username-${sessionId}`;
-    const username = localStorage.getItem(localStorageKey);
+    const username = localStorage.getItem(`username-${sessionId}`);
+    const lobbyId = localStorage.getItem(`lobbyid-${sessionId}`);
 
     if (username) {
-        socket.emit('new user', username);
+        socket.emit('new user', username, lobbyId);
     } else {
         console.error('Username is not set in localStorage.');
     }
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const passDrawerButton = document.getElementById('passDrawerButton');
 
     passDrawerButton.addEventListener('click', function() {
-        socket.emit('pass drawer');
+        socket.emit('pass drawer', lobbyId);
     });
 
     // Event listener for keypress events on the chat input
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const message = chatInput.value.trim();
             if (message !== '') {
                 // Emit a 'chat message' event to the server with the message content
-                socket.emit('chat message', message);
+                socket.emit('chat message', message, lobbyId);
                 chatInput.value = ''; // Clear the chat input after sending the message
             }
         }
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const currentUserUsername = localStorage.getItem(localStorageKey);
+    const currentUserUsername = localStorage.getItem(`username-${sessionId}`);
     // Event listener for receiving 'user list' events from the server
     socket.on('user list', function(usernames) {
         userListElement.innerHTML = ''; // Clear the user list element

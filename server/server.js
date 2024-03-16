@@ -31,73 +31,110 @@ apiRouter.post('/join', (req, res) => {
 app.use('/api', apiRouter);
 
 let users = {};
-let drawerSocketId = null;
-let drawerAssigned = false;
+let drawerSocketId = {};
+let drawerAssigned = {};
+let lobbies = {};
 let buttonState = 'Click me!';
 io.on('connection', (socket) => {
     socket.emit('button change', buttonState);
 
-    socket.on('new user', (username) => {
+    socket.on('new user', (username, lobbyId) => {
         users[socket.id] = username;
-        if (!drawerAssigned) {
-            drawerAssigned = true;
-            drawerSocketId = socket.id;
+        socket.join(lobbyId);
+        if (!lobbies[lobbyId]) {
+            lobbies[lobbyId] = {};
+        }
+        lobbies[lobbyId][socket.id] = username;
+        if (!drawerAssigned[lobbyId]) {
+            drawerAssigned[lobbyId] = true;
+            drawerSocketId[lobbyId] = socket.id;
             socket.emit('Drawer', true);
-            io.emit('chat message', `${username} is now the drawer`);
+            io.to(lobbyId).emit(
+                'chat message',
+                `${username} is now the drawer`
+            );
         } else {
             socket.emit('Drawer', false);
         }
+        console.log(drawerAssigned, drawerSocketId);
 
-        io.emit('user list', Object.values(users));
+        io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId]));
     });
 
-    socket.on('chat message', (msg) => {
+    socket.on('user connect', (username, lobbyId) => {
+        users[socket.id] = username;
+        socket.join(lobbyId);
+        if (!lobbies[lobbyId]) {
+            lobbies[lobbyId] = {};
+        }
+        lobbies[lobbyId][socket.id] = username;
+        if (!drawerAssigned[lobbyId]) {
+            drawerAssigned[lobbyId] = true;
+            drawerSocketId[lobbyId] = socket.id;
+            socket.emit('Drawer', true);
+            io.to(lobbyId).emit(
+                'chat message',
+                `${username} is now the drawer`
+            );
+        } else {
+            socket.emit('Drawer', false);
+        }
+        console.log(drawerAssigned, drawerSocketId);
+
+        io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId]));
+    });
+
+    socket.on('chat message', (msg, lobbyId) => {
         const username = users[socket.id] || 'Anonymous';
-        io.emit('chat message', `${username}: ${msg}`);
+        io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
     });
 
-    socket.on('button clicked', (username) => {
+    socket.on('button clicked', (username, lobbyId) => {
         buttonState = `${username} clicked the button`;
         // Broadcast the new button text, including the username of the drawer who clicked
-        io.emit('button change', `${username} clicked the button`);
+        io.to(lobbyId).emit('button change', `${username} clicked the button`);
+        console.log(username, lobbyId);
     });
 
-    socket.on('pass drawer', () => {
-        const userIds = Object.keys(users);
-        const currentDrawerIndex = userIds.indexOf(drawerSocketId);
+    socket.on('pass drawer', (lobbyId) => {
+        const userIds = Object.keys(lobbies[lobbyId]);
+        const currentDrawerIndex = userIds.indexOf(drawerSocketId[lobbyId]);
         let nextDrawerIndex = (currentDrawerIndex + 1) % userIds.length;
-        drawerSocketId = userIds[nextDrawerIndex];
+        drawerSocketId[lobbyId] = userIds[nextDrawerIndex];
 
         userIds.forEach((id) => {
             io.to(id).emit('Drawer', false);
         });
 
-        io.to(drawerSocketId).emit('Drawer', true);
+        socket.to(drawerSocketId[lobbyId]).emit('Drawer', true);
         const newDrawerUsername = users[drawerSocketId];
-        io.emit('chat message', `${newDrawerUsername} is now the drawer`); // Announce the new drawer
+        io.to(lobbyId).emit(
+            'chat message',
+            `${newDrawerUsername} is now the drawer`
+        ); // Announce the new drawer
     });
 
-    socket.on('disconnect', () => {
-        if (drawerSocketId === socket.id) {
-            const remainingUserIds = Object.keys(users).filter(
+    socket.on('disconnect', (lobbyId) => {
+        if (drawerSocketId[lobbyId] === socket.id) {
+            const remainingUserIds = Object.keys(lobbies[lobbyId]).filter(
                 (id) => id !== socket.id
             );
             if (remainingUserIds.length > 0) {
-                drawerSocketId = remainingUserIds[0];
-                const newDrawerUsername = users[drawerSocketId];
-                io.to(drawerSocketId).emit('Drawer', true);
-                io.emit(
+                drawerSocketId[lobbyId] = remainingUserIds[0];
+                const newDrawerUsername = users[drawerSocketId[lobbyId]];
+                socket.to(drawerSocketId[lobbyId]).emit('Drawer', true);
+                io.to(lobbyId).emit(
                     'chat message',
                     `${newDrawerUsername} is now the drawer`
                 );
             } else {
-                drawerAssigned = false;
-                drawerSocketId = null;
+                delete drawerAssigned[lobbyId];
+                delete drawerSocketId[lobbyId];
             }
         }
 
         delete users[socket.id];
-        io.emit('user list', Object.values(users));
+        io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId]));
     });
 });
 

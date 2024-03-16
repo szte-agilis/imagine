@@ -5,6 +5,7 @@ document
         e.preventDefault();
 
         const username = document.getElementById('username').value;
+        const lobbyId = document.getElementById('lobby-id').value;
         let sessionId = sessionStorage.getItem('sessionId');
 
         if (!sessionId) {
@@ -12,9 +13,8 @@ document
             sessionStorage.setItem('sessionId', sessionId);
         }
 
-        const localStorageKey = `username-${sessionId}`;
-
-        localStorage.setItem(localStorageKey, username);
+        localStorage.setItem(`username-${sessionId}`, username);
+        localStorage.setItem(`lobbyid-${sessionId}`, lobbyId);
 
         window.location.href = '/gamefield/main_page/index.html';
     });
