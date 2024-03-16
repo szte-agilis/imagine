@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useImage } from 'react-image';
 import './App.css';
-import {socket} from './socket.io'
+import { socket } from './socket.io';
 
 function MyImageComponent() {
     const { src } = useImage({
@@ -45,7 +45,7 @@ function App() {
     }, [error]);
 
     const send = async () => {
-        console.log('send')
+        console.log('send');
         console.log(data);
         try {
             if (data.lobbyID.length === 6 && data.name.length > 0) {
@@ -71,50 +71,56 @@ function App() {
 
     return (
         <main>
-           {error && (
+            {error && (
                 <div role="alert" className="alert alert-error">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="stroke-current shrink-0 h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                    </svg>
                     <span>Üres a név vagy nem 6 számjegyű a lobbyID.</span>
                 </div>
             )}
             <div className="App">
-
-                    <div className="input-container">
-                        <input
-                            type="text"
-                            placeholder="Neved"
-                            className="input input-bordered w-full max-w-xs"
-                            id="name"
-                            value={data.name}
-                            onChange={(e) =>
-                                setData({ ...data, name: e.target.value })
-                            }
-                        />
-                        <br />
-                        <input
-                            type="text"
-                            placeholder="Lobby azonosító"
-                            className="input input-bordered w-full max-w-xs"
-                            id="name"
-                            value={data.lobbyID}
-                            onChange={(e) =>
-                                setData({ ...data, lobbyID: e.target.value })
-                            }
-                        />
-                        <br />
-                        <button
-                            className="btn btn-success"
-                            onClick={send}
-                        >
-                            Belépés!
-                        </button>
-                        <br />
-                        <button className="btn btn-primary" onClick={createLobby}>
-                            Hozz létre saját lobbyt!
-                        </button>
-                    </div>
-
-
+                <div className="input-container">
+                    <input
+                        type="text"
+                        placeholder="Neved"
+                        className="input input-bordered w-full max-w-xs"
+                        id="name"
+                        value={data.name}
+                        onChange={(e) =>
+                            setData({ ...data, name: e.target.value })
+                        }
+                    />
+                    <br />
+                    <input
+                        type="text"
+                        placeholder="Lobby azonosító"
+                        className="input input-bordered w-full max-w-xs"
+                        id="name"
+                        value={data.lobbyID}
+                        onChange={(e) =>
+                            setData({ ...data, lobbyID: e.target.value })
+                        }
+                    />
+                    <br />
+                    <button className="btn btn-success" onClick={send}>
+                        Belépés!
+                    </button>
+                    <br />
+                    <button className="btn btn-primary" onClick={createLobby}>
+                        Hozz létre saját lobbyt!
+                    </button>
+                </div>
             </div>
 
             <MyImageComponent />

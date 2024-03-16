@@ -27,7 +27,7 @@ app.use(require('cors')());
 
 class Lobby {
     constructor(lobbyId) {
-        this.lobbyName = lobbyId;
+        this.lobbyId = lobbyId;
         /**
          * @type {Record<string, SocketIO.Socket[]>}
          */
@@ -37,6 +37,8 @@ class Lobby {
     addUser(userName, socket) {
         if (!this.players[userName]) this.players[userName] = [];
         this.players[userName].push(socket);
+
+        socket.join(this.lobbyId);
 
         socket.on('chat message', (msg) => {
             console.log('chat message: ' + msg);
@@ -50,15 +52,19 @@ class Lobby {
             this.removeUser(userName);
         });
 
-        socket.join(this.lobbyName);
+        if (Object.keys(this.players).length === 2) {
+            this.broadcast('game start', { message: 'Hello world' });
+        }
     }
 
     removeUser(userId) {
+        // for socket -> close
         delete this.players[userId];
         // TODO: socket.remove(lobbyId)
     }
 
     broadcast(channel, payload) {
+        console.log('broadcast', { channel, payload });
         io.to(this.lobbyId).emit(channel, payload);
     }
 }
