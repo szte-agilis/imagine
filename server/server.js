@@ -19,14 +19,16 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(LOBBY_STATIC_ROOT, '/join.html'));
 });
 
-app.all('*', (req, res) => {
-    res.status(404).sendFile(path.join(COMMON_STATIC, '/404.html'));
+app.use(require('body-parser').json());
+
+const apiRouter = express.Router();
+
+apiRouter.post('/join', (req, res) => {
+    const { name, lobbyId, categoryId } = req.body;
+    io.emit('chat message', `${name} joined the lobby`);
 });
 
-app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).sendFile(path.join(COMMON_STATIC, '/500.html'));
-});
+app.use('/api', apiRouter);
 
 let users = {};
 let drawerSocketId = null;
