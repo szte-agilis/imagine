@@ -32,7 +32,14 @@ function App() {
         name: '',
         lobbyID: '',
     });
-    const [error, setError] = useState(false);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        socket.on('game start', (payload) => {
+            console.log('game start', { payload });
+            setError('Elindult a játék');
+        });
+    }, []);
 
     useEffect(() => {
         let timer;
@@ -49,13 +56,13 @@ function App() {
         console.log(data);
         try {
             if (data.lobbyID.length === 6 && data.name.length > 0) {
-                await socket.emit('join', {
+                socket.emit('join', {
                     lobbyID: data.lobbyID,
                     userName: data.name,
                 });
-                console.log('sikeres');
+                setError('');
             } else {
-                setError(true);
+                setError('Üres a név vagy nem 6 számjegyű a lobbyID.');
             }
         } catch (error) {
             console.error(error);
@@ -86,7 +93,7 @@ function App() {
                             d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                     </svg>
-                    <span>Üres a név vagy nem 6 számjegyű a lobbyID.</span>
+                    <span>{error}</span>
                 </div>
             )}
             <div className="App">
