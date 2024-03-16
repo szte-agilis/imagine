@@ -2,10 +2,20 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const socketIo = require('socket.io');
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(
+    server,
+    process.env['NODE_ENV'] === 'production'
+        ? {}
+        : {
+              cors: {
+                  origin: '*',
+              },
+          }
+);
 
 const parentDir = path.join(__dirname, '..');
 const LOBBY_STATIC_ROOT = path.join(parentDir, '/lobby_placeholder');
@@ -13,53 +23,57 @@ const GAME_STATIC_ROOT = path.join(parentDir, '/gamefield');
 const CARDS_STATIC_ROOT = path.join(parentDir, '/cards');
 const COMMON_STATIC = path.join(parentDir, '/common');
 
-app.use(
-    require('cors')({
-        origin: 'http://localhost:3000',
-    })
-);
+app.use(require('cors')());
 
-class Room {
-    constructor(roomId) {
-        this.roomId = roomId;
+class Lobby {
+    constructor(lobbyId) {
+        this.lobbyName = lobbyId;
+        /**
+         * @type {Record<string, SocketIO.Socket[]>}
+         */
         this.players = {};
     }
 
-    addUser(userId, socket) {
-        this.players[userId] = socket;
+    addUser(userName, socket) {
+        if (!this.players[userName]) this.players[userName] = [];
+        this.players[userName].push(socket);
 
         socket.on('chat message', (msg) => {
             console.log('chat message: ' + msg);
             this.broadcast(
                 'chat message',
-                `chat message in ${this.roomId} from ${userId}: ${msg}`
+                `chat message in ${this.roomId} from ${userName}: ${msg}`
             );
         });
 
         socket.on('disconnect', () => {
-            this.removeUser(userId);
+            this.removeUser(userName);
         });
 
-        socket.join(this.roomId);
+        socket.join(this.lobbyName);
     }
 
     removeUser(userId) {
         delete this.players[userId];
-        // TODO: socket.remove(roomId)
+        // TODO: socket.remove(lobbyId)
     }
 
     broadcast(channel, payload) {
-        io.to(this.roomId).emit(channel, payload);
+        io.to(this.lobbyId).emit(channel, payload);
     }
 }
 
-const rooms = {};
+const lobbies = {};
 
 io.on('connection', (socket) => {
-    socket.on('join', ({ roomId, userId }) => {
-        console.log('join', roomId, userId);
-        const room = rooms[roomId] || new Room(roomId);
-        room.addUser(userId, socket);
+    console.log('a user connected');
+    socket.on('join', ({ lobbyID, userName }) => {
+        console.log('join', { lobbyID, userName, lobby: lobbies[lobbyID] });
+        if (!lobbies[lobbyID]) lobbies[lobbyID] = new Lobby(lobbyID);
+        const lobby = lobbies[lobbyID];
+        lobby.addUser(userName, socket);
+
+        console.log(lobby);
     });
 });
 

@@ -45,13 +45,13 @@ function App() {
     }, [error]);
 
     const send = async () => {
-        socket.emit('join', { roomId: 'test', userId: sessionStorage.getItem('sessionId') });
+        console.log('send')
         console.log(data);
         try {
             if (data.lobbyID.length === 6 && data.name.length > 0) {
-                socket.emit('join', {
-                    roomId: data.lobbyID,
-                    userId: data.name,
+                await socket.emit('join', {
+                    lobbyID: data.lobbyID,
+                    userName: data.name,
                 });
                 console.log('sikeres');
             } else {
