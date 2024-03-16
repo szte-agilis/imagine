@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useImage } from 'react-image';
 import './App.css';
+import {socket} from './socket.io'
 
 function MyImageComponent() {
     const { src } = useImage({
@@ -44,13 +45,13 @@ function App() {
     }, [error]);
 
     const send = async () => {
+        socket.emit('join', { roomId: 'test', userId: sessionStorage.getItem('sessionId') });
         console.log(data);
         try {
             if (data.lobbyID.length === 6 && data.name.length > 0) {
-                const socket = io();
                 socket.emit('join', {
-                    lobbyID: data.lobbyID,
-                    userName: data.name,
+                    roomId: data.lobbyID,
+                    userId: data.name,
                 });
                 console.log('sikeres');
             } else {
@@ -77,7 +78,7 @@ function App() {
                 </div>
             )}
             <div className="App">
-                
+
                     <div className="input-container">
                         <input
                             type="text"
@@ -112,10 +113,10 @@ function App() {
                             Hozz létre saját lobbyt!
                         </button>
                     </div>
-                   
-              
+
+
             </div>
-            
+
             <MyImageComponent />
         </main>
     );
