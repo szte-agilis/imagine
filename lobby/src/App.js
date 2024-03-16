@@ -42,6 +42,14 @@ function App() {
             console.error(error);
         }
     };
+    function createLobby() {
+      var min = 100000; 
+      var max = 999999; 
+      let number = Math.floor(Math.random() * (max - min + 1)) + min;
+      setData({ ...data, lobbyID: String(number) });
+  }
+  
+
 
     return (
         <main>
@@ -72,7 +80,7 @@ function App() {
                         <br />
                         <button class="btn btn-primary">Csatlakozás meglévő lobbyhoz!</button>
                         <br />
-                        <button class="btn btn-primary">Hozz létre saját lobbyt!</button>
+                        <button class="btn btn-info" onClick={createLobby}>Hozz létre saját lobbyt!</button>
                     </div>
                 </header>
             </div>
