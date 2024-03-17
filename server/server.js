@@ -34,11 +34,13 @@ let users = {};
 let drawerSocketId = null;
 let drawerAssigned = false;
 let buttonState = 'Click me!';
+let nextUserId = 1;
 io.on('connection', (socket) => {
     socket.emit('button change', buttonState);
 
     socket.on('new user', (username) => {
-        users[socket.id] = username;
+        const userId = nextUserId++;
+        users[socket.id] = { username, id: userId };
         if (!drawerAssigned) {
             drawerAssigned = true;
             drawerSocketId = socket.id;
@@ -48,11 +50,11 @@ io.on('connection', (socket) => {
             socket.emit('Drawer', false);
         }
 
-        io.emit('user list', Object.values(users));
+        io.emit('user list', Object.values(users).map(user => user.username));
     });
 
     socket.on('chat message', (msg) => {
-        const username = users[socket.id] || 'Anonymous';
+        const username = users[socket.id]?.username || 'Anonymous';
         io.emit('chat message', `${username}: ${msg}`);
     });
 
@@ -73,7 +75,7 @@ io.on('connection', (socket) => {
         });
 
         io.to(drawerSocketId).emit('Drawer', true);
-        const newDrawerUsername = users[drawerSocketId];
+        const newDrawerUsername = users[drawerSocketId]?.username;
         io.emit('chat message', `${newDrawerUsername} is now the drawer`); // Announce the new drawer
     });
 
@@ -84,7 +86,7 @@ io.on('connection', (socket) => {
             );
             if (remainingUserIds.length > 0) {
                 drawerSocketId = remainingUserIds[0];
-                const newDrawerUsername = users[drawerSocketId];
+                const newDrawerUsername = users[drawerSocketId]?.username;
                 io.to(drawerSocketId).emit('Drawer', true);
                 io.emit(
                     'chat message',
@@ -97,7 +99,7 @@ io.on('connection', (socket) => {
         }
 
         delete users[socket.id];
-        io.emit('user list', Object.values(users));
+        io.emit('user list', Object.values(users).map(user => user.username));
     });
 });
 
