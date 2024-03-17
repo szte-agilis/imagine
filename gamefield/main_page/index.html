@@ -4,6 +4,10 @@
     <title>Page with Iframe and Chat Input</title>
     <style>
         /* CSS styling for chat and iframe container */
+        .current-user {
+            color: red;
+            font-weight: bold;
+        }
         #chat-container {
             display: flex;
             flex-direction: column;
@@ -35,13 +39,15 @@
 </head>
 <body>
 <div id="container">
-    <!-- Embedding teszt.html page within an iframe -->
-    <iframe src="/playingCards/teszt.html"></iframe>
+    <!-- Embedding guesserBoard.html page within an iframe -->
+    <iframe id="drawer-iframe" src="/playingCards/drawerBoard.html"></iframe>
+    <iframe id="guesser-iframe" src="/playingCards/guesserBoard.html"></iframe>
     <div id="chat-container">
         <!-- Chat window for displaying messages -->
         <div id="chat-window"></div>
         <!-- Input field for typing chat messages -->
         <label for="chat-input"></label><input id="chat-input" type="text" placeholder="Type a message and press Enter">
+        <button id="passDrawerButton" style="display: none;">Pass Drawer Role</button>
     </div>
 </div>
 <!-- Displaying the count of connected users -->

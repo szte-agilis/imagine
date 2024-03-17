@@ -19,19 +19,35 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(LOBBY_STATIC_ROOT, '/join.html'));
 });
 
-app.all('*', (req, res) => {
-    res.status(404).sendFile(path.join(COMMON_STATIC, '/404.html'));
+app.use(require('body-parser').json());
+
+const apiRouter = express.Router();
+
+apiRouter.post('/join', (req, res) => {
+    const { name, lobbyId, categoryId } = req.body;
+    io.emit('chat message', `${name} joined the lobby`);
 });
 
-app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(500).sendFile(path.join(COMMON_STATIC, '/500.html'));
-});
+app.use('/api', apiRouter);
 
 let users = {};
+let drawerSocketId = null;
+let drawerAssigned = false;
+let buttonState = 'Click me!';
 io.on('connection', (socket) => {
+    socket.emit('button change', buttonState);
+
     socket.on('new user', (username) => {
         users[socket.id] = username;
+        if (!drawerAssigned) {
+            drawerAssigned = true;
+            drawerSocketId = socket.id;
+            socket.emit('Drawer', true);
+            io.emit('chat message', `${username} is now the drawer`);
+        } else {
+            socket.emit('Drawer', false);
+        }
+
         io.emit('user list', Object.values(users));
     });
 
@@ -40,16 +56,54 @@ io.on('connection', (socket) => {
         io.emit('chat message', `${username}: ${msg}`);
     });
 
-    socket.on('button clicked', () => {
-        const newText = 'Clicked!';
-        io.emit('button change', newText);
+    socket.on('button clicked', (username) => {
+        buttonState = `${username} clicked the button`;
+        // Broadcast the new button text, including the username of the drawer who clicked
+        io.emit('button change', `${username} clicked the button`);
+    });
+
+    socket.on('pass drawer', () => {
+        const userIds = Object.keys(users);
+        const currentDrawerIndex = userIds.indexOf(drawerSocketId);
+        let nextDrawerIndex = (currentDrawerIndex + 1) % userIds.length;
+        drawerSocketId = userIds[nextDrawerIndex];
+
+        userIds.forEach((id) => {
+            io.to(id).emit('Drawer', false);
+        });
+
+        io.to(drawerSocketId).emit('Drawer', true);
+        const newDrawerUsername = users[drawerSocketId];
+        io.emit('chat message', `${newDrawerUsername} is now the drawer`); // Announce the new drawer
     });
 
     socket.on('disconnect', () => {
+        if (drawerSocketId === socket.id) {
+            const remainingUserIds = Object.keys(users).filter(
+                (id) => id !== socket.id
+            );
+            if (remainingUserIds.length > 0) {
+                drawerSocketId = remainingUserIds[0];
+                const newDrawerUsername = users[drawerSocketId];
+                io.to(drawerSocketId).emit('Drawer', true);
+                io.emit(
+                    'chat message',
+                    `${newDrawerUsername} is now the drawer`
+                );
+            } else {
+                drawerAssigned = false;
+                drawerSocketId = null;
+            }
+        }
+
         delete users[socket.id];
         io.emit('user list', Object.values(users));
     });
 });
+
+drawer = () => {
+    return true;
+};
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

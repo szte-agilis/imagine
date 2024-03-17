@@ -2,14 +2,19 @@
 document
     .getElementById('usernameForm')
     .addEventListener('submit', function (e) {
-        e.preventDefault(); // Prevent the default form submission behavior
+        e.preventDefault();
 
-        // Get the value entered in the input field with the id 'username'
         const username = document.getElementById('username').value;
+        let sessionId = sessionStorage.getItem('sessionId');
 
-        // Store the username in the local storage
-        localStorage.setItem('username', username);
+        if (!sessionId) {
+            sessionId = Math.random().toString(36).substr(2, 9); // Generate a random session ID
+            sessionStorage.setItem('sessionId', sessionId);
+        }
 
-        // Redirect the user to '/gamefield/main_page/index.html'
+        const localStorageKey = `username-${sessionId}`;
+
+        localStorage.setItem(localStorageKey, username);
+
         window.location.href = '/gamefield/main_page/index.html';
     });

@@ -1,17 +1,35 @@
 // This event listener waits for the DOM content to be fully loaded before executing the provided function
 document.addEventListener('DOMContentLoaded', function() {
-    // Retrieve the username from local storage
-    const username = localStorage.getItem('username');
-    // Initialize a WebSocket connection
     const socket = io();
 
-    // Emit a 'new user' event to the server with the retrieved username
-    socket.emit('new user', username);
+
+    let sessionId = sessionStorage.getItem('sessionId');
+
+    if (!sessionId) {
+        sessionId = Math.random().toString(36).substr(2, 9);
+        sessionStorage.setItem('sessionId', sessionId);
+    }
+
+    const localStorageKey = `username-${sessionId}`;
+    const username = localStorage.getItem(localStorageKey);
+
+    if (username) {
+        socket.emit('new user', username);
+    } else {
+        console.error('Username is not set in localStorage.');
+    }
 
     // Get references to the chat input, chat window, and user list elements
+    const drawerIframe = document.getElementById('drawer-iframe');
+    const guesserIframe = document.getElementById('guesser-iframe');
     const chatInput = document.getElementById('chat-input');
     const chatWindow = document.getElementById('chat-window');
     const userListElement = document.getElementById('user-list');
+    const passDrawerButton = document.getElementById('passDrawerButton');
+
+    passDrawerButton.addEventListener('click', function() {
+        socket.emit('pass drawer');
+    });
 
     // Event listener for keypress events on the chat input
     chatInput.addEventListener('keypress', function(event) {
@@ -37,15 +55,35 @@ document.addEventListener('DOMContentLoaded', function() {
         chatWindow.scrollTop = chatWindow.scrollHeight; // Scroll to the bottom of the chat window
     });
 
+    socket.on('Drawer', function(canDraw) {
+        if (canDraw) {
+            chatInput.style.display = 'none';
+            guesserIframe.style.display = 'none';
+            drawerIframe.style.display = '';
+            passDrawerButton.style.display = '';
+        } else {
+            chatInput.style.display = '';
+            guesserIframe.style.display = '';
+            drawerIframe.style.display = 'none';
+            passDrawerButton.style.display = 'none';
+        }
+    });
+
+    const currentUserUsername = localStorage.getItem(localStorageKey);
     // Event listener for receiving 'user list' events from the server
     socket.on('user list', function(usernames) {
         userListElement.innerHTML = ''; // Clear the user list element
         // Iterate over the array of usernames received from the server
         usernames.forEach((username) => {
-            // Create a new div element for each username and append it to the user list
             const userElement = document.createElement('div');
-            userElement.textContent = username; // Set the text content of the user element
-            userListElement.appendChild(userElement); // Append the user element to the user list
+            userElement.textContent = username;
+
+            if (username === currentUserUsername) {
+                // Apply the highlighting style
+                userElement.classList.add('current-user');
+            }
+
+            userListElement.appendChild(userElement);
         });
     });
 });
