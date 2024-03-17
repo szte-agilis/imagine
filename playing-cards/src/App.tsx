@@ -1,24 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
+import DrawerBoard from './components/DrawerBoard';
+import GuesserBoard from './components/GuesserBoard';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    let [canDraw, setCanDraw] = useState(true);
+
+    function switchBoardType() {
+        canDraw = !canDraw;
+
+        setCanDraw(canDraw)
+    }
+
+    return (
+        <div style={{ background: '#333333', padding: '10px', height: '100%' }}>
+            <button onClick={switchBoardType}>Switch board type</button>
+            {canDraw ? <DrawerBoard /> : <GuesserBoard />}
+        </div>
+    );
 }
 
 export default App;
