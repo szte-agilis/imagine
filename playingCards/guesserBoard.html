@@ -31,7 +31,7 @@
     }
 
     if (lobby) {
-        socket.emit('join lobby', lobby, "guesserBoard");
+        socket.emit('join lobby', lobby, "board");
     } else {
         console.error("Lobby ID missing");
     }

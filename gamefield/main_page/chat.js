@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
     socket.on('user list', function(usernames) {
         userListElement.innerHTML = '';
         usernames.forEach((username) => {
-            if (username!=="drawerBoard"&&username!=="guesserBoard"){
+            if (username!=="board"){
                 const userElement = document.createElement('div');
                 userElement.textContent = username;
 

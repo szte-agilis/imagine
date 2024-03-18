@@ -30,7 +30,7 @@
     }
 
     if (lobby) {
-        socket.emit('join lobby', lobby, "drawerBoard");
+        socket.emit('join lobby', lobby, "board");
     } else {
         console.error("Lobby ID missing");
     }

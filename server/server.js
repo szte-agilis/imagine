@@ -44,11 +44,7 @@ io.on('connection', (socket) => {
 
         lobbies[lobbyId].users[socket.id] = username;
 
-        if (
-            !lobbies[lobbyId].drawerAssigned &&
-            username !== 'drawerBoard' &&
-            username !== 'guesserBoard'
-        ) {
+        if (!lobbies[lobbyId].drawerAssigned && username !== 'board') {
             lobbies[lobbyId].drawerAssigned = true;
             lobbies[lobbyId].drawerSocketId = socket.id;
             io.to(socket.id).emit('Drawer', true);
@@ -79,8 +75,17 @@ io.on('connection', (socket) => {
         const lobby = lobbies[lobbyId];
         const userIds = Object.keys(lobby.users);
         const currentDrawerIndex = userIds.indexOf(lobby.drawerSocketId);
-        let nextDrawerIndex = (currentDrawerIndex + 1) % userIds.length;
-        lobby.drawerSocketId = userIds[nextDrawerIndex];
+        let nextDrawerIndex;
+
+        for (let i = 1; true; i++) {
+            console.log('i', i);
+            nextDrawerIndex =
+                userIds[(currentDrawerIndex + i) % userIds.length];
+            if (lobby.users[nextDrawerIndex] !== 'board') {
+                lobby.drawerSocketId = nextDrawerIndex;
+                break;
+            }
+        }
 
         userIds.forEach((id) => {
             io.to(id).emit('Drawer', false);
