@@ -103,6 +103,10 @@ io.on('connection', (socket) => {
         );
     });
 
+    socket.on('reset canvas', (lobbyId) => {
+        //todo: implement (tabla csapat)
+    });
+
     socket.on('disconnect', () => {
         const lobbyId = Object.keys(lobbies).find(
             (id) => lobbies[id].users[socket.id]

@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     passDrawerButton.addEventListener('click', function() {
         socket.emit( 'pass drawer',local_lobby);
+        socket.emit( 'reset canvas',local_lobby);
     });
 
 
