@@ -15,7 +15,6 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
         setCards([...cards, card]);
 
         /*
-        // example socket events
 
         socket.emit('card-add', {card: card})
 
@@ -23,6 +22,7 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
             cards.push(card)
             setCards([...cards])
         })
+
         */
     }
 
@@ -36,17 +36,6 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
         }
 
         setSelectedIndex(selectedIndex);
-
-        /*
-        // example socket events
-
-        socket.emit('card-move', {index: i, transform: cards[i]})
-
-        socket.on('card-move', function(i: number, transform: CardTransform){
-            cards[i] = transform
-            setCards([...cards])
-        })
-        */
     }
 
     function onMouseMove(e: MouseEvent) {
@@ -60,12 +49,27 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
 
         setCards([...cards]);
 
+        sendUpdates();
+    }
+
+    function sendUpdates() {
         const now: number = Date.now();
         const elapsed: number = now - lastPoll;
 
         if (elapsed >= pollFrequencyMs) {
             lastPoll = now;
             setLastPoll(lastPoll);
+
+            /*
+
+            socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
+
+            socket.on('card-move', function(i: number, transform: CardTransform) {
+                cards[i] = transform;
+                setCards([...cards]);
+            });
+
+            */
         }
     }
 
