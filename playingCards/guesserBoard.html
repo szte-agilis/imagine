@@ -15,9 +15,30 @@
     crossorigin="anonymous"></script>
 
 <script>
-    const socket = io(); // Initialize a WebSocket connection
-    // Listen for button change events from the server to update the button's text
+    const socket = io();
+    let username, lobby;
+
+    let sessionId = sessionStorage.getItem('sessionId');
+    const localStorageKey = `username-${sessionId}`;
+
+    const combinedValue = localStorage.getItem(localStorageKey);
+    if (combinedValue) {
+        const values = combinedValue.split('_');
+        username = values[0];
+        lobby = values.length > 1 ? values[1] : null;
+    } else {
+        console.log("No session found or data for this session");
+    }
+
+    if (lobby) {
+        socket.emit('join lobby', lobby, "guesserBoard");
+    } else {
+        console.error("Lobby ID missing");
+    }
+
+
     socket.on('button change', function(text) {
+        console.log("Button text changed to: " + text)
         const button = document.getElementById("myButton");
         button.innerText = text;
     });

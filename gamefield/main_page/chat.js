@@ -1,25 +1,21 @@
-// This event listener waits for the DOM content to be fully loaded before executing the provided function
 document.addEventListener('DOMContentLoaded', function() {
     const socket = io();
 
+    let local_username, local_lobby;
 
     let sessionId = sessionStorage.getItem('sessionId');
-
-    if (!sessionId) {
-        sessionId = Math.random().toString(36).substr(2, 9);
-        sessionStorage.setItem('sessionId', sessionId);
-    }
-
     const localStorageKey = `username-${sessionId}`;
-    const username = localStorage.getItem(localStorageKey);
 
-    if (username) {
-        socket.emit('new user', username);
+    const combinedValue = localStorage.getItem(localStorageKey);
+    if (combinedValue) {
+        const values = combinedValue.split('_');
+        local_username = values[0];
+        local_lobby = values.length > 1 ? values[1] : null;
+        socket.emit('join lobby', local_lobby, local_username);
     } else {
-        console.error('Username is not set in localStorage.');
+        console.log("No session found or data for this session");
     }
 
-    // Get references to the chat input, chat window, and user list elements
     const drawerIframe = document.getElementById('drawer-iframe');
     const guesserIframe = document.getElementById('guesser-iframe');
     const chatInput = document.getElementById('chat-input');
@@ -28,31 +24,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const passDrawerButton = document.getElementById('passDrawerButton');
 
     passDrawerButton.addEventListener('click', function() {
-        socket.emit('pass drawer');
+        socket.emit( 'pass drawer',local_lobby);
     });
 
-    // Event listener for keypress events on the chat input
+
     chatInput.addEventListener('keypress', function(event) {
-        // Check if the pressed key is Enter
+
         if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent the default behavior of Enter key (e.g., submitting a form)
-            // Trim whitespace from the message and check if it's not empty
+            event.preventDefault();
+
             const message = chatInput.value.trim();
             if (message !== '') {
-                // Emit a 'chat message' event to the server with the message content
-                socket.emit('chat message', message);
-                chatInput.value = ''; // Clear the chat input after sending the message
+
+                socket.emit('chat message', local_lobby,message);
+                chatInput.value = '';
             }
         }
     });
 
-    // Event listener for receiving 'chat message' events from the server
+
     socket.on('chat message', function(message) {
-        // Create a new div element to display the received message
+
         const messageElement = document.createElement('div');
-        messageElement.textContent = message; // Set the text content of the message element
-        chatWindow.appendChild(messageElement); // Append the message element to the chat window
-        chatWindow.scrollTop = chatWindow.scrollHeight; // Scroll to the bottom of the chat window
+        messageElement.textContent = message;
+        chatWindow.appendChild(messageElement);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
     });
 
     socket.on('Drawer', function(canDraw) {
@@ -69,21 +65,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const currentUserUsername = localStorage.getItem(localStorageKey);
-    // Event listener for receiving 'user list' events from the server
+
     socket.on('user list', function(usernames) {
-        userListElement.innerHTML = ''; // Clear the user list element
-        // Iterate over the array of usernames received from the server
+        userListElement.innerHTML = '';
         usernames.forEach((username) => {
-            const userElement = document.createElement('div');
-            userElement.textContent = username;
+            if (username!=="drawerBoard"&&username!=="guesserBoard"){
+                const userElement = document.createElement('div');
+                userElement.textContent = username;
 
-            if (username === currentUserUsername) {
-                // Apply the highlighting style
-                userElement.classList.add('current-user');
+                if (username === local_username) {
+                    userElement.classList.add('current-user');
+                }
+
+                userListElement.appendChild(userElement);
             }
-
-            userListElement.appendChild(userElement);
         });
     });
 });

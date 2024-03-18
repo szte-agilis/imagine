@@ -9,28 +9,42 @@
 <h1>Drawer</h1>
 <button id="myButton" onclick="changeText()">Click me!</button>
 
-<!-- Load the socket.io client -->
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"
         integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4"
         crossorigin="anonymous"></script>
 
 <script>
     const socket = io();
+    let username, lobby;
+
     let sessionId = sessionStorage.getItem('sessionId');
-
-    if (!sessionId) {
-        sessionId = Math.random().toString(36).substr(2, 9);
-        sessionStorage.setItem('sessionId', sessionId);
-    }
-
     const localStorageKey = `username-${sessionId}`;
 
+    const combinedValue = localStorage.getItem(localStorageKey);
+    if (combinedValue) {
+        const values = combinedValue.split('_');
+        username = values[0];
+        lobby = values.length > 1 ? values[1] : null;
+    } else {
+        console.log("No session found or data for this session");
+    }
+
+    if (lobby) {
+        socket.emit('join lobby', lobby, "drawerBoard");
+    } else {
+        console.error("Lobby ID missing");
+    }
+
+
+
+
     function changeText() {
-        const username = localStorage.getItem(localStorageKey);
-        socket.emit('button clicked', username);
+        console.log(lobby, username);
+        socket.emit('button clicked',lobby, username);
     }
 
     socket.on('button change', function(text) {
+
         const button = document.getElementById("myButton");
         button.innerText = text;
     });
