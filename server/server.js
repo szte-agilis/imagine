@@ -60,13 +60,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('chat message', (lobbyId, msg) => {
-        console.log(lobbyId, msg);
         const username = lobbies[lobbyId]?.users[socket.id] || 'Anonymous';
         io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
     });
 
     socket.on('button clicked', (lobbyId, username) => {
-        console.log(lobbyId, username);
         lobbies[lobbyId].buttonState = `${username} clicked the button`;
         io.to(lobbyId).emit('button change', lobbies[lobbyId].buttonState);
     });
@@ -78,7 +76,6 @@ io.on('connection', (socket) => {
         let nextDrawerIndex;
 
         for (let i = 1; true; i++) {
-            console.log('i', i);
             nextDrawerIndex =
                 userIds[(currentDrawerIndex + i) % userIds.length];
             if (lobby.users[nextDrawerIndex] !== 'board') {
