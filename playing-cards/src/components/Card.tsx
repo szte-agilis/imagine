@@ -1,22 +1,21 @@
 import { CardTransform } from '../data/CardTransform';
-import { MouseEventHandler } from 'react';
+import { MouseEventHandler, CSSProperties } from 'react';
 
 export default function Card({ transform, selectCallback }: { transform: CardTransform, selectCallback: MouseEventHandler }) {
-    const style = {
+    const image = require('../assets/card.png');
+
+    const style: CSSProperties = {
         position: `absolute` as `absolute`,
         top: `${transform.position.y}px`,
         left: `${transform.position.x}px`,
         transform: `scale(${transform.scale}) rotate(${transform.rotation}deg)`,
-        backgroundColor: '#ff000033',
-        zIndex: 10
+        zIndex: 10,
+        userSelect: 'none',
     };
 
     return (
-        <div style={style} onClick={selectCallback}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" className="bi bi-credit-card-2-front-fill" viewBox="0 0 16 16">
-                <path
-                    d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm0 3a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1zm3 0a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1zm3 0a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1zm3 0a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1z" />
-            </svg>
+        <div draggable={true} style={style} onMouseDown={selectCallback}>
+            <img alt="card" src={image} style={{ maxHeight: '160px' }} />
         </div>
     );
 }

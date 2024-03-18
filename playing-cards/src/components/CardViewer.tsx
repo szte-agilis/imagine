@@ -1,9 +1,13 @@
 import Card from './Card';
 import { CardTransform } from '../data/CardTransform';
-import { useState } from 'react';
+import { MouseEvent, useState } from 'react';
 
 export default function CardViewer({ canDraw }: { canDraw: boolean }) {
-    const [cards, setCards] = useState([] as CardTransform[]);
+    const pollFrequencyMs: number = 100;
+    let [lastPoll, setLastPoll] = useState(Date.now());
+
+    let [cards, setCards] = useState([] as CardTransform[]);
+    let [selectedIndex, setSelectedIndex] = useState(-1);
 
     function addCard() {
         const card: CardTransform = new CardTransform();
@@ -22,13 +26,16 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
         */
     }
 
-    function moveCard(i: number) {
+    function onCardSelect(i: number) {
         if (!canDraw) return;
 
-        cards[i].position.x += 50;
-        cards[i].position.y += 50;
+        if (selectedIndex < 0) {
+            selectedIndex = i;
+        } else {
+            selectedIndex = -1;
+        }
 
-        setCards([...cards]);
+        setSelectedIndex(selectedIndex);
 
         /*
         // example socket events
@@ -42,14 +49,41 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
         */
     }
 
+    function onMouseMove(e: MouseEvent) {
+        if (!canDraw || selectedIndex < 0) return;
+
+        const x = e.movementX;
+        const y = e.movementY;
+
+        cards[selectedIndex].position.x += x;
+        cards[selectedIndex].position.y += y;
+
+        setCards([...cards]);
+
+        const now: number = Date.now();
+        const elapsed: number = now - lastPoll;
+
+        if (elapsed >= pollFrequencyMs) {
+            lastPoll = now;
+            setLastPoll(lastPoll);
+        }
+    }
+
     const cardList = cards.map((transform, i) => {
-        return <Card key={i} transform={transform} selectCallback={() => moveCard(i)} />;
+        return <Card key={i} transform={transform} selectCallback={() => onCardSelect(i)} />;
     });
 
     return (
-        <div style={{ background: 'white', height: '75%', width: '75%', position: 'relative' }}>
+        <div style={{ background: 'white', height: '75%', width: '75%', position: 'relative' }} onMouseMove={onMouseMove}>
             <div style={{ position: 'absolute', right: 0 }}>
-                {canDraw && <button onClick={addCard}>Add card</button>}
+                {canDraw &&
+                    <button style={{ display: 'flex', alignItems: 'center', padding: '4px 12px', margin: '4px', backgroundColor: 'lightgreen', borderRadius: '4px' }} onClick={addCard}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-lg" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+                        </svg>
+                        <span style={{ marginLeft: '6px' }}>Add card</span>
+                    </button>
+                }
             </div>
             <section>{cardList}</section>
         </div>

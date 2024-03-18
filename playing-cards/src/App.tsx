@@ -14,8 +14,8 @@ function App() {
 
     return (
         <div style={{ background: '#333333', padding: '10px', height: '100%' }}>
-            <button onClick={switchBoardType}>Switch board type</button>
             {canDraw ? <DrawerBoard /> : <GuesserBoard />}
+            <button style={{display: 'flex', alignItems: 'center', padding: '4px 12px', margin: '8px', backgroundColor: 'lightpink', borderRadius: '4px', borderColor: 'darkred', position: 'absolute', top: 0}} onClick={switchBoardType}>Switch board type</button>
         </div>
     );
 }
