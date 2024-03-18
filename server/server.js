@@ -62,7 +62,7 @@ io.on('connection', (socket) => {
         } else {
             io.to(socket.id).emit('Drawer', false);
         }
-        io.to(lobbyId).emit('random lobby code', lobbyId);
+        io.to(socket.id).emit('random lobby code', lobbyId);
         io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
     });
 
