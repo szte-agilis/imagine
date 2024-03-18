@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const socketIo = require('socket.io');
-const portfinder = require('portfinder');
 const { lobby } = require('../lobby/functions');
 
 const app = express();
@@ -31,6 +30,14 @@ let lobbies = {};
 
 io.on('connection', (socket) => {
     socket.on('join lobby', (lobbyId, username) => {
+        if (lobbyId === '0') {
+            do {
+                lobbyId = Math.floor(
+                    100000 + Math.random() * 900000
+                ).toString();
+            } while (lobbies.hasOwnProperty(lobbyId));
+        }
+
         socket.join(lobbyId);
 
         if (!lobbies[lobbyId]) {
@@ -55,7 +62,7 @@ io.on('connection', (socket) => {
         } else {
             io.to(socket.id).emit('Drawer', false);
         }
-
+        io.to(lobbyId).emit('random lobby code', lobbyId);
         io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
     });
 

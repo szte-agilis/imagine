@@ -12,9 +12,7 @@ document
             sessionStorage.setItem('sessionId', sessionId);
         }
 
-        const localStorageKey = `username-${sessionId}`;
-
-        localStorage.setItem(localStorageKey, username + '_' + lobby);
+        localStorage.setItem(sessionId, username + '_' + lobby);
 
         window.location.href = '/gamefield/main_page/index.html';
     });

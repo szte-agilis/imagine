@@ -19,9 +19,8 @@
     let username, lobby;
 
     let sessionId = sessionStorage.getItem('sessionId');
-    const localStorageKey = `username-${sessionId}`;
 
-    const combinedValue = localStorage.getItem(localStorageKey);
+    const combinedValue = localStorage.getItem(sessionId);
     if (combinedValue) {
         const values = combinedValue.split('_');
         username = values[0];

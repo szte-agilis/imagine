@@ -4,9 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let local_username, local_lobby;
 
     let sessionId = sessionStorage.getItem('sessionId');
-    const localStorageKey = `username-${sessionId}`;
 
-    const combinedValue = localStorage.getItem(localStorageKey);
+    const combinedValue = localStorage.getItem(sessionId);
     if (combinedValue) {
         const values = combinedValue.split('_');
         local_username = values[0];
@@ -16,12 +15,22 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("No session found or data for this session");
     }
 
+    socket.on('random lobby code', function(random_lobby) {
+        console.log('random lobby code', random_lobby);
+        local_lobby = random_lobby;
+        localStorage.setItem(sessionId, local_username + '_' + local_lobby);
+        lobbyID.textContent = "Lobby kód: "+local_lobby;
+    });
+
     const drawerIframe = document.getElementById('drawer-iframe');
     const guesserIframe = document.getElementById('guesser-iframe');
     const chatInput = document.getElementById('chat-input');
     const chatWindow = document.getElementById('chat-window');
     const userListElement = document.getElementById('user-list');
     const passDrawerButton = document.getElementById('passDrawerButton');
+    const lobbyID = document.getElementById('lobby-id');
+
+
 
     passDrawerButton.addEventListener('click', function() {
         socket.emit( 'pass drawer',local_lobby);
