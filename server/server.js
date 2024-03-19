@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const socketIo = require('socket.io');
-const { lobby } = require('../lobby/functions');
 
 const app = express();
 const server = http.createServer(app);
