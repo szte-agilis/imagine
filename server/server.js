@@ -68,7 +68,12 @@ io.on('connection', (socket) => {
 
     socket.on('chat message', (lobbyId, msg) => {
         const username = lobbies[lobbyId]?.users[socket.id] || 'Anonymous';
-        io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
+        if (guess(msg)) {
+            io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
+            io.to(lobbyId).emit('reset canvas', lobbyId);
+        } else {
+            io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
+        }
     });
 
     socket.on('button clicked', (lobbyId, username) => {
@@ -150,3 +155,48 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server is running at: http://localhost:${PORT}`);
 });
+
+function guess(guess) {
+    const solution = 'piros vitatigris';
+    //ekezetek levetele meg kisbetusites
+    guess
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    solution
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+
+    if (guess.toLowerCase() === solution.toLowerCase()) {
+        //kitalalta
+        return true;
+    }
+
+    //levenshtein distance
+    if (!guess.length) return solution.length;
+    if (!solution.length) return guess.length;
+    const arr = [];
+    for (let i = 0; i <= solution.length; i++) {
+        arr[i] = [i];
+        for (let j = 1; j <= guess.length; j++) {
+            arr[i][j] =
+                i === 0
+                    ? j
+                    : Math.min(
+                          arr[i - 1][j] + 1,
+                          arr[i][j - 1] + 1,
+                          arr[i - 1][j - 1] +
+                              (guess[j - 1] === solution[i - 1] ? 0 : 1)
+                      );
+        }
+    }
+    const distance = arr[solution.length][guess.length];
+
+    if (solution.length / 3 >= distance) {
+        //kozel van a megfejteshez a tipp
+        return false;
+    }
+
+    return false;
+}
