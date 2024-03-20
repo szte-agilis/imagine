@@ -10,7 +10,7 @@ root.render(
     <React.StrictMode>
         <BrowserRouter>
             <Routes>
-                <Route path="/lobby" element={<Lobby />} />
+                <Route path="/" element={<Lobby />} />
                 <Route path="/gamefield" element={<GameField />} />
             </Routes>
         </BrowserRouter>

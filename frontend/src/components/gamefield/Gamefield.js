@@ -7,15 +7,20 @@ function GameField() {
     const [localLobby, setLocalLobby] = useState(null);
     const [sessionId, setSessionId] = useState(null);
     const [chatInput, setChatInput] = useState("");
+    const [users, setUsers] = useState([]);
+    const [lobbyID, setLobbyID] = useState(0);
+    const [showDraverPass, setShowDrawerPass] = useState(false);
+    const [canDraw, setCanDraw] = useState(false);
+    const [canChat, setCanChat] = useState(false);
+    const chatWindow = document.getElementById('chat-window');
 
     useEffect(() => {
-        const newSocket = io(); // Initialize Socket.IO connection
+        const newSocket = io();
         setSocket(newSocket);
 
         const storedSessionId = sessionStorage.getItem('sessionId');
         setSessionId(storedSessionId);
 
-        // Clean up on component unmount
         return () => {
             newSocket.disconnect();
         };
@@ -40,47 +45,44 @@ function GameField() {
                     sessionId,
                     localUsername + '_' + randomLobby
                 );
-                //lobbyID.textContent = 'Lobby kód: ' + randomLobby;
+                setLobbyID(randomLobby);
             });
 
-            // socket.on('chat message', (message) => {
-            //     const messageElement = document.createElement('div');
-            //     messageElement.textContent = message;
-            //     chatWindow.appendChild(messageElement);
-            //     chatWindow.scrollTop = chatWindow.scrollHeight;
-            // });
+            socket.on('chat message', (message) => {
+                const messageElement = document.createElement('div');
+                messageElement.textContent = message;
+                chatWindow.appendChild(messageElement);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            });
 
-            // socket.on('Drawer', (canDraw) => {
-            //     if (canDraw) {
-            //         chatInput.style.display = 'none';
-            //         guesserIframe.style.display = 'none';
-            //         drawerIframe.style.display = '';
-            //         passDrawerButton.style.display = '';
-            //     } else {
-            //         chatInput.style.display = '';
-            //         guesserIframe.style.display = '';
-            //         drawerIframe.style.display = 'none';
-            //         passDrawerButton.style.display = 'none';
-            //     }
-            // });
+            socket.on('Drawer', (canDraw) => {
+                if (canDraw) {
+                    setCanChat(false);
+                    setCanDraw(true);
+                    setShowDrawerPass(true);
+                } else {
+                    setCanChat(true);
+                    setCanDraw(false);
+                    setShowDrawerPass(false);
+                }
+            });
 
-            // socket.on('user list', (usernames) => {
-            //     userListElement.innerHTML = '';
-            //     usernames.forEach((username) => {
-            //         if (username !== 'board') {
-            //             const userElement = document.createElement('div');
-            //             userElement.textContent = username;
+            socket.on('user list', (usernames) => {
+                usernames.forEach((username) => {
+                    if (username !== 'board') {
+                        const userElement = document.createElement('div');
+                        userElement.textContent = username;
 
-            //             if (username === localUsername) {
-            //                 userElement.classList.add('current-user');
-            //             }
+                        if (username === localUsername) {
+                            userElement.classList.add('current-user');
+                        }
 
-            //             userListElement.appendChild(userElement);
-            //         }
-            //     });
-            // });
+                        setUsers(users + userElement);
+                    }
+                });
+            });
         }
-    }, [socket, sessionId, localUsername, localLobby, chatInput.style]);
+    }, [socket, sessionId, localUsername, localLobby, chatWindow,users]);
 
     const handlePassDrawer = () => {
         if (socket) {
@@ -103,36 +105,36 @@ function GameField() {
     return (
         <div>
             <div id="container">
-                <iframe
+                {canDraw ? (<iframe
+                title="drawer-iframe"
                     id="drawer-iframe"
-                    src="/playingCards/drawerBoard.html"
-                    style={{ display: 'none' }}
-                ></iframe>
-                <iframe
+                    src="../../playingCards/drawerBoard.html"
+                ></iframe>):(<iframe
+                    title="guesser-iframe"
                     id="guesser-iframe"
-                    src="/playingCards/guesserBoard.html"
-                ></iframe>
+                    src="../../playingCards/guesserBoard.html"
+                ></iframe>)}
+                
                 <div id="chat-container">
                     <div id="chat-window"></div>
                     <label htmlFor="chat-input"></label>
-                    <input
+                    {canChat && <input
                         id="chat-input"
                         type="text"
                         value={chatInput}
                         placeholder="Type a message and press Enter"
                         onKeyPress={handleChatInputKeyPress}
-                    />
-                    <button
+                        onChange={(event) => setChatInput(event.target.value)}
+                    />}
+                    {showDraverPass && <button
                         id="passDrawerButton"
-                        style={{ display: 'none' }}
                         onClick={handlePassDrawer}
-                    >
-                        Pass Drawer Role
-                    </button>
+                    >Pass Drawer Role
+                    </button>}
                 </div>
             </div>
-            <div id="user-list" style={{ marginTop: '20px' }}></div>
-            <div id="lobby-id" style={{ marginTop: '20px' }}></div>
+            <div id="user-list" style={{ marginTop: '20px' }}>{users}</div>
+            <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {lobbyID}</div>
         </div>
     );
 }
