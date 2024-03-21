@@ -8,16 +8,11 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 const parentDir = path.join(__dirname, '..');
-const LOBBY_STATIC_ROOT = path.join(parentDir, '/lobby_placeholder');
-const GAME_STATIC_ROOT = path.join(parentDir, '/gamefield');
-const CARDS_STATIC_ROOT = path.join(parentDir, '/cards');
 const COMMON_STATIC = path.join(parentDir, '/common');
+const FRONTEND_STATIC = path.join(parentDir, '/frontend/build');
 
-app.use(express.static(parentDir));
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(LOBBY_STATIC_ROOT, '/join.html'));
-});
+app.use(express.static(FRONTEND_STATIC));
+app.use('/gamefield', express.static(FRONTEND_STATIC));
 
 app.use(require('body-parser').json());
 
@@ -152,7 +147,7 @@ drawer = () => {
     return true;
 };
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
     console.log(`Server is running at: http://localhost:${PORT}`);
 });
