@@ -21,10 +21,6 @@ app.get('/', (req, res) => {
 
 app.use(require('body-parser').json());
 
-const apiRouter = express.Router();
-
-app.use('/api', apiRouter);
-
 let lobbies = {};
 
 io.on('connection', (socket) => {
