@@ -3,73 +3,54 @@ import io from 'socket.io-client';
 import Drawerfield from '../drawerfield/Drawerfield';
 
 function GameField() {
-    const [socket, setSocket] = useState(io());
+    const [socket, setSocket] = useState(null);
     const [localUsername, setLocalUsername] = useState(sessionStorage.getItem('username'));
     const [localLobby, setLocalLobby] = useState(sessionStorage.getItem('lobby'));
-    const [sessionId, setSessionId] = useState(null);
     const [chatInput, setChatInput] = useState("");
+    const [messages, setMessages] = useState([]);
     const [users, setUsers] = useState([]);
-    const [lobbyID, setLobbyID] = useState(0);
-    const [showDraverPass, setShowDrawerPass] = useState(false);
+    const [showDrawerPass, setShowDrawerPass] = useState(false);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
-    const chatWindow = document.getElementById('chat-window');
 
+    useEffect(() => {
+        const newSocket = io();
+        setSocket(newSocket);
 
+        return () => newSocket.close();
+    }, []);
 
     useEffect(() => {
         if (socket) {
-            //setLocalLobby(sessionStorage.getItem('lobby'))
-            //setLocalUsername(sessionStorage.getItem('username'))
-            console.log('localLobby', localLobby);
-            console.log('localUsername', localUsername);
-
             socket.emit('join lobby', localLobby, localUsername);
-            console.log('emmited');
-
 
             socket.on('random lobby code', (randomLobby) => {
-                console.log('random lobby code', randomLobby);
                 setLocalLobby(randomLobby);
                 sessionStorage.setItem('lobby', randomLobby);
-                //setLobbyID(randomLobby);
             });
 
             socket.on('chat message', (message) => {
-                const messageElement = document.createElement('div');
-                messageElement.textContent = message;
-                chatWindow.appendChild(messageElement);
-                chatWindow.scrollTop = chatWindow.scrollHeight;
+                setMessages((prevMessages) => [...prevMessages, message]);
             });
 
             socket.on('Drawer', (canDraw) => {
-                if (canDraw) {
-                    setCanChat(false);
-                    setCanDraw(true);
-                    setShowDrawerPass(true);
-                } else {
-                    setCanChat(true);
-                    setCanDraw(false);
-                    setShowDrawerPass(false);
-                }
+                setCanChat(!canDraw);
+                setCanDraw(canDraw);
+                setShowDrawerPass(canDraw);
             });
 
             socket.on('user list', (usernames) => {
-                usernames.forEach((username) => {
-                    if (username !== 'board') {
-                        const userElement = document.createElement('div');
-                        userElement.textContent = username;
-
-                        if (username === localUsername) {
-                            userElement.classList.add('current-user');
-                        }
-
-                        setUsers(users + userElement);
-                    }
-                });
+                setUsers(usernames.filter(username => username !== 'board'));
             });
+
+            return () => {
+                socket.off('random lobby code');
+                socket.off('chat message');
+                socket.off('Drawer');
+                socket.off('user list');
+            };
         }
-    }, [socket, sessionId, localUsername, localLobby, chatWindow,users]);
+    }, [socket, localLobby, localUsername]);
 
     const handlePassDrawer = () => {
         if (socket) {
@@ -104,7 +85,7 @@ function GameField() {
                         onKeyPress={handleChatInputKeyPress}
                         onChange={(event) => setChatInput(event.target.value)}
                     />}
-                    {showDraverPass && <button
+                    {canDraw && <button
                         id="passDrawerButton"
                         onClick={handlePassDrawer}
                     >Pass Drawer Role
