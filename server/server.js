@@ -157,7 +157,7 @@ server.listen(PORT, () => {
 });
 
 function guess(guess) {
-    const solution = 'piros vitatigris';
+    const solution = 'dummy';
     //ekezetek levetele meg kisbetusites
     guess
         .normalize('NFD')
