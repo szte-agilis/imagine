@@ -38,6 +38,7 @@ io.on('connection', (socket) => {
         }
 
         socket.join(lobbyId);
+        console.log('User joined lobby:', lobbyId);
 
         if (!lobbies[lobbyId]) {
             lobbies[lobbyId] = {

@@ -4,8 +4,8 @@ import Drawerfield from '../drawerfield/Drawerfield';
 
 function GameField() {
     const [socket, setSocket] = useState(null);
-    const [localUsername, setLocalUsername] = useState(null);
-    const [localLobby, setLocalLobby] = useState(null);
+    const [localUsername, setLocalUsername] = useState(sessionStorage.getItem('username'));
+    const [localLobby, setLocalLobby] = useState(sessionStorage.getItem('lobby'));
     const [sessionId, setSessionId] = useState(null);
     const [chatInput, setChatInput] = useState("");
     const [users, setUsers] = useState([]);
@@ -19,9 +19,6 @@ function GameField() {
         const newSocket = io();
         setSocket(newSocket);
 
-        const storedSessionId = sessionStorage.getItem('sessionId');
-        setSessionId(storedSessionId);
-
         return () => {
             newSocket.disconnect();
         };
@@ -29,24 +26,20 @@ function GameField() {
 
     useEffect(() => {
         if (socket) {
-            const combinedValue = localStorage.getItem(sessionId);
-            if (combinedValue) {
-                const values = combinedValue.split('_');
-                setLocalUsername(values[0]);
-                setLocalLobby(values.length > 1 ? values[1] : null);
-                socket.emit('join lobby', localLobby, localUsername);
-            } else {
-                console.log('No session found or data for this session');
-            }
+            //setLocalLobby(sessionStorage.getItem('lobby'))
+            //setLocalUsername(sessionStorage.getItem('username'))
+            console.log('localLobby', localLobby);
+            console.log('localUsername', localUsername);
+
+            socket.emit('join lobby', localLobby, localUsername);
+            console.log('emmited');
+
 
             socket.on('random lobby code', (randomLobby) => {
                 console.log('random lobby code', randomLobby);
                 setLocalLobby(randomLobby);
-                localStorage.setItem(
-                    sessionId,
-                    localUsername + '_' + randomLobby
-                );
-                setLobbyID(randomLobby);
+                sessionStorage.setItem('lobby', randomLobby);
+                //setLobbyID(randomLobby);
             });
 
             socket.on('chat message', (message) => {
@@ -126,7 +119,7 @@ function GameField() {
                 </div>
             </div>
             <div id="user-list" style={{ marginTop: '20px' }}>{users}</div>
-            <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {lobbyID}</div>
+            <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
         </div>
     );
 }
