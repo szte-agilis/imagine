@@ -1,5 +1,7 @@
 .husky/_
 
+frontend/build
+
 
 .idea/
 .vs/

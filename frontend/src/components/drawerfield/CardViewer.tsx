@@ -1,5 +1,6 @@
 import Card from './Card';
-import { CardTransform } from '../data/CardTransform';
+import { Vector2 } from '../../data/Vector2';
+import { CardTransform } from '../../data/CardTransform';
 import { MouseEvent, useState } from 'react';
 
 export default function CardViewer({ canDraw }: { canDraw: boolean }) {
@@ -10,7 +11,7 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
     let [selectedIndex, setSelectedIndex] = useState(-1);
 
     function addCard() {
-        const card: CardTransform = new CardTransform();
+        const card: CardTransform = new CardTransform(new Vector2(50, 100));
 
         setCards([...cards, card]);
 
@@ -74,20 +75,54 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
     }
 
     const cardList = cards.map((transform, i) => {
-        return <Card key={i} transform={transform} selectCallback={() => onCardSelect(i)} />;
+        return (
+            <Card
+                key={i}
+                transform={transform}
+                selectCallback={() => onCardSelect(i)}
+            />
+        );
     });
 
     return (
-        <div style={{ background: 'white', height: '75%', width: '75%', position: 'relative' }} onMouseMove={onMouseMove}>
+        <div
+            style={{
+                background: 'white',
+                height: '100%',
+                width: '100%',
+                position: 'relative',
+            }}
+            onMouseMove={onMouseMove}
+        >
             <div style={{ position: 'absolute', right: 0 }}>
-                {canDraw &&
-                    <button style={{ display: 'flex', alignItems: 'center', padding: '4px 12px', margin: '4px', backgroundColor: 'lightgreen', borderRadius: '4px' }} onClick={addCard}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-lg" viewBox="0 0 16 16">
-                            <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+                {canDraw && (
+                    <button
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '4px 12px',
+                            margin: '10px',
+                            backgroundColor: 'lightgreen',
+                            borderRadius: '4px',
+                        }}
+                        onClick={addCard}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            className="bi bi-plus-lg"
+                            viewBox="0 0 16 16"
+                        >
+                            <path
+                                fillRule="evenodd"
+                                d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"
+                            />
                         </svg>
                         <span style={{ marginLeft: '6px' }}>Add card</span>
                     </button>
-                }
+                )}
             </div>
             <section>{cardList}</section>
         </div>

@@ -8,22 +8,16 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 const parentDir = path.join(__dirname, '..');
-const LOBBY_STATIC_ROOT = path.join(parentDir, '/lobby_placeholder');
-const GAME_STATIC_ROOT = path.join(parentDir, '/gamefield');
-const CARDS_STATIC_ROOT = path.join(parentDir, '/cards');
 const COMMON_STATIC = path.join(parentDir, '/common');
+const FRONTEND_STATIC = path.join(parentDir, '/frontend/build');
 
-app.use(express.static(parentDir));
+app.use(express.static(FRONTEND_STATIC));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(LOBBY_STATIC_ROOT, '/join.html'));
-});
+app.get('*', (req, res) =>
+    res.sendFile(path.join(FRONTEND_STATIC, 'index.html'))
+);
 
 app.use(require('body-parser').json());
-
-const apiRouter = express.Router();
-
-app.use('/api', apiRouter);
 
 let lobbies = {};
 
@@ -38,6 +32,7 @@ io.on('connection', (socket) => {
         }
 
         socket.join(lobbyId);
+        console.log('User joined lobby:', lobbyId);
 
         if (!lobbies[lobbyId]) {
             lobbies[lobbyId] = {
@@ -70,6 +65,7 @@ io.on('connection', (socket) => {
         if (guess(msg)) {
             io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
             io.to(lobbyId).emit('reset canvas', lobbyId);
+            passDrawer(lobbyId);
         } else {
             io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
         }
@@ -80,7 +76,11 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('button change', lobbies[lobbyId].buttonState);
     });
 
-    socket.on('pass drawer', (lobbyId) => {
+    socket.on('pass drawer button', (lobbyId) => {
+        passDrawer(lobbyId);
+    });
+
+    function passDrawer(lobbyId) {
         const lobby = lobbies[lobbyId];
         const userIds = Object.keys(lobby.users);
         const currentDrawerIndex = userIds.indexOf(lobby.drawerSocketId);
@@ -105,7 +105,7 @@ io.on('connection', (socket) => {
             'chat message',
             `${newDrawerUsername} is now the drawer`
         );
-    });
+    }
 
     socket.on('reset canvas', (lobbyId) => {
         //todo: implement (tabla csapat)
@@ -150,13 +150,13 @@ drawer = () => {
     return true;
 };
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
     console.log(`Server is running at: http://localhost:${PORT}`);
 });
 
 function guess(guess) {
-    const solution = 'piros vitatigris';
+    const solution = 'dummy';
     //ekezetek levetele meg kisbetusites
     guess
         .normalize('NFD')
