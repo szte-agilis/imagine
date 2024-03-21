@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import Drawerfield from '../drawerfield/Drawerfield';
 
 function GameField() {
     const [socket, setSocket] = useState(null);
@@ -105,16 +106,7 @@ function GameField() {
     return (
         <div>
             <div id="container">
-                {canDraw ? (<iframe
-                title="drawer-iframe"
-                    id="drawer-iframe"
-                    src="../../playingCards/drawerBoard.html"
-                ></iframe>):(<iframe
-                    title="guesser-iframe"
-                    id="guesser-iframe"
-                    src="../../playingCards/guesserBoard.html"
-                ></iframe>)}
-                
+                <Drawerfield />
                 <div id="chat-container">
                     <div id="chat-window"></div>
                     <label htmlFor="chat-input"></label>
