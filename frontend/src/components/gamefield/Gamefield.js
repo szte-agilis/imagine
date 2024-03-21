@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import Drawerfield from '../drawerfield/Drawerfield';
 
 function GameField() {
-    const [socket, setSocket] = useState(null);
+    const [socket, setSocket] = useState(io());
     const [localUsername, setLocalUsername] = useState(sessionStorage.getItem('username'));
     const [localLobby, setLocalLobby] = useState(sessionStorage.getItem('lobby'));
     const [sessionId, setSessionId] = useState(null);
@@ -15,14 +15,7 @@ function GameField() {
     const [canChat, setCanChat] = useState(false);
     const chatWindow = document.getElementById('chat-window');
 
-    useEffect(() => {
-        const newSocket = io();
-        setSocket(newSocket);
 
-        return () => {
-            newSocket.disconnect();
-        };
-    }, []);
 
     useEffect(() => {
         if (socket) {
