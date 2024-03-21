@@ -58,7 +58,7 @@ function GameField() {
 
     const handlePassDrawer = () => {
         if (socket) {
-            socket.emit('pass drawer', localLobby);
+            socket.emit('pass drawer button', localLobby);
             socket.emit('reset canvas', localLobby);
         }
     };

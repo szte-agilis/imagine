@@ -71,6 +71,7 @@ io.on('connection', (socket) => {
         if (guess(msg)) {
             io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
             io.to(lobbyId).emit('reset canvas', lobbyId);
+            passDrawer(lobbyId);
         } else {
             io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
         }
@@ -81,7 +82,11 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('button change', lobbies[lobbyId].buttonState);
     });
 
-    socket.on('pass drawer', (lobbyId) => {
+    socket.on('pass drawer button', (lobbyId) => {
+        passDrawer(lobbyId);
+    });
+
+    function passDrawer(lobbyId) {
         const lobby = lobbies[lobbyId];
         const userIds = Object.keys(lobby.users);
         const currentDrawerIndex = userIds.indexOf(lobby.drawerSocketId);
@@ -106,7 +111,7 @@ io.on('connection', (socket) => {
             'chat message',
             `${newDrawerUsername} is now the drawer`
         );
-    });
+    }
 
     socket.on('reset canvas', (lobbyId) => {
         //todo: implement (tabla csapat)
