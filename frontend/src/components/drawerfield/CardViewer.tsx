@@ -1,4 +1,5 @@
 import Card from './Card';
+import { Vector2 } from '../../data/Vector2';
 import { CardTransform } from '../../data/CardTransform';
 import { MouseEvent, useState } from 'react';
 
@@ -10,7 +11,7 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
     let [selectedIndex, setSelectedIndex] = useState(-1);
 
     function addCard() {
-        const card: CardTransform = new CardTransform();
+        const card: CardTransform = new CardTransform(new Vector2(50, 100));
 
         setCards([...cards, card]);
 
@@ -87,8 +88,8 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
         <div
             style={{
                 background: 'white',
-                height: '75%',
-                width: '75%',
+                height: '100%',
+                width: '100%',
                 position: 'relative',
             }}
             onMouseMove={onMouseMove}
@@ -100,7 +101,7 @@ export default function CardViewer({ canDraw }: { canDraw: boolean }) {
                             display: 'flex',
                             alignItems: 'center',
                             padding: '4px 12px',
-                            margin: '4px',
+                            margin: '10px',
                             backgroundColor: 'lightgreen',
                             borderRadius: '4px',
                         }}

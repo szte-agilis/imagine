@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-import Drawerfield from '../drawerfield/Drawerfield';
+import Board from '../drawerfield/Board';
 
 function GameField() {
     const [socket, setSocket] = useState(null);
@@ -78,7 +78,7 @@ function GameField() {
     return (
         <div>
             <div id="container">
-                <Drawerfield />
+                <Board />
                 <div id="chat-container">
                     <div id="chat-window"></div>
                     <label htmlFor="chat-input"></label>

@@ -1,28 +1,23 @@
-import React, { useState } from 'react';
-import './Drawerfield.css';
+import { useState } from 'react';
 import DrawerBoard from './DrawerBoard';
 import GuesserBoard from './GuesserBoard';
 
-function Drawerfield() {
+export default function Board() {
     let [canDraw, setCanDraw] = useState(true);
 
     function switchBoardType() {
-        canDraw = !canDraw;
-
-        setCanDraw(canDraw);
+        setCanDraw(!canDraw);
     }
 
     return (
-        <div
-            style={{ background: '#333333', padding: '10px', height: '500px' }}
-        >
+        <div style={{height: '50vh'}}>
             {canDraw ? <DrawerBoard /> : <GuesserBoard />}
             <button
                 style={{
                     display: 'flex',
                     alignItems: 'center',
                     padding: '4px 12px',
-                    margin: '8px',
+                    margin: '20px',
                     backgroundColor: 'lightpink',
                     borderRadius: '4px',
                     borderColor: 'darkred',
@@ -36,5 +31,3 @@ function Drawerfield() {
         </div>
     );
 }
-
-export default Drawerfield;
