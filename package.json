@@ -4,9 +4,9 @@
     "description": "",
     "main": "./server/server.js",
     "scripts": {
+        "start": "node server/server.js",
+        "dev": "concurrently \"nodemon --inspect server/server.js\" \"cd frontend && npm start\"",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "concurrently \"node server/server.js\" \"cd frontend && npm start\"",
-        "dev": "nodemon --inspect server/server.js",
         "format": "prettier --write .",
         "prepare": "husky install"
     },
