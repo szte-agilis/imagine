@@ -12,7 +12,10 @@ const COMMON_STATIC = path.join(parentDir, '/common');
 const FRONTEND_STATIC = path.join(parentDir, '/frontend/build');
 
 app.use(express.static(FRONTEND_STATIC));
-app.use('/gamefield', express.static(FRONTEND_STATIC));
+
+app.get('*', (req, res) =>
+    res.sendFile(path.join(FRONTEND_STATIC, 'index.html'))
+);
 
 app.use(require('body-parser').json());
 
