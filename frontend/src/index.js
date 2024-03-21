@@ -12,6 +12,7 @@ root.render(
             <Routes>
                 <Route path="/" element={<Lobby />} />
                 <Route path="/gamefield" element={<GameField />} />
+                <Route path="*" element={<h1>404 - nem található</h1>} />
             </Routes>
         </BrowserRouter>
     </React.StrictMode>

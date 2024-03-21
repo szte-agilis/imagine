@@ -1,15 +1,9 @@
 import { CardTransform } from '../../data/CardTransform';
 import { MouseEventHandler, CSSProperties } from 'react';
 
-export default function Card({
-    transform,
-    selectCallback,
-}: {
-    transform: CardTransform;
-    selectCallback: MouseEventHandler;
-}) {
-    const image = require('../../assets/card.png');
+const image = require('../../assets/card.png');
 
+export default function Card({ transform, selectCallback }: { transform: CardTransform; selectCallback: MouseEventHandler; }) {
     const style: CSSProperties = {
         position: `absolute` as `absolute`,
         top: `${transform.position.y}px`,
