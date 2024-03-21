@@ -12,6 +12,7 @@ function GameField() {
     const [showDrawerPass, setShowDrawerPass] = useState(false);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
+    const chatWindow = document.getElementById('chat-window');
 
     useEffect(() => {
         const newSocket = io();
@@ -30,7 +31,10 @@ function GameField() {
             });
 
             socket.on('chat message', (message) => {
-                setMessages((prevMessages) => [...prevMessages, message]);
+                const messageElement = document.createElement('div');
+                messageElement.textContent = message;
+                chatWindow.appendChild(messageElement);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
             });
 
             socket.on('Drawer', (canDraw) => {
@@ -62,13 +66,14 @@ function GameField() {
     const handleChatInputKeyPress = (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
-            const message = event.value.trim();
+            const message = event.target.value.trim();
             if (message !== '') {
                 socket.emit('chat message', localLobby, message);
                 setChatInput('');
             }
         }
     };
+
 
     return (
         <div>
