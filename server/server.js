@@ -19,7 +19,16 @@ app.get('*', (req, res) =>
 
 app.use(require('body-parser').json());
 
-let lobbies = {};
+let _lobbies = {};
+
+function getLobby(lobbyId) {
+    console.debug('getLobby', { id: lobbyId });
+    if (!Object.hasOwnProperty(lobbyId)) {
+        console.error('Lobby not found', { id: lobbyId });
+        return null;
+    }
+    return _lobbies[lobbyId];
+}
 
 io.on('connection', (socket) => {
     socket.on('join lobby', (lobbyId, username) => {
@@ -28,14 +37,14 @@ io.on('connection', (socket) => {
                 lobbyId = Math.floor(
                     100000 + Math.random() * 900000
                 ).toString();
-            } while (lobbies.hasOwnProperty(lobbyId));
+            } while (_lobbies.hasOwnProperty(lobbyId));
         }
 
         socket.join(lobbyId);
         console.log('User joined lobby:', lobbyId);
 
-        if (!lobbies[lobbyId]) {
-            lobbies[lobbyId] = {
+        if (!_lobbies[lobbyId]) {
+            _lobbies[lobbyId] = {
                 users: {},
                 drawerSocketId: null,
                 drawerAssigned: false,
@@ -44,11 +53,13 @@ io.on('connection', (socket) => {
             };
         }
 
-        lobbies[lobbyId].users[socket.id] = username;
+        const lobby = getLobby(lobbyId);
 
-        if (!lobbies[lobbyId].drawerAssigned && username !== 'board') {
-            lobbies[lobbyId].drawerAssigned = true;
-            lobbies[lobbyId].drawerSocketId = socket.id;
+        lobby.users[socket.id] = username;
+
+        if (!lobby.drawerAssigned && username !== 'board') {
+            lobby.drawerAssigned = true;
+            lobby.drawerSocketId = socket.id;
             io.to(socket.id).emit('Drawer', true);
             io.to(lobbyId).emit(
                 'chat message',
@@ -58,11 +69,12 @@ io.on('connection', (socket) => {
             io.to(socket.id).emit('Drawer', false);
         }
         io.to(socket.id).emit('random lobby code', lobbyId);
-        io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
+        io.to(lobbyId).emit('user list', Object.values(lobby.users));
     });
 
     socket.on('chat message', (lobbyId, msg) => {
-        const username = lobbies[lobbyId]?.users[socket.id] || 'Anonymous';
+        const lobby = getLobby(lobbyId);
+        const username = lobby?.users[socket.id] || 'Anonymous';
         if (guess(msg)) {
             io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
             passDrawer(lobbyId);
@@ -72,8 +84,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on('button clicked', (lobbyId, username) => {
-        lobbies[lobbyId].buttonState = `${username} clicked the button`;
-        io.to(lobbyId).emit('button change', lobbies[lobbyId].buttonState);
+        const lobby = getLobby(lobbyId);
+        lobby.buttonState = `${username} clicked the button`;
+        io.to(lobbyId).emit('button change', lobby.buttonState);
     });
 
     socket.on('pass drawer button', (lobbyId) => {
@@ -81,7 +94,7 @@ io.on('connection', (socket) => {
     });
 
     function passDrawer(lobbyId) {
-        const lobby = lobbies[lobbyId];
+        const lobby = getLobby(lobbyId);
         const userIds = Object.keys(lobby.users);
         const currentDrawerIndex = userIds.indexOf(lobby.drawerSocketId);
         let nextDrawerIndex;
@@ -109,17 +122,18 @@ io.on('connection', (socket) => {
     }
 
     socket.on('startGame', (lobbyId) => {
+        const lobby = getLobby(lobbyId);
         const intervalId = setInterval(() => {
-            if (lobbies[lobbyId].timer > 0) {
-                lobbies[lobbyId].timer--;
-                console.log(lobbies[lobbyId].timer);
-                io.to(lobbyId).emit('timer', lobbies[lobbyId].timer);
+            if (lobby.timer > 0) {
+                lobby.timer--;
+                console.log(lobby.timer);
+                io.to(lobbyId).emit('timer', lobby.timer);
             } else {
                 clearInterval(intervalId);
                 passDrawer(lobbyId);
             }
         }, 1000);
-        lobbies[lobbyId].timer = 10;
+        lobby.timer = 10;
     });
 
     socket.on('reset canvas', (lobbyId) => {
@@ -127,12 +141,16 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        const lobbyId = Object.keys(lobbies).find(
-            (id) => lobbies[id].users[socket.id]
+        const lobbyId = Object.keys(_lobbies).find(
+            (id) => _lobbies[id].users[socket.id]
         );
-        if (!lobbyId) return;
+        if (!lobbyId) {
+            console.log('User disconnected without joining a lobby', {
+                socketId: socket.id,
+            });
+        }
 
-        const lobby = lobbies[lobbyId];
+        const lobby = getLobby(lobbyId);
 
         if (lobby.drawerSocketId === socket.id) {
             const remainingUserIds = Object.keys(lobby.users).filter(
@@ -156,7 +174,8 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
 
         if (Object.keys(lobby.users).length === 0) {
-            delete lobbies[lobbyId];
+            console.log('Lobby is empty, deleting:', lobbyId);
+            delete _lobbies[lobbyId];
         }
     });
 });
