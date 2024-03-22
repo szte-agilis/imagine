@@ -39,6 +39,7 @@ io.on('connection', (socket) => {
                 users: {},
                 drawerSocketId: null,
                 drawerAssigned: false,
+                timer: 10,
                 buttonState: 'Click me!',
             };
         }
@@ -64,7 +65,6 @@ io.on('connection', (socket) => {
         const username = lobbies[lobbyId]?.users[socket.id] || 'Anonymous';
         if (guess(msg)) {
             io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
-            io.to(lobbyId).emit('reset canvas', lobbyId);
             passDrawer(lobbyId);
         } else {
             io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
@@ -94,6 +94,7 @@ io.on('connection', (socket) => {
                 break;
             }
         }
+        io.to(lobbyId).emit('reset canvas', lobbyId);
 
         userIds.forEach((id) => {
             io.to(id).emit('Drawer', false);
@@ -106,6 +107,20 @@ io.on('connection', (socket) => {
             `${newDrawerUsername} is now the drawer`
         );
     }
+
+    socket.on('startGame', (lobbyId) => {
+        const intervalId = setInterval(() => {
+            if (lobbies[lobbyId].timer > 0) {
+                lobbies[lobbyId].timer--;
+                console.log(lobbies[lobbyId].timer);
+                io.to(lobbyId).emit('timer', lobbies[lobbyId].timer);
+            } else {
+                clearInterval(intervalId);
+                passDrawer(lobbyId);
+            }
+        }, 1000);
+        lobbies[lobbyId].timer = 10;
+    });
 
     socket.on('reset canvas', (lobbyId) => {
         //todo: implement (tabla csapat)

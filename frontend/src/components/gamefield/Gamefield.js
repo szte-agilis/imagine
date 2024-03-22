@@ -12,7 +12,9 @@ function GameField() {
     const [showDrawerPass, setShowDrawerPass] = useState(false);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
+    const [localTimer, setlocalTimer] = useState(10);
     const chatWindow = document.getElementById('chat-window');
+
 
     useEffect(() => {
         const newSocket = io();
@@ -44,7 +46,15 @@ function GameField() {
             });
 
             socket.on('user list', (usernames) => {
-                setUsers(usernames.filter(username => username !== 'board'));
+                setUsers(usernames);
+                //setUsers(usernames.filter(username => username !== 'board'));
+            });
+
+            socket.on('timer', (time) => {
+                setlocalTimer(time);
+                if (time === 0) {
+                    setlocalTimer(10);
+                }
             });
 
             return () => {
@@ -62,6 +72,12 @@ function GameField() {
             socket.emit('reset canvas', localLobby);
         }
     };
+
+    const startGameTimer = () => {
+        if (socket) {
+            socket.emit('startGame', localLobby);
+        }
+    }
 
     const handleChatInputKeyPress = (event) => {
         if (event.key === 'Enter') {
@@ -95,10 +111,16 @@ function GameField() {
                         onClick={handlePassDrawer}
                     >Pass Drawer Role
                     </button>}
+                    {canDraw && <button
+                        id="StartGameButton"
+                        onClick={startGameTimer}
+                    >Start Game
+                    </button>}
                 </div>
             </div>
             <div id="user-list" style={{ marginTop: '20px' }}>{users}</div>
             <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
+            <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
         </div>
     );
 }
