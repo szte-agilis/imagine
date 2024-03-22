@@ -10,24 +10,9 @@ export default function Board() {
     }
 
     return (
-        <div style={{height: '50vh'}}>
+        <div className="h-[50vh]">
             {canDraw ? <DrawerBoard /> : <GuesserBoard />}
-            <button
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '4px 12px',
-                    margin: '20px',
-                    backgroundColor: 'lightpink',
-                    borderRadius: '4px',
-                    borderColor: 'darkred',
-                    position: 'absolute',
-                    top: 0,
-                }}
-                onClick={switchBoardType}
-            >
-                Switch board type
-            </button>
+            <button className="btn btn-accent absolute top-0 m-4" onClick={switchBoardType}>Switch board type</button>
         </div>
     );
 }
