@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import CardViewer from './CardViewer';
 import Deck from './Deck';
 import { CardTransform } from '../../data/CardTransform';
 import { Vector2 } from '../../data/Vector2';
+import { io } from 'socket.io-client';
 
 const pollFrequencyMs: number = 100;
 
@@ -10,6 +11,53 @@ export default function DrawerBoard() {
     let [cards, setCards] = useState([] as CardTransform[]);
     let [lastPoll, setLastPoll] = useState(Date.now());
     let [isDeckOpen, setIsDeckOpen] = useState(false);
+    let [selectedIndex, setSelectedIndex] = useState(-1);
+    let socket = io()
+
+    socket.on('card-add', function(card: CardTransform){
+        setCards([...cards, card]);
+    })
+
+    function onCardSelect(i: number) {
+        if (selectedIndex < 0) {
+            selectedIndex = i;
+        } else {
+            selectedIndex = -1;
+        }
+
+        setSelectedIndex(selectedIndex);
+    }
+
+    function onMouseMove(e: MouseEvent) {
+        if (selectedIndex < 0) return;
+
+        const x = e.movementX;
+        const y = e.movementY;
+
+        cards[selectedIndex].position.x += x;
+        cards[selectedIndex].position.y += y;
+
+        setCards([...cards]);
+
+        sendUpdates();
+    }
+
+    function sendUpdates() {
+        const now: number = Date.now();
+        const elapsed: number = now - lastPoll;
+
+        if (elapsed >= pollFrequencyMs) {
+            lastPoll = now;
+            setLastPoll(lastPoll);
+
+            socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
+        }
+    }
+
+    socket.on('card-move', function(i: number, transform: CardTransform) {
+        cards[i] = transform;
+        setCards([...cards]);
+    });
 
     function addCardFromDeck(id: number) {
         const card: CardTransform = new CardTransform(id, new Vector2(50, 100), 0, 1);
@@ -19,6 +67,8 @@ export default function DrawerBoard() {
         console.log(`add ${id}`);
 
         setIsDeckOpen(false);
+
+        socket.emit('card-add', {card: card});
     }
 
     /*
@@ -44,7 +94,7 @@ export default function DrawerBoard() {
     }*/
 
     return (
-        <div className="h-full flex justify-center items-center relative border-4 border-amber-600">
+        <div className="h-full flex justify-center items-center relative border-4 border-amber-600" onMouseMove={onMouseMove}>
             <span className="absolute text-gray-400 select-none text-3xl z-10">Drawer board</span>
 
             <div className="absolute z-30 top-0">
