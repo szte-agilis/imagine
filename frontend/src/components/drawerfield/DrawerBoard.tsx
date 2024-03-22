@@ -18,6 +18,23 @@ export default function DrawerBoard() {
         setCards([...cards, card]);
     })
 
+    socket.on('card-move', function(i: number, transform: CardTransform) {
+        cards[i] = transform;
+        setCards([...cards]);
+    });
+
+    function sendUpdates() {
+        const now: number = Date.now();
+        const elapsed: number = now - lastPoll;
+
+        if (elapsed >= pollFrequencyMs) {
+            lastPoll = now;
+            setLastPoll(lastPoll);
+
+            socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
+        }
+    }
+
     function onCardSelect(i: number) {
         if (selectedIndex < 0) {
             selectedIndex = i;
@@ -42,23 +59,6 @@ export default function DrawerBoard() {
         sendUpdates();
     }
 
-    function sendUpdates() {
-        const now: number = Date.now();
-        const elapsed: number = now - lastPoll;
-
-        if (elapsed >= pollFrequencyMs) {
-            lastPoll = now;
-            setLastPoll(lastPoll);
-
-            socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
-        }
-    }
-
-    socket.on('card-move', function(i: number, transform: CardTransform) {
-        cards[i] = transform;
-        setCards([...cards]);
-    });
-
     function addCardFromDeck(id: number) {
         const card: CardTransform = new CardTransform(id, new Vector2(50, 100), 0, 1);
 
@@ -70,28 +70,6 @@ export default function DrawerBoard() {
 
         socket.emit('card-add', {card: card});
     }
-
-    /*
-    function sendUpdates() {
-        const now: number = Date.now();
-        const elapsed: number = now - lastPoll;
-
-        if (elapsed >= pollFrequencyMs) {
-            lastPoll = now;
-            setLastPoll(lastPoll);
-
-            /*
-
-            socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
-
-            socket.on('card-move', function(i: number, transform: CardTransform) {
-                cards[i] = transform;
-                setCards([...cards]);
-            });
-
-
-        }
-    }*/
 
     return (
         <div className="h-full flex justify-center items-center relative border-4 border-amber-600" onMouseMove={onMouseMove}>
@@ -107,7 +85,7 @@ export default function DrawerBoard() {
 
             {isDeckOpen && <Deck onCardSelect={addCardFromDeck} cardIds={Array.from(Array(100).keys())} />}
 
-            <CardViewer cards={cards} />
+            <CardViewer cards={cards} selectCallback={onCardSelect} />
         </div>
     );
 }

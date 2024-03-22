@@ -1,7 +1,7 @@
 import { CardTransform } from '../../data/CardTransform';
 import { MouseEventHandler, CSSProperties } from 'react';
 
-export default function Card({ transform, selectCallback }: { transform: CardTransform, selectCallback?: MouseEventHandler }) {
+export default function Card({ transform, selectCallback }: { transform: CardTransform, selectCallback?: MouseEventHandler}) {
     const transformStyle: CSSProperties = {
         top: `${transform.position.y}px`,
         left: `${transform.position.x}px`,
