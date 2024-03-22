@@ -126,6 +126,11 @@ io.on('connection', (socket) => {
         //todo: implement (tabla csapat)
     });
 
+    socket.on('window closed', (lobbyId) => {
+        socket.disconnect();
+        console.log('User left lobby: ', lobbyId);
+    });
+
     socket.on('disconnect', () => {
         const lobbyId = Object.keys(lobbies).find(
             (id) => lobbies[id].users[socket.id]

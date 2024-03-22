@@ -90,6 +90,9 @@ function GameField() {
         }
     };
 
+    window.addEventListener("beforeunload", function() {  
+        socket.emit('window closed', localLobby);
+    });
 
     return (
         <div>
