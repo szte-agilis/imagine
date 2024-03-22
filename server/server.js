@@ -23,7 +23,7 @@ let _lobbies = {};
 
 function getLobby(lobbyId) {
     console.debug('getLobby', { id: lobbyId });
-    if (!Object.hasOwnProperty(lobbyId)) {
+    if (!_lobbies.hasOwnProperty(lobbyId)) {
         console.error('Lobby not found', { id: lobbyId });
         return null;
     }
@@ -51,6 +51,7 @@ io.on('connection', (socket) => {
                 timer: 10,
                 buttonState: 'Click me!',
             };
+            console.log('New lobby created:', { id: lobbyId });
         }
 
         const lobby = getLobby(lobbyId);
