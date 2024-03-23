@@ -14,6 +14,7 @@ function GameField() {
     const [canChat, setCanChat] = useState(false);
     const [localTimer, setlocalTimer] = useState(10);
     const chatWindow = document.getElementById('chat-window');
+    const [solution, setSolution] = useState("");
 
 
     useEffect(() => {
@@ -57,6 +58,10 @@ function GameField() {
                 }
             });
 
+            socket.on('solution', (solutionFromSocket) => {
+                setSolution(solutionFromSocket);
+            });
+
             return () => {
                 socket.off('random lobby code');
                 socket.off('chat message');
@@ -70,6 +75,7 @@ function GameField() {
         if (socket) {
             socket.emit('pass drawer button', localLobby);
             socket.emit('reset canvas', localLobby);
+            setSolution("");
         }
     };
 
@@ -124,6 +130,7 @@ function GameField() {
             <div id="user-list" style={{ marginTop: '20px' }}>{users}</div>
             <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
             <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
+            {canDraw && <div id="solution" style={{ marginTop: '20px' }}>Megfejtés: {solution}</div>}
         </div>
     );
 }

@@ -114,6 +114,7 @@ io.on('connection', (socket) => {
                 lobbies[lobbyId].timer--;
                 console.log(lobbies[lobbyId].timer);
                 io.to(lobbyId).emit('timer', lobbies[lobbyId].timer);
+                io.to(lobbyId).emit('solution', 'dummy');
             } else {
                 clearInterval(intervalId);
                 passDrawer(lobbyId);
