@@ -115,11 +115,11 @@ function GameField() {
                         onKeyPress={handleChatInputKeyPress}
                         onChange={(event) => setChatInput(event.target.value)}
                     />}
-                    {canDraw && <button
+                    {/* -- Debug purposes only --{canDraw && <button
                         id="passDrawerButton"
                         onClick={handlePassDrawer}
                     >Pass Drawer Role
-                    </button>}
+                    </button>}*/}
                     {canDraw && <button
                         id="StartGameButton"
                         onClick={startGameTimer}
