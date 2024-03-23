@@ -6,7 +6,7 @@ export default function GuesserBoard() {
     let [cards, setCards] = useState([] as CardTransform[]);
 
     return (
-        <div style={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '4px #4599de solid' }}>
+        <div className="h-full flex justify-center items-center relative border-4 border-slate-700">
             <span className="absolute text-gray-400 select-none text-3xl z-10">Guesser board</span>
             <CardViewer cards={cards} />
         </div>

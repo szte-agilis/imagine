@@ -72,11 +72,11 @@ export default function DrawerBoard() {
     }
 
     return (
-        <div className="h-full flex justify-center items-center relative border-4 border-amber-600" onMouseMove={onMouseMove}>
+        <div className="h-full flex justify-center items-center relative border-4 border-slate-700" onMouseMove={onMouseMove}>
             <span className="absolute text-gray-400 select-none text-3xl z-10">Drawer board</span>
 
             <div className="absolute z-30 top-0">
-                <label className="swap text-xl text-gray-300 rounded-b-lg bg-slate-800 px-8 pb-1">
+                <label className="swap text-xl text-gray-300 rounded-b-lg bg-slate-700 px-8 pb-1">
                     <input type="checkbox" checked={isDeckOpen} onChange={e => setIsDeckOpen(e.target.checked)} />
                     <div className="swap-on text-rose-300">Close deck</div>
                     <div className="swap-off text-green-300">Open deck</div>
