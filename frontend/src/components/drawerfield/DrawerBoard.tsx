@@ -14,15 +14,6 @@ export default function DrawerBoard() {
     let [selectedIndex, setSelectedIndex] = useState(-1);
     let socket = io()
 
-    socket.on('card-add', function(card: CardTransform){
-        setCards([...cards, card]);
-    })
-
-    socket.on('card-move', function(i: number, transform: CardTransform) {
-        cards[i] = transform;
-        setCards([...cards]);
-    });
-
     function sendUpdates() {
         const now: number = Date.now();
         const elapsed: number = now - lastPoll;
