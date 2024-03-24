@@ -2,7 +2,7 @@ import { CardTransform } from '../../data/CardTransform';
 import { MouseEventHandler, CSSProperties, MouseEvent } from 'react';
 import { images } from './imageImports';
 
-export default function Card({ transform, selectCallback, id, }: { transform: CardTransform; selectCallback: MouseEventHandler; id: any; }) {
+export default function Card({ transform, selectCallback}: { transform: CardTransform; selectCallback: MouseEventHandler }) {
     let style: CSSProperties = {
         position: 'absolute',
         top: `${transform.position.y}px`,
@@ -19,7 +19,7 @@ export default function Card({ transform, selectCallback, id, }: { transform: Ca
     };
 
     return (
-        <div id={id} draggable={true} style={style} onMouseDown={handleClick}>
+        <div draggable={true} style={style} onMouseDown={handleClick}>
             <img alt="card" src={images.at(transform.image)} style={{ maxHeight: '160px' }} />
         </div>
     );
