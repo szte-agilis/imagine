@@ -20,6 +20,7 @@ app.get('*', (req, res) =>
 app.use(require('body-parser').json());
 
 let lobbies = {};
+let correctGuesses = 0;
 
 io.on('connection', (socket) => {
     socket.on('join lobby', (lobbyId, username) => {
@@ -65,7 +66,14 @@ io.on('connection', (socket) => {
         const username = lobbies[lobbyId]?.users[socket.id] || 'Anonymous';
         if (guess(msg)) {
             io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
-            passDrawer(lobbyId);
+            correctGuesses++;
+            if (
+                correctGuesses ===
+                Object.values(lobbies[lobbyId].users).length - 1
+            ) {
+                passDrawer(lobbyId);
+                correctGuesses = 0;
+            }
         } else {
             io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
         }
@@ -114,6 +122,7 @@ io.on('connection', (socket) => {
                 lobbies[lobbyId].timer--;
                 console.log(lobbies[lobbyId].timer);
                 io.to(lobbyId).emit('timer', lobbies[lobbyId].timer);
+                io.to(lobbyId).emit('solution', 'dummy');
             } else {
                 clearInterval(intervalId);
                 passDrawer(lobbyId);
@@ -124,6 +133,11 @@ io.on('connection', (socket) => {
 
     socket.on('reset canvas', (lobbyId) => {
         //todo: implement (tabla csapat)
+    });
+
+    socket.on('window closed', (lobbyId) => {
+        socket.disconnect();
+        console.log('User left lobby: ', lobbyId);
     });
 
     socket.on('disconnect', () => {
