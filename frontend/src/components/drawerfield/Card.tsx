@@ -1,21 +1,34 @@
 import { CardTransform } from '../../data/CardTransform';
 import { MouseEventHandler, CSSProperties } from 'react';
+import image from '../../assets/card.png';
 
-export default function Card({ transform, selectCallback }: { transform: CardTransform, selectCallback?: MouseEventHandler}) {
-    const transformStyle: CSSProperties = {
+export default function Card({
+    transform,
+    selectCallback,
+    id,
+}: {
+    transform: CardTransform;
+    selectCallback: MouseEventHandler;
+    id: any;
+}) {
+    let style: CSSProperties = {
+        position: 'absolute',
         top: `${transform.position.y}px`,
         left: `${transform.position.x}px`,
         transform: `scale(${transform.scale}) rotate(${transform.rotation}deg)`,
+        zIndex: 10,
+        userSelect: 'none',
+    };
+
+    const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        const { clientX, clientY } = event;
+        transform.position.x = clientX;
+        transform.position.y = clientY;
     };
 
     return (
-        <div className="absolute select-none z-10" style={transformStyle} onClick={selectCallback}>
-            {/* TODO image placeholder */}
-            <div className="bg-gray-600 px-12 py-20 border-black border-2">
-                <span className="absolute z-10 -translate-x-1/2 -translate-y-1/2 text-gray-200">
-                    #{transform.image}
-                </span>
-            </div>
+        <div id={id} draggable={true} style={style} onMouseDown={handleClick}>
+            <img alt="card" src={image} style={{ maxHeight: '160px' }} />
         </div>
     );
 }
