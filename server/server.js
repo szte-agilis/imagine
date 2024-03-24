@@ -31,6 +31,34 @@ function getLobby(lobbyId) {
 }
 
 io.on('connection', (socket) => {
+    /**
+     *
+     * @param {"debug" | "log" | "warn" | "error"} level
+     * @param {*} lobby
+     * @param  {...any} args
+     */
+    function logger(level, lobby, ...args) {
+        const additionalArgs = [];
+        if (lobby) {
+            additionalArgs.push(`[lobby#${lobby.id}]`);
+            additionalArgs.push(`[user: ${lobby.users[socket.id]}]`);
+        } else {
+            additionalArgs.push(`[no lobby]`);
+        }
+        let handler;
+        switch (level) {
+            case 'debug':
+            case 'log':
+            case 'warn':
+            case 'error':
+                handler = console[level];
+                break;
+            default:
+                throw new Error(`Invalid log level: ${level}`);
+        }
+        handler(`Socket#[${socket.id}]:`, ...additionalArgs, ...args);
+    }
+
     socket.on('join lobby', (lobbyId, username) => {
         if (lobbyId === '0') {
             do {
@@ -41,17 +69,21 @@ io.on('connection', (socket) => {
         }
 
         socket.join(lobbyId);
-        console.log('User joined lobby:', lobbyId);
+        logger('log', null, 'User requested to join lobby:', {
+            lobbyId,
+            username,
+        });
 
         if (!_lobbies[lobbyId]) {
             _lobbies[lobbyId] = {
+                id: lobbyId,
                 users: {},
                 drawerSocketId: null,
                 drawerAssigned: false,
                 timer: 10,
                 buttonState: 'Click me!',
             };
-            console.log('New lobby created:', { id: lobbyId });
+            logger('log', getLobby(lobbyId), 'New lobby created');
         }
 
         const lobby = getLobby(lobbyId);
@@ -124,13 +156,14 @@ io.on('connection', (socket) => {
 
     socket.on('startGame', (lobbyId) => {
         const lobby = getLobby(lobbyId);
-        const intervalId = setInterval(() => {
+        lobby.intervalId = setInterval(() => {
             if (lobby.timer > 0) {
                 lobby.timer--;
                 console.log(lobby.timer);
                 io.to(lobbyId).emit('timer', lobby.timer);
             } else {
-                clearInterval(intervalId);
+                clearInterval(lobby.intervalId);
+                lobby.intervalId = null;
                 passDrawer(lobbyId);
             }
         }, 1000);
@@ -145,14 +178,23 @@ io.on('connection', (socket) => {
         const lobbyId = Object.keys(_lobbies).find(
             (id) => _lobbies[id].users[socket.id]
         );
+        logger('debug', null, 'User disconnecting', { lobbyId });
         if (!lobbyId) {
-            console.log('User disconnected without joining a lobby', {
+            logger('log', null, 'User disconnected without joining a lobby', {
                 socketId: socket.id,
             });
+            return;
         }
 
         const lobby = getLobby(lobbyId);
+        logger('log', lobby, 'User disconnected from lobby');
 
+        if (!lobby) {
+            logger('error', null, 'User connected to non-existent lobby', {
+                lobbyId,
+            });
+            return;
+        }
         if (lobby.drawerSocketId === socket.id) {
             const remainingUserIds = Object.keys(lobby.users).filter(
                 (id) => id !== socket.id
@@ -170,12 +212,12 @@ io.on('connection', (socket) => {
                 lobby.drawerSocketId = null;
             }
         }
-
         delete lobby.users[socket.id];
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
 
         if (Object.keys(lobby.users).length === 0) {
-            console.log('Lobby is empty, deleting:', lobbyId);
+            logger('log', lobby, 'Deleting empty lobby');
+            clearInterval(lobby.intervalId);
             delete _lobbies[lobbyId];
         }
     });
