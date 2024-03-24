@@ -8,6 +8,7 @@ import { io } from 'socket.io-client';
 const pollFrequencyMs: number = 100;
 
 export default function DrawerBoard() {
+    const ids: Array = Array.from(Array(100).keys());
     let [cards, setCards] = useState([] as CardTransform[]);
     let [lastPoll, setLastPoll] = useState(Date.now());
     let [isDeckOpen, setIsDeckOpen] = useState(false);
@@ -96,7 +97,7 @@ export default function DrawerBoard() {
                 </label>
             </div>
 
-            {isDeckOpen && <Deck onCardSelect={addCardFromDeck} cardIds={Array.from(Array(100).keys())} />}
+            {isDeckOpen && <Deck onCardSelect={addCardFromDeck} cardIds={ids.filter(id => !cards.includes(id))} />}
 
             <CardViewer cards={cards} selectCallback={onCardSelect} />
         </div>
