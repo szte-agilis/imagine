@@ -4,11 +4,11 @@ import Deck from './Deck';
 import { CardTransform } from '../../data/CardTransform';
 import { Vector2 } from '../../data/Vector2';
 import { io } from 'socket.io-client';
+import { images } from './imageImports';
 
 const pollFrequencyMs: number = 100;
 
 export default function DrawerBoard() {
-    const ids: Array = Array.from(Array(100).keys());
     let [cards, setCards] = useState([] as CardTransform[]);
     let [lastPoll, setLastPoll] = useState(Date.now());
     let [isDeckOpen, setIsDeckOpen] = useState(false);
@@ -85,6 +85,8 @@ export default function DrawerBoard() {
         socket.emit('card-add', {card: card});
     }
 
+    const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.image === id));
+
     return (
         <div className="h-full flex justify-center items-center relative border-4 border-slate-700" onMouseMove={onMouseMove}>
             <span className="absolute text-gray-400 select-none text-3xl z-10">Drawer board</span>
@@ -97,7 +99,7 @@ export default function DrawerBoard() {
                 </label>
             </div>
 
-            {isDeckOpen && <Deck onCardSelect={addCardFromDeck} cardIds={ids.filter(id => !cards.includes(id))} />}
+            {isDeckOpen && <Deck onCardSelect={addCardFromDeck} cardIds={cardsInDeck} />}
 
             <CardViewer cards={cards} selectCallback={onCardSelect} />
         </div>

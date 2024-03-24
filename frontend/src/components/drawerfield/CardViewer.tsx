@@ -1,6 +1,5 @@
 import Card from './Card';
 import { CardTransform } from '../../data/CardTransform';
-import { MouseEventHandler } from 'react';
 
 export default function CardViewer({ cards, selectCallback }: { cards: CardTransform[], selectCallback?: (i: number) => void }) {
     return (
