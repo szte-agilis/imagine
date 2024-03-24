@@ -45,9 +45,31 @@ export default function DrawerBoard() {
         cards[selectedIndex].position.x += x;
         cards[selectedIndex].position.y += y;
 
-        setCards([...cards]);
+        const boardWidth = window.innerWidth;
+        const boardHeight = window.innerHeight;
+        const cardWidth = 100;
+        const cardHeight = 150;
 
-        sendUpdates();
+        
+        const cardLeft = cards[selectedIndex].position.x;
+        const cardRight = cards[selectedIndex].position.x + cardWidth;
+        const cardTop = cards[selectedIndex].position.y;
+        const cardBottom = cards[selectedIndex].position.y + cardHeight;
+
+        
+        if (cardLeft < -50 || cardRight > boardWidth + 50 || cardTop < -80 || cardBottom > boardHeight + 80) {
+            
+            const updatedCards = cards.filter((_, index) => index !== selectedIndex);
+            setCards(updatedCards);
+            setSelectedIndex(-1);
+
+            
+            socket.emit('card-remove', { index: selectedIndex });
+        } else {
+            
+            setCards([...cards]);
+            sendUpdates();
+        }
     }
 
     function addCardFromDeck(id: number) {
