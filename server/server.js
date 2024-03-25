@@ -21,6 +21,7 @@ app.use(require('body-parser').json());
 
 let lobbies = {};
 let correctGuesses = 0;
+let intervalId = null;
 
 io.on('connection', (socket) => {
     socket.on('join lobby', (lobbyId, username) => {
@@ -71,6 +72,8 @@ io.on('connection', (socket) => {
                 correctGuesses ===
                 Object.values(lobbies[lobbyId].users).length - 1
             ) {
+                clearInterval(intervalId);
+                lobbies[lobbyId].timer = 10;
                 passDrawer(lobbyId);
                 correctGuesses = 0;
             }
@@ -117,7 +120,7 @@ io.on('connection', (socket) => {
     }
 
     socket.on('startGame', (lobbyId) => {
-        const intervalId = setInterval(() => {
+        intervalId = setInterval(() => {
             if (lobbies[lobbyId].timer > 0) {
                 lobbies[lobbyId].timer--;
                 console.log(lobbies[lobbyId].timer);
