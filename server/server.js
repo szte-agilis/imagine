@@ -73,7 +73,6 @@ io.on('connection', (socket) => {
                 Object.values(lobbies[lobbyId].users).length - 1
             ) {
                 clearInterval(intervalId);
-                lobbies[lobbyId].timer = 10;
                 passDrawer(lobbyId);
                 correctGuesses = 0;
             }
