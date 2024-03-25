@@ -74,7 +74,7 @@ export default function DrawerBoard() {
     }
 
     function addCardFromDeck(id: number) {
-        const card: CardTransform = new CardTransform(id, new Vector2(50, 100), 0, 1);
+        const card: CardTransform = new CardTransform(id, new Vector2(50, 50), 0, 1);
 
         setCards([...cards, card]);
 

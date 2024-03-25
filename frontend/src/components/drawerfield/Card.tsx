@@ -4,12 +4,10 @@ import { images } from './imageImports';
 
 export default function Card({ transform, selectCallback}: { transform: CardTransform; selectCallback: MouseEventHandler }) {
     let style: CSSProperties = {
-        position: 'absolute',
-        top: `${transform.position.y}px`,
-        left: `${transform.position.x}px`,
-        transform: `scale(${transform.scale}) rotate(${transform.rotation}deg)`,
-        zIndex: 10,
-        userSelect: 'none',
+        top: `${transform.position.y}%`,
+        left: `${transform.position.x}%`,
+        transform: `scale(${transform.scale}) rotate(${transform.rotation}deg) translate(-50%, -50%)`,
+        maxHeight: '25%',
     };
 
     const handleClick = (event: MouseEvent) => {
@@ -19,8 +17,6 @@ export default function Card({ transform, selectCallback}: { transform: CardTran
     };
 
     return (
-        <div draggable={true} style={style} onMouseDown={handleClick}>
-            <img alt="card" src={images.at(transform.image)} style={{ maxHeight: '160px' }} />
-        </div>
+        <img className="z-10 absolute select-none" style={style} draggable={true} onMouseDown={handleClick} src={images.at(transform.image)} alt="card" />
     );
 }

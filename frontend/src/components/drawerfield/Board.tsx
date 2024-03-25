@@ -10,7 +10,7 @@ export default function Board() {
     }
 
     return (
-        <div className="h-[50vh]">
+        <div className="h-[30vw]">
             {canDraw ? <DrawerBoard /> : <GuesserBoard />}
             <button className="btn btn-accent absolute top-0 m-4" onClick={switchBoardType}>Switch board type</button>
         </div>
