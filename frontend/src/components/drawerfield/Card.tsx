@@ -1,26 +1,22 @@
 import { CardTransform } from '../../data/CardTransform';
-import { MouseEventHandler, CSSProperties } from 'react';
-import image from '../../assets/card.png';
+import { MouseEventHandler, CSSProperties, MouseEvent } from 'react';
+import { images } from './imageImports';
 
-export default function Card({
-    transform,
-    selectCallback,
-}: {
-    transform: CardTransform;
-    selectCallback: MouseEventHandler;
-}) {
-    const style: CSSProperties = {
-        position: `absolute` as `absolute`,
-        top: `${transform.position.y}px`,
-        left: `${transform.position.x}px`,
-        transform: `scale(${transform.scale}) rotate(${transform.rotation}deg)`,
-        zIndex: 10,
-        userSelect: 'none',
+export default function Card({ transform, selectCallback}: { transform: CardTransform; selectCallback: MouseEventHandler }) {
+    let style: CSSProperties = {
+        top: `${transform.position.y}%`,
+        left: `${transform.position.x}%`,
+        transform: `scale(${transform.scale}) rotate(${transform.rotation}deg) translate(-50%, -50%)`,
+        maxHeight: '25%',
+    };
+
+    const handleClick = (event: MouseEvent) => {
+        const { clientX, clientY } = event;
+        transform.position.x = clientX;
+        transform.position.y = clientY;
     };
 
     return (
-        <div draggable={true} style={style} onMouseDown={selectCallback}>
-            <img alt="card" src={image} style={{ maxHeight: '160px' }} />
-        </div>
+        <img className="z-10 absolute select-none" style={style} draggable={true} onMouseDown={handleClick} src={images.at(transform.image)} alt="card" />
     );
 }

@@ -1,10 +1,25 @@
 import CardViewer from './CardViewer';
+import { useState } from 'react';
+import { CardTransform } from '../../data/CardTransform';
+import { io } from 'socket.io-client';
 
 export default function GuesserBoard() {
+    let [cards, setCards] = useState([] as CardTransform[]);
+    let socket = io()
+
+    socket.on('card-add', function(card: CardTransform){
+        setCards([...cards, card]);
+    })
+
+    socket.on('card-move', function(i: number, transform: CardTransform) {
+        cards[i] = transform;
+        setCards([...cards]);
+    });
+
     return (
-        <div style={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '4px #4599de solid' }}>
-            <span style={{ fontSize: '30px', opacity: '30%', position: 'absolute', padding: '20px', color: 'black', zIndex: 1 }}>Guesser board</span>
-            <CardViewer canDraw={false} />
+        <div className="h-full flex justify-center items-center relative border-4 border-slate-700">
+            <span className="absolute text-gray-400 select-none text-3xl z-10">Guesser board</span>
+            <CardViewer cards={cards} />
         </div>
     );
 }
