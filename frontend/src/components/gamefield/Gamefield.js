@@ -62,6 +62,15 @@ function GameField() {
             socket.on('solution', (solutionFromSocket) => {
                 setSolution(solutionFromSocket);
             });
+            const handleBeforeUnload = (event) => {
+                event.preventDefault();
+                if (socket) {
+                    socket.emit('window closed', localLobby);
+                }
+                event.returnValue = '';
+            };
+
+            window.addEventListener('beforeunload', handleBeforeUnload);
 
             return () => {
                 socket.off('random lobby code');
@@ -97,10 +106,6 @@ function GameField() {
         }
     };
 
-    window.addEventListener("beforeunload", function() {  
-        socket.emit('window closed', localLobby);
-    });
-
     return (
         <div>
             <div id="container">
@@ -116,11 +121,11 @@ function GameField() {
                         onKeyPress={handleChatInputKeyPress}
                         onChange={(event) => setChatInput(event.target.value)}
                     />}
-                    {/* -- Debug purposes only --{canDraw && <button
+                    {canDraw && <button
                         id="passDrawerButton"
                         onClick={handlePassDrawer}
                     >Pass Drawer Role
-                    </button>}*/}
+                    </button>}
                     {canDraw && <button
                         id="StartGameButton"
                         onClick={startGameTimer}
