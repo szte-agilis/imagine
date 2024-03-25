@@ -1,19 +1,8 @@
 import { CardTransform } from '../../data/CardTransform';
-import { CSSProperties, useState } from 'react';
-import image from '../../assets/card.png';
+import { MouseEventHandler, CSSProperties, MouseEvent } from 'react';
+import { images } from './imageImports';
 
-
-export default function Card({
-    transform,
-   
-    id,
-}: {
-    transform: CardTransform;
-   
-    id: any;
-}) {
-    const [isMouseDown, setIsMouseDown] = useState(false);
-
+export default function Card({ transform, selectCallback}: { transform: CardTransform; selectCallback: MouseEventHandler }) {
     let style: CSSProperties = {
         position: 'absolute',
         top: `${transform.position.y}px`,
@@ -23,33 +12,15 @@ export default function Card({
         userSelect: 'none',
     };
 
-    const handleMouseDown = () => {
-        setIsMouseDown(true);
-    };
-
-    const handleMouseUp = () => {
-        setIsMouseDown(false);
-    };
-
-    const handleMouseMove = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        if (isMouseDown) {
-            const { clientX, clientY } = event;
-            transform.position.x = clientX-50;
-            transform.position.y = clientY-80;
-            setIsMouseDown(false);
-        }
+    const handleClick = (event: MouseEvent) => {
+        const { clientX, clientY } = event;
+        transform.position.x = clientX;
+        transform.position.y = clientY;
     };
 
     return (
-        <div
-            id={id}
-            draggable={false} // Mivel saját mozgatást használunk, nem kell a DOM által kezelt húzhatóságot bekapcsolni
-            style={style}
-            onMouseDown={handleMouseDown}
-            //onMouseUp={handleMouseUp}
-            onMouseMove={handleMouseMove}
-        >
-            <img alt="card" src={image} style={{ maxHeight: '160px' }} />
+        <div draggable={true} style={style} onMouseDown={handleClick}>
+            <img alt="card" src={images.at(transform.image)} style={{ maxHeight: '160px' }} />
         </div>
     );
 }
