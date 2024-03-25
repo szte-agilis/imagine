@@ -149,26 +149,12 @@ io.on('connection', (socket) => {
         if (!lobbyId) return;
 
         const lobby = lobbies[lobbyId];
+        delete lobby.users[socket.id];
 
         if (lobby.drawerSocketId === socket.id) {
-            const remainingUserIds = Object.keys(lobby.users).filter(
-                (id) => id !== socket.id
-            );
-            if (remainingUserIds.length > 0) {
-                lobby.drawerSocketId = remainingUserIds[0];
-                const newDrawerUsername = lobby.users[lobby.drawerSocketId];
-                io.to(lobby.drawerSocketId).emit('Drawer', true);
-                io.to(lobbyId).emit(
-                    'chat message',
-                    `${newDrawerUsername} is now the drawer`
-                );
-            } else {
-                lobby.drawerAssigned = false;
-                lobby.drawerSocketId = null;
-            }
+            passDrawer(lobbyId);
         }
 
-        delete lobby.users[socket.id];
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
 
         if (Object.keys(lobby.users).length === 0) {

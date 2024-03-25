@@ -21,18 +21,18 @@ function GameField() {
     useEffect(() => {
         const newSocket = io();
         setSocket(newSocket);
+        newSocket.emit('join lobby', localLobby, localUsername);
+
+        newSocket.on('random lobby code', (randomLobby) => {
+            setLocalLobby(randomLobby);
+            sessionStorage.setItem('lobby', randomLobby);
+        });
 
         return () => newSocket.close();
     }, []);
 
     useEffect(() => {
         if (socket) {
-            socket.emit('join lobby', localLobby, localUsername);
-
-            socket.on('random lobby code', (randomLobby) => {
-                setLocalLobby(randomLobby);
-                sessionStorage.setItem('lobby', randomLobby);
-            });
 
             socket.on('chat message', (message) => {
                 const messageElement = document.createElement('div');
