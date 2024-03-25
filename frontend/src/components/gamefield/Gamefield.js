@@ -16,6 +16,7 @@ function GameField() {
     const chatWindow = document.getElementById('chat-window');
     const [solution, setSolution] = useState("");
 
+    console.log(users);
 
     useEffect(() => {
         const newSocket = io();
@@ -127,7 +128,11 @@ function GameField() {
                     </button>}
                 </div>
             </div>
-            <div id="user-list" style={{ marginTop: '20px' }}>{users}</div>
+            <div id="user-list" style={{ marginTop: '20px' }}>
+                {users.map((user, index) => (
+                    <div key={index}>{user}</div>
+                ))}
+            </div>
             <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
             <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
             {canDraw && <div id="solution" style={{ marginTop: '20px' }}>Megfejtés: {solution}</div>}
