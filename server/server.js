@@ -29,6 +29,8 @@ function getLobby(lobbyId) {
     }
     return _lobbies[lobbyId];
 }
+let correctGuesses = 0;
+let intervalId = null;
 
 io.on('connection', (socket) => {
     /**
@@ -110,7 +112,15 @@ io.on('connection', (socket) => {
         const username = lobby?.users[socket.id] || 'Anonymous';
         if (guess(msg)) {
             io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
-            passDrawer(lobbyId);
+            correctGuesses++;
+            if (
+                correctGuesses ===
+                Object.values(lobbies[lobbyId].users).length - 1
+            ) {
+                clearInterval(intervalId);
+                passDrawer(lobbyId);
+                correctGuesses = 0;
+            }
         } else {
             io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
         }
@@ -156,11 +166,12 @@ io.on('connection', (socket) => {
 
     socket.on('startGame', (lobbyId) => {
         const lobby = getLobby(lobbyId);
-        lobby.intervalId = setInterval(() => {
+        intervalId = setInterval(() => {
             if (lobby.timer > 0) {
                 lobby.timer--;
                 console.log(lobby.timer);
                 io.to(lobbyId).emit('timer', lobby.timer);
+                io.to(lobbyId).emit('solution', 'dummy');
             } else {
                 clearInterval(lobby.intervalId);
                 lobby.intervalId = null;
@@ -172,6 +183,11 @@ io.on('connection', (socket) => {
 
     socket.on('reset canvas', (lobbyId) => {
         //todo: implement (tabla csapat)
+    });
+
+    socket.on('window closed', (lobbyId) => {
+        socket.disconnect();
+        console.log('User left lobby: ', lobbyId);
     });
 
     socket.on('disconnect', () => {
@@ -196,22 +212,9 @@ io.on('connection', (socket) => {
             return;
         }
         if (lobby.drawerSocketId === socket.id) {
-            const remainingUserIds = Object.keys(lobby.users).filter(
-                (id) => id !== socket.id
-            );
-            if (remainingUserIds.length > 0) {
-                lobby.drawerSocketId = remainingUserIds[0];
-                const newDrawerUsername = lobby.users[lobby.drawerSocketId];
-                io.to(lobby.drawerSocketId).emit('Drawer', true);
-                io.to(lobbyId).emit(
-                    'chat message',
-                    `${newDrawerUsername} is now the drawer`
-                );
-            } else {
-                lobby.drawerAssigned = false;
-                lobby.drawerSocketId = null;
-            }
+            passDrawer(lobbyId);
         }
+
         delete lobby.users[socket.id];
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
 

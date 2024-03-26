@@ -14,23 +14,25 @@ function GameField() {
     const [canChat, setCanChat] = useState(false);
     const [localTimer, setlocalTimer] = useState(10);
     const chatWindow = document.getElementById('chat-window');
+    const [solution, setSolution] = useState("");
 
+    console.log(users);
 
     useEffect(() => {
         const newSocket = io();
         setSocket(newSocket);
+        newSocket.emit('join lobby', localLobby, localUsername);
+
+        newSocket.on('random lobby code', (randomLobby) => {
+            setLocalLobby(randomLobby);
+            sessionStorage.setItem('lobby', randomLobby);
+        });
 
         return () => newSocket.close();
     }, []);
 
     useEffect(() => {
         if (socket) {
-            socket.emit('join lobby', localLobby, localUsername);
-
-            socket.on('random lobby code', (randomLobby) => {
-                setLocalLobby(randomLobby);
-                sessionStorage.setItem('lobby', randomLobby);
-            });
 
             socket.on('chat message', (message) => {
                 const messageElement = document.createElement('div');
@@ -57,6 +59,19 @@ function GameField() {
                 }
             });
 
+            socket.on('solution', (solutionFromSocket) => {
+                setSolution(solutionFromSocket);
+            });
+            const handleBeforeUnload = (event) => {
+                event.preventDefault();
+                if (socket) {
+                    socket.emit('window closed', localLobby);
+                }
+                event.returnValue = '';
+            };
+
+            window.addEventListener('beforeunload', handleBeforeUnload);
+
             return () => {
                 socket.off('random lobby code');
                 socket.off('chat message');
@@ -70,6 +85,7 @@ function GameField() {
         if (socket) {
             socket.emit('pass drawer button', localLobby);
             socket.emit('reset canvas', localLobby);
+            setSolution("");
         }
     };
 
@@ -89,7 +105,6 @@ function GameField() {
             }
         }
     };
-
 
     return (
         <div>
@@ -118,9 +133,14 @@ function GameField() {
                     </button>}
                 </div>
             </div>
-            <div id="user-list" style={{ marginTop: '20px' }}>{users}</div>
+            <div id="user-list" style={{ marginTop: '20px' }}>
+                {users.map((user, index) => (
+                    <div key={index}>{user}</div>
+                ))}
+            </div>
             <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
             <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
+            {canDraw && <div id="solution" style={{ marginTop: '20px' }}>Megfejtés: {solution}</div>}
         </div>
     );
 }
