@@ -13,7 +13,7 @@ export default function DrawerBoard() {
     let [lastPoll, setLastPoll] = useState(Date.now());
     let [isDeckOpen, setIsDeckOpen] = useState(false);
     let [selectedIndex, setSelectedIndex] = useState(-1);
-    let socket = io()
+    //let socket = io()
 
     function sendUpdates() {
         const now: number = Date.now();
@@ -23,7 +23,7 @@ export default function DrawerBoard() {
             lastPoll = now;
             setLastPoll(lastPoll);
 
-            socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
+            //socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
         }
     }
 
@@ -65,7 +65,7 @@ export default function DrawerBoard() {
             setSelectedIndex(-1);
 
             
-            socket.emit('card-remove', { index: selectedIndex });
+            //socket.emit('card-remove', { index: selectedIndex });
         } else {
             
             setCards([...cards]);
@@ -82,7 +82,7 @@ export default function DrawerBoard() {
 
         setIsDeckOpen(false);
 
-        socket.emit('card-add', {card: card});
+        //socket.emit('card-add', {card: card});
     }
 
     const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.image === id));
