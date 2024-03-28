@@ -63,7 +63,7 @@ export default function Lobby() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         window.removeEventListener('beforeunload', handleBeforeUnload);
-        socket.emit('start game clicked', null);
+        socket.emit('start game clicked', localLobby);
     };
 
     return (

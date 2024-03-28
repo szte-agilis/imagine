@@ -89,8 +89,8 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
     });
 
-    socket.on('start game clicked', () => {
-        io.emit('redirect', '/gamefield');
+    socket.on('start game clicked', (lobbyId) => {
+        io.to(lobbyId).emit('redirect', '/gamefield');
     });
 
     socket.on('chat message', (lobbyId, msg) => {
