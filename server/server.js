@@ -63,6 +63,10 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
     });
 
+    socket.on('start game', () => {
+        io.emit('redirect', '/gamefield');
+    });
+
     socket.on('chat message', (lobbyId, msg) => {
         const username = lobbies[lobbyId]?.users[socket.id] || 'Anonymous';
         if (guess(msg)) {

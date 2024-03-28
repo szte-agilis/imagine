@@ -27,6 +27,16 @@ export default function Lobby() {
                 setUsers(usernames);
                 setLobbyAdmin(usernames[0]);
             });
+
+            socket.on('redirect', () => {
+                window.location.href = '/gamefield';
+            });
+
+            // Remember to clean up the event listener
+            return () => {
+                socket.off('redirect');
+                socket.off('user list');
+            };
         }
 
         const handleBeforeUnload = (event) => {
@@ -38,12 +48,12 @@ export default function Lobby() {
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
 
-        return () => {
-            if (socket) {
-                socket.off('user list');
-            }
-        };
     }, [socket]);
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        socket.emit('start game', null);
+    };
 
     return (
         <div>
@@ -53,20 +63,10 @@ export default function Lobby() {
                 ))}
             </div>
             <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
-            {lobbyAdmin === localUsername && <SubmitButton />}
+            {lobbyAdmin === localUsername && (
+            <button className="btn btn-success" onClick={handleSubmit}>
+                Start Game
+            </button>)}
         </div>
-    );
-}
-
-function SubmitButton() {
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        window.location.href = '/gamefield';
-    };
-
-    return (
-        <button className="btn btn-success" onClick={handleSubmit}>
-            Start Game
-        </button>
     );
 }

@@ -63,7 +63,7 @@ function GameField() {
             const handleBeforeUnload = (event) => {
                 event.preventDefault();
                 if (socket) {
-                    socket.emit('window closed', localLobby);
+                    socket.emit('window closed', localLobby, localUsername);
                 }
                 event.returnValue = '';
             };
