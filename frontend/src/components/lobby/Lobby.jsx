@@ -54,7 +54,7 @@ export default function Lobby() {
 
     const handleBeforeUnload = useCallback((event) => {
         event.preventDefault();
-        if (socket) {
+        if(socket) {
             socket.emit('window closed', localLobby, localUsername);
         }
         event.returnValue = '';
