@@ -76,7 +76,7 @@ export default function App() {
     const joinLobby = async (event) => {
         event.preventDefault();
         sessionStorage.setItem("lobby", lobbyID)
-        window.location.href = "/gamefield";
+        window.location.href = "/lobby";
     };
 
     return (

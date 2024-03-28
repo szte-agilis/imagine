@@ -8,8 +8,7 @@ export default function App() {
     const [showWarning, setShowWarning] = useState(false);
 
     const [data, setData] = useState({
-        name: "",
-        obbyID: 0
+        name: "" ?? sessionStorage.getItem("name")
     });
 
     function BackgroundImage() {
@@ -128,7 +127,7 @@ export default function App() {
         startTransition(() => {
             setData({ ...data, lobbyID: String(number) });
             sessionStorage.setItem("lobby", number);
-            window.location.href = "/create";
+            window.location.href = "/lobby";
         });
     }
 

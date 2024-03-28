@@ -14,7 +14,7 @@ root.render(
             <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path="/join" element={<JoinLobby />} />
-                <Route path="/create" element={<Lobby />} />
+                <Route path="/lobby" element={<Lobby />} />
                 <Route path="/gamefield" element={<GameField />} />
                 <Route path="*" element={<h1>404 - nem található</h1>} />
             </Routes>
