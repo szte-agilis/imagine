@@ -133,6 +133,10 @@ io.on('connection', (socket) => {
         lobbies[lobbyId].timer = 10;
     });
 
+    socket.on('clearChat', (lobbyId) => {
+        io.to(lobbyId).emit('clearChat');
+    });
+
     socket.on('reset canvas', (lobbyId) => {
         //todo: implement (tabla csapat)
     });
