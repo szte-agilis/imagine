@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
         }
 
         socket.join(lobbyId);
-        console.log('User joined lobby:', lobbyId);
+        console.log(`User ${username} joined lobby: ${lobbyId}`);
 
         if (!lobbies[lobbyId]) {
             lobbies[lobbyId] = {
@@ -137,9 +137,9 @@ io.on('connection', (socket) => {
         //todo: implement (tabla csapat)
     });
 
-    socket.on('window closed', (lobbyId) => {
+    socket.on('window closed', (lobbyId, username) => {
         socket.disconnect();
-        console.log('User left lobby: ', lobbyId);
+        console.log(`User ${username} left lobby: ${lobbyId}`);
     });
 
     socket.on('disconnect', () => {

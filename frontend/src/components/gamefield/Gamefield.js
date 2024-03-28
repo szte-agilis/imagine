@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import io from 'socket.io-client';
 import Board from '../drawerfield/Board';
 
@@ -15,8 +15,6 @@ function GameField() {
     const [localTimer, setlocalTimer] = useState(10);
     const chatWindow = document.getElementById('chat-window');
     const [solution, setSolution] = useState("");
-
-    console.log(users);
 
     useEffect(() => {
         const newSocket = io();
