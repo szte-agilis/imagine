@@ -8,6 +8,10 @@ export default function Lobby() {
     const [lobbyAdmin, setLobbyAdmin] = useState(null);
     const [users, setUsers] = useState([]);
 
+    if(localLobby === null || localUsername === null) {
+        window.location.href = '/';
+    }
+
     useEffect(() => {
         const newSocket = io();
         setSocket(newSocket);
@@ -30,6 +34,9 @@ export default function Lobby() {
 
             socket.on('redirect', () => {
                 window.location.href = '/gamefield';
+
+                // a new socket is created in the Gamefield component
+                socket.close();
             });
 
             // Remember to clean up the event listener
@@ -38,15 +45,6 @@ export default function Lobby() {
                 socket.off('user list');
             };
         }
-
-        const handleBeforeUnload = (event) => {
-            event.preventDefault();
-            if (socket) {
-                socket.emit('window closed', localLobby);
-            }
-            event.returnValue = '';
-        };
-        window.addEventListener('beforeunload', handleBeforeUnload);
 
     }, [socket]);
 

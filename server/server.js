@@ -33,8 +33,36 @@ io.on('connection', (socket) => {
             } while (lobbies.hasOwnProperty(lobbyId));
         }
 
+        if (!lobbies[lobbyId]) {
+            lobbies[lobbyId] = {
+                users: {},
+                drawerSocketId: null,
+                drawerAssigned: false,
+                timer: 10,
+                buttonState: 'Click me!',
+            };
+        } else {
+            if (Object.values(lobbies[lobbyId].users).includes(username)) {
+                const socketId = Object.keys(lobbies[lobbyId].users).find(
+                    (key) => lobbies[lobbyId].users[key] === username
+                );
+                delete lobbies[lobbyId].users[socketId];
+            }
+        }
+
         socket.join(lobbyId);
         console.log(`User ${username} joined lobby: ${lobbyId}`);
+
+        lobbies[lobbyId].users[socket.id] = username;
+
+        io.to(socket.id).emit('random lobby code', lobbyId);
+        io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
+
+        console.log(lobbies[lobbyId].users);
+    });
+
+    socket.on('join lobby', (lobbyId, username) => {
+        socket.join(lobbyId);
 
         if (!lobbies[lobbyId]) {
             lobbies[lobbyId] = {
@@ -47,28 +75,6 @@ io.on('connection', (socket) => {
         }
 
         lobbies[lobbyId].users[socket.id] = username;
-
-        io.to(socket.id).emit('random lobby code', lobbyId);
-        io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
-
-        console.log(lobbies[lobbyId].users);
-    });
-
-    socket.on('join lobby', (lobbyId, username) => {
-        socket.join(lobbyId);
-        lobbies[lobbyId].users[socket.id] = username;
-
-        /*if(!lobbies[lobbyId]) {
-            lobbies[lobbyId] = {
-                users: {},
-                drawerSocketId: null,
-                drawerAssigned: false,
-                timer: 10,
-                buttonState: 'Click me!',
-            };
-        }*/
-
-        // lobbies[lobbyId].users[socket.id] = username;
 
         if (!lobbies[lobbyId].drawerAssigned && username !== 'board') {
             lobbies[lobbyId].drawerAssigned = true;
