@@ -70,12 +70,16 @@ export default function Lobby() {
         <div>
             <MyImageComponent />
             <LobbyCode lobbyCode={localLobby} />
-            <UserList users={users} />
+            <UserList users={users} lobbyAdmin={lobbyAdmin}/>
 
             <div className="button-container">
             {lobbyAdmin === localUsername && (
                 <button className="btn btn-success" onClick={handleSubmit}>
                     Start Game
+                </button>)}
+            {lobbyAdmin !== localUsername && (
+                <button className="btn btn-success opacity-50 cursor-not-allowed">
+                    Waiting for { lobbyAdmin } to start
                 </button>)}
             </div>
 
@@ -95,7 +99,7 @@ function LobbyCode({ lobbyCode }) {
 
 }
 
-function UserList({ users }) {
+function UserList({ users, lobbyAdmin }) {
     return (
         <div className={'lobby-container'}>
             <div
@@ -110,7 +114,7 @@ function UserList({ users }) {
                                 <div className="flex items-center">
                                     <div className="flex-1 min-w-0 ms-4">
                                         <p className="text-base font-medium text-gray-900 truncate dark:text-white"
-                                           key={index}>{user}</p>
+                                           key={index}>{user} {lobbyAdmin === user && <span>(Admin)</span>}</p>
                                     </div>
                                 </div>
                             </li>
