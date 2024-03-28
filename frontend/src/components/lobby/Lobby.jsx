@@ -52,7 +52,7 @@ export default function Lobby() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        socket.emit('start game', null);
+        socket.emit('start game clicked', null);
     };
 
     return (
