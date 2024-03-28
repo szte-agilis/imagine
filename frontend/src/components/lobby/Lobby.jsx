@@ -11,7 +11,7 @@ export default function Lobby() {
     useEffect(() => {
         const newSocket = io();
         setSocket(newSocket);
-        newSocket.emit('join lobby', localLobby, localUsername);
+        newSocket.emit('create lobby', localLobby, localUsername);
 
         newSocket.on('random lobby code', (randomLobby) => {
             setLocalLobby(randomLobby);

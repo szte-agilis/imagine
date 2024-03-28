@@ -21,11 +21,6 @@ function GameField() {
         setSocket(newSocket);
         newSocket.emit('join lobby', localLobby, localUsername);
 
-        newSocket.on('random lobby code', (randomLobby) => {
-            setLocalLobby(randomLobby);
-            sessionStorage.setItem('lobby', randomLobby);
-        });
-
         return () => newSocket.close();
     }, []);
 

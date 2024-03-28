@@ -24,7 +24,7 @@ let correctGuesses = 0;
 let intervalId = null;
 
 io.on('connection', (socket) => {
-    socket.on('join lobby', (lobbyId, username) => {
+    socket.on('create lobby', (lobbyId, username) => {
         if (lobbyId === '0') {
             do {
                 lobbyId = Math.floor(
@@ -48,6 +48,28 @@ io.on('connection', (socket) => {
 
         lobbies[lobbyId].users[socket.id] = username;
 
+        io.to(socket.id).emit('random lobby code', lobbyId);
+        io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
+
+        console.log(lobbies[lobbyId].users);
+    });
+
+    socket.on('join lobby', (lobbyId, username) => {
+        socket.join(lobbyId);
+        lobbies[lobbyId].users[socket.id] = username;
+
+        /*if(!lobbies[lobbyId]) {
+            lobbies[lobbyId] = {
+                users: {},
+                drawerSocketId: null,
+                drawerAssigned: false,
+                timer: 10,
+                buttonState: 'Click me!',
+            };
+        }*/
+
+        // lobbies[lobbyId].users[socket.id] = username;
+
         if (!lobbies[lobbyId].drawerAssigned && username !== 'board') {
             lobbies[lobbyId].drawerAssigned = true;
             lobbies[lobbyId].drawerSocketId = socket.id;
@@ -59,8 +81,10 @@ io.on('connection', (socket) => {
         } else {
             io.to(socket.id).emit('Drawer', false);
         }
-        io.to(socket.id).emit('random lobby code', lobbyId);
+
         io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
+
+        console.log(lobbies[lobbyId].users);
     });
 
     socket.on('start game clicked', () => {
