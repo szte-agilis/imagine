@@ -57,8 +57,6 @@ io.on('connection', (socket) => {
 
         io.to(socket.id).emit('random lobby code', lobbyId);
         io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
-
-        console.log(lobbies[lobbyId].users);
     });
 
     socket.on('join lobby', (lobbyId, username) => {
@@ -89,8 +87,6 @@ io.on('connection', (socket) => {
         }
 
         io.to(lobbyId).emit('user list', Object.values(lobbies[lobbyId].users));
-
-        console.log(lobbies[lobbyId].users);
     });
 
     socket.on('start game clicked', () => {

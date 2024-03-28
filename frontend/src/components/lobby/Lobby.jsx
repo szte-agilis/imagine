@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
 export default function Lobby() {
@@ -39,6 +39,8 @@ export default function Lobby() {
                 socket.close();
             });
 
+            window.addEventListener('beforeunload', handleBeforeUnload);
+
             // Remember to clean up the event listener
             return () => {
                 socket.off('redirect');
@@ -48,8 +50,17 @@ export default function Lobby() {
 
     }, [socket]);
 
+    const handleBeforeUnload = useCallback((event) => {
+        event.preventDefault();
+        if (socket) {
+            socket.emit('window closed', localLobby, localUsername);
+        }
+        event.returnValue = '';
+    }, [socket, localLobby, localUsername]);
+
     const handleSubmit = async (event) => {
         event.preventDefault();
+        window.removeEventListener('beforeunload', handleBeforeUnload);
         socket.emit('start game clicked', null);
     };
 
