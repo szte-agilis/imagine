@@ -6,8 +6,7 @@ import { useImage } from 'react-image';
 
 export default function App() {    
 
-    if(sessionStorage.getItem("username") === null || sessionStorage.getItem("username") === undefined || 
-        sessionStorage.getItem("lobby") === null || sessionStorage.getItem("lobby") === undefined){
+    if(sessionStorage.getItem("username") === null || sessionStorage.getItem("username") === undefined){
         window.location.href = "/";
     } 
 

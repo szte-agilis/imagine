@@ -48,6 +48,10 @@
     font-size: 1.3em;
 }
 
+#warning{
+    top: 0;
+}
+
 .animated-warning{
     animation-duration: .15s;
     animation-name: tada;
