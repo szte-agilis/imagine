@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import io from 'socket.io-client';
+import {MyImageComponent} from './Start-Page';
+import './Lobby.css';
 
 export default function Lobby() {
     const [socket, setSocket] = useState(null);
@@ -66,16 +68,56 @@ export default function Lobby() {
 
     return (
         <div>
-            <div id="user-list" style={{ marginTop: '20px' }}>
-                {users.map((user, index) => (
-                    <div key={index}>{user}</div>
-                ))}
-            </div>
-            <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
+            <MyImageComponent />
+            <LobbyCode lobbyCode={localLobby} />
+            <UserList users={users} />
+
+            <div className="button-container">
             {lobbyAdmin === localUsername && (
-            <button className="btn btn-success" onClick={handleSubmit}>
-                Start Game
-            </button>)}
+                <button className="btn btn-success" onClick={handleSubmit}>
+                    Start Game
+                </button>)}
+            </div>
+
+        </div>
+    );
+}
+
+function LobbyCode({ lobbyCode }) {
+    return (
+        <div className={'lobby-code-container'}>
+            <div
+                className="lobby-code-text max-w-md p-4">
+                <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">Lobby kód: {lobbyCode}</h5>
+            </div>
+        </div>
+    );
+
+}
+
+function UserList({ users }) {
+    return (
+        <div className={'lobby-container'}>
+            <div
+                className="w-full max-w-md p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-4">
+                    <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white">Játékosok</h5>
+                </div>
+                <div className="flow-root">
+                    <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-700">
+                        {users.map((user, index) => (
+                            <li className="py-3 sm:py-4">
+                                <div className="flex items-center">
+                                    <div className="flex-1 min-w-0 ms-4">
+                                        <p className="text-base font-medium text-gray-900 truncate dark:text-white"
+                                           key={index}>{user}</p>
+                                    </div>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
         </div>
     );
 }

@@ -2,35 +2,35 @@ import React, { useState, startTransition } from "react";
 import "./Start-page.css";
 import { useImage } from 'react-image';
 
+export function MyImageComponent() {
+    const { src } = useImage({
+        srcList: 'https://cdn.wallpapersafari.com/69/10/CEokAi.jpg',
+    });
+
+    return (
+        <div
+            className="my-image-container"
+            style={{
+                width: '100vw',
+                height: '100vh',
+                overflow: 'hidden',
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                zIndex: -1,
+                backgroundImage: `url(${src})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+            }}
+        ></div>
+    );
+}
 export default function App() {    
     const [data, setData] = useState({
         name: "",
         lobbyID: 0,
     });
 
-    function MyImageComponent() {
-        const { src } = useImage({
-            srcList: 'https://cdn.wallpapersafari.com/69/10/CEokAi.jpg',
-        });
-    
-        return (
-            <div
-                className="my-image-container"
-                style={{
-                    width: '100vw',
-                    height: '100vh',
-                    overflow: 'hidden',
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    zIndex: -1,
-                    backgroundImage: `url(${src})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                }}
-            ></div>
-        );
-    }
     function MyImageComponent2() {
         const { src } = useImage({
             srcList: 'https://i.pinimg.com/736x/3e/f0/ee/3ef0ee4a246747e96ab8d7816780eb0b.jpg',
