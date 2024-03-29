@@ -12,21 +12,15 @@ function GameField() {
     const [showDrawerPass, setShowDrawerPass] = useState(false);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
-    const [localTimer, setlocalTimer] = useState(10);
+    const [localTimer, setlocalTimer] = useState(15);
     const chatWindow = document.getElementById('chat-window');
     const [solution, setSolution] = useState("");
-
-    console.log(users);
+    const [myPoints, setMyPoints] = useState(0);
 
     useEffect(() => {
         const newSocket = io();
         setSocket(newSocket);
         newSocket.emit('join lobby', localLobby, localUsername);
-
-        newSocket.on('random lobby code', (randomLobby) => {
-            setLocalLobby(randomLobby);
-            sessionStorage.setItem('lobby', randomLobby);
-        });
 
         return () => newSocket.close();
     }, []);
@@ -47,6 +41,16 @@ function GameField() {
                 setShowDrawerPass(canDraw);
             });
 
+            socket.on('points-for-guesser', (pointsObject) => {
+                if(pointsObject.username === localUsername){
+                    setMyPoints(prevMyPoints => prevMyPoints + pointsObject.points)
+                }
+            });
+
+            socket.on('points-for-drawer', (points) => {
+                setMyPoints(prevMyPoints => prevMyPoints + points)
+            });
+
             socket.on('user list', (usernames) => {
                 setUsers(usernames);
                 //setUsers(usernames.filter(username => username !== 'board'));
@@ -65,7 +69,7 @@ function GameField() {
             const handleBeforeUnload = (event) => {
                 event.preventDefault();
                 if (socket) {
-                    socket.emit('window closed', localLobby);
+                    socket.emit('window closed', localLobby, localUsername);
                 }
                 event.returnValue = '';
             };
@@ -141,6 +145,7 @@ function GameField() {
             <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
             <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
             {canDraw && <div id="solution" style={{ marginTop: '20px' }}>Megfejtés: {solution}</div>}
+            <div id="timer-text" style={{ marginTop: '20px' }}>Pontjaim: {myPoints}</div>
         </div>
     );
 }
