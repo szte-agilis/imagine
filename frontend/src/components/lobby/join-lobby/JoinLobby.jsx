@@ -1,4 +1,5 @@
-import React, { useState, startTransition } from "react";
+import React, { useState, useEffect } from "react";
+import io from 'socket.io-client';
 import "./join.css";
 import "../common.css";
 import bgImg from '../../../assets/background.jpg';
@@ -12,7 +13,18 @@ export default function App() {
     }
 
     const [lobbyID, setLobbyID] = useState(100000);
-    const lobbies = [{ id: 123456, users: 6 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }]
+    const [lobbies, setLobbies] = useState([])
+
+    useEffect(() => {
+        const newSocket = io();
+        newSocket.emit('list-lobbies');
+
+        newSocket.on('list-lobbies', (lobbies) => {
+            setLobbies(lobbies);
+        });
+
+        return () => newSocket.close();
+    }, []);
 
     function BackgroundImage() {
         const { src } = useImage({
