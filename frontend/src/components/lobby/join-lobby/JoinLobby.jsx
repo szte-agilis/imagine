@@ -12,7 +12,7 @@ export default function App() {
     }
 
     const [lobbyID, setLobbyID] = useState(100000);
-    const lobbies = [{ id: 123456, users: 6 }, { id: 234567, users: 1 }]
+    const lobbies = [{ id: 123456, users: 6 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }, { id: 234567, users: 1 }]
 
     function BackgroundImage() {
         const { src } = useImage({
@@ -84,25 +84,27 @@ export default function App() {
 
     return (
         <main>
-            <div className="App relative">
-                <p id="player-name">{sessionStorage.getItem("username")}</p>
-                <input
-                    type="text"
-                    placeholder="Lobby azonosító"
-                    className="input input-bordered w-full max-w-xs"
-                    id="lobbID"
-                    value={lobbyID}
-                    onChange={(e) =>
-                        setLobbyID(e.target.value)
-                    }
-                />
-                <button className="btn btn-success" onClick={joinLobby}>Csatlakozás</button>
-                <div>
+            <div className="container">
+                <div className="join-form">
+                    <p id="player-name">{sessionStorage.getItem("username")}</p>
+                    <input
+                        type="text"
+                        placeholder="Lobby azonosító"
+                        className="input input-bordered w-full max-w-xs"
+                        id="lobbID"
+                        value={lobbyID}
+                        onChange={(e) =>
+                            setLobbyID(e.target.value)
+                        }
+                    />
+                    <button className="btn btn-success" onClick={joinLobby}>Csatlakozás</button>
+                </div>
+                <div className="lobby-list">
                     {lobbies.map((lobby) => (
-                        <div key={lobby.id}>
-                            <p>Lobby ID: {lobby.id}</p>
-                            <p>Number of Users: {lobby.users}</p>
-                            <button className="btn btn-success" onClick={() => setLobbyID(lobby.id)}>Kijelölés</button>
+                        <div className="lobby" key={lobby.id}>
+                            <p className="lobby-id">ID: {lobby.id}</p>
+                            <p className="lobby-users">Number of Users: {lobby.users}</p>
+                            <button className="btn btn-success" onClick={(e) => {setLobbyID(lobby.id); joinLobby(e)}}>Csatlakozás</button>
                         </div>
                     ))}
                 </div>
