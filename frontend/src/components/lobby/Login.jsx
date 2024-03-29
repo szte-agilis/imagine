@@ -1,10 +1,11 @@
-import React, { useState, startTransition, useEffect} from "react";
+import React, { useState, startTransition, useEffect } from "react";
 import "./Login.css";
+import "./common.css";
 import bgImg from '../../assets/background.jpg';
 import logoImg from '../../assets/imagine-logo.png';
 import { useImage } from 'react-image';
 
-export default function App() {    
+export default function App() {
     const [showWarning, setShowWarning] = useState(false);
     const [warningMessage, setWarningMessage] = useState("");
     const MAX_NAME_LENGTH = 15;
@@ -14,7 +15,7 @@ export default function App() {
     useEffect(() => {
         const storedUsername = sessionStorage.getItem("username");
         if (storedUsername) {
-          setUsername(storedUsername);
+            setUsername(storedUsername);
         }
     }, []);
 
@@ -22,7 +23,7 @@ export default function App() {
         const { src } = useImage({
             srcList: [bgImg, 'https://cdn.wallpapersafari.com/69/10/CEokAi.jpg'],
         });
-    
+
         return (
             <div
                 className="background-image"
@@ -53,7 +54,7 @@ export default function App() {
                     backgroundPosition: 'center',
                     opacity: '.6'
                 }}
-                ></div>
+            ></div>
             </div>
         );
     }
@@ -61,7 +62,7 @@ export default function App() {
         const { src } = useImage({
             srcList: [logoImg, 'https://i.pinimg.com/736x/3e/f0/ee/3ef0ee4a246747e96ab8d7816780eb0b.jpg'],
         });
-    
+
         return (
             <div
                 className="logo-image"
@@ -83,7 +84,7 @@ export default function App() {
         warning.animate(
             [
                 { transform: 'scale(1)' },
-                { 
+                {
                     transform: 'scale(0)',
                     opacity: 0
                 }
@@ -95,28 +96,17 @@ export default function App() {
             }
         ).onfinish = () => setShowWarning(false);
     }
-    function Warning() {
-        return (
-            <div id="warning" className="absolute w-full text-center py-4 lg:px-4 animated-warning">
-                <div className="p-2 bg-red-100 items-center text-red-700 leading-none lg:rounded-full flex lg:inline-flex" role="alert">
-                    <span className="flex rounded-full bg-red-200 uppercase px-2 py-1 text-xs font-bold mr-3">Hoppá!</span>
-                    <span className="font-semibold mr-2 text-left flex-auto text-red-500">{warningMessage}</span>
-                    <svg id="warning-svg" onClick={hideWarning} className="cursor-pointer fill-current opacity-75 h-6 w-6 transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none max-w-[40px] max-h-[40px] text-xs hover:bg-gray-900/10 active:bg-gray-900/20 rounded-full "  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
-                </div>
-            </div>
-        );
-    }
 
     const joinLobby = async (event) => {
         event.preventDefault();
 
-        if (username.trim() === ""){
+        if (username.trim() === "") {
             setWarningMessage("Nem adtál meg nevet.");
-            setShowWarning(true);   
+            setShowWarning(true);
             return;
         }
 
-        if (username.trim().length > MAX_NAME_LENGTH){
+        if (username.trim().length > MAX_NAME_LENGTH) {
             setWarningMessage("Túl hosszú nevet adtál meg! Max: 15 karakter.");
             setShowWarning(true);
             return;
@@ -130,13 +120,13 @@ export default function App() {
     const createLobby = async (event) => {
         event.preventDefault();
 
-        if (username.trim() === ""){
+        if (username.trim() === "") {
             setWarningMessage("Nem adtál meg nevet.");
             setShowWarning(true);
             return;
         }
 
-        if (username.trim().length > MAX_NAME_LENGTH){
+        if (username.trim().length > MAX_NAME_LENGTH) {
             setWarningMessage("Túl hosszú nevet adtál meg! Max: 15 karakter.");
             setShowWarning(true);
             return;
@@ -155,9 +145,17 @@ export default function App() {
     return (
         <main>
             <div className="App relative">
-                {showWarning && (username.trim().length > MAX_NAME_LENGTH || username === "") && <Warning/>}
+                {showWarning &&
+                    <div id="warning" className="absolute w-full text-center py-4 lg:px-4 animated-warning">
+                        <div className="p-2 bg-red-100 items-center text-red-700 leading-none lg:rounded-full flex lg:inline-flex" role="alert">
+                            <span className="flex rounded-full bg-red-200 uppercase px-2 py-1 text-xs font-bold mr-3">Hoppá!</span>
+                            <span className="font-semibold mr-2 text-left flex-auto text-red-500">{warningMessage}</span>
+                            <svg id="warning-svg" onClick={hideWarning} className="cursor-pointer fill-current opacity-75 h-6 w-6 transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none max-w-[40px] max-h-[40px] text-xs hover:bg-gray-900/10 active:bg-gray-900/20 rounded-full " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+                        </div>
+                    </div>
+                }
                 <div className="lobby-container">
-                    <LogoImage className="animate animate-tada"/>
+                    <LogoImage className="animate animate-tada" />
                     <input
                         type="text"
                         placeholder="Név"
@@ -165,7 +163,7 @@ export default function App() {
                         id="name"
                         maxLength={15}
                         value={username}
-                        onChange={(e) =>{
+                        onChange={(e) => {
                             setUsername(e.target.value);
                         }}
                     />
@@ -176,7 +174,7 @@ export default function App() {
                         <button id="create-lobby" className="btn rounded-md border bg-gray-800 btn btn-success btn-lobby" onClick={createLobby}>
                             <p>Szoba Létrehozása</p>
                         </button>
-                    </div>   
+                    </div>
                 </div>
             </div>
             <BackgroundImage />

@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#warning {
+    top: 0;
+}
+
+.animated-warning {
+    animation-duration: .15s;
+    animation-name: tada;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+}
+
+.animated-warning * {
+    font-size: 1em;
+}
+
+@keyframes tada {
+    0% {
+        transform: scale3d(0, 0, 0);
+    }
+
+    95% {
+        transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 1deg);
+    }
+
+    100% {
+        transform: scale3d(1, 1, 1);
+    }
+}
