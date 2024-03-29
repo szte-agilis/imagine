@@ -29,6 +29,14 @@ function getLobby(lobbyId) {
     }
     return _lobbies[lobbyId];
 }
+
+function lobbiesStats() {
+    return Object.entries(_lobbies).map(([id, lobby]) => ({
+        id,
+        users: Object.values(lobby.users).length,
+    }));
+}
+
 //let correctGuesses = 0;
 let intervalId = null;
 
@@ -99,6 +107,8 @@ io.on('connection', (socket) => {
 
         io.to(socket.id).emit('random lobby code', lobbyId);
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
+
+        io.emit('list-lobbies', lobbiesStats());
     });
 
     socket.on('join lobby', (lobbyId, username) => {
@@ -133,6 +143,8 @@ io.on('connection', (socket) => {
         }
 
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
+
+        io.emit('list-lobbies', lobbiesStats());
     });
 
     socket.on('start game clicked', (lobbyId) => {
@@ -177,6 +189,10 @@ io.on('connection', (socket) => {
         } else {
             io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
         }
+    });
+
+    socket.on('list-lobbies', () => {
+        socket.emit('list-lobbies', lobbiesStats());
     });
 
     socket.on('button clicked', (lobbyId, username) => {
@@ -314,6 +330,7 @@ io.on('connection', (socket) => {
             clearInterval(lobby.intervalId);
             delete _lobbies[lobbyId];
         }
+        io.emit('list-lobbies', lobbiesStats());
     });
 });
 

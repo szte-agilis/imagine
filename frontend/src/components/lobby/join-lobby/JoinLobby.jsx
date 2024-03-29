@@ -1,4 +1,5 @@
-import React, { useState, startTransition } from "react";
+import React, { useState, useEffect } from "react";
+import io from 'socket.io-client';
 import "./join.css";
 import "../common.css";
 import bgImg from '../../../assets/background.jpg';
@@ -11,7 +12,18 @@ export default function App() {
         window.location.href = "/";
     }
 
-    const [lobbyID, setLobbyID] = useState(100000);
+    const [lobbies, setLobbies] = useState([])
+
+    useEffect(() => {
+        const newSocket = io();
+        newSocket.emit('list-lobbies');
+
+        newSocket.on('list-lobbies', (lobbies) => {
+            setLobbies(lobbies);
+        });
+
+        return () => newSocket.close();
+    }, []);
 
     function BackgroundImage() {
         const { src } = useImage({
@@ -73,9 +85,8 @@ export default function App() {
         );
     }
 
-    const joinLobby = async (event) => {
-        event.preventDefault();
-        sessionStorage.setItem("lobby", lobbyID)
+    function joinLobby(id) {
+        sessionStorage.setItem("lobby", id)
         window.location.href = "/lobby";
     };
 
@@ -83,17 +94,15 @@ export default function App() {
         <main>
             <div className="App relative">
                 <p id="player-name">{sessionStorage.getItem("username")}</p>
-                <input
-                    type="text"
-                    placeholder="Lobby azonosító"
-                    className="input input-bordered w-full max-w-xs"
-                    id="lobbID"
-                    value={lobbyID}
-                    onChange={(e) =>
-                        setLobbyID(e.target.value)
-                    }
-                />
-                <button className="btn btn-success" onClick={joinLobby}>Csatlakozás</button>
+                <div className="lobby-list">
+                    {lobbies.map((lobby) => (
+                        <div className="lobby" key={lobby.id}>
+                            <p className="lobby-id">ID: {lobby.id}</p>
+                            <p className="lobby-users">Number of Users: {lobby.users}</p>
+                            <button className="btn btn-success" onClick={() => {joinLobby(lobby.id)}}>Csatlakozás</button>
+                        </div>
+                    ))}
+                </div>
             </div>
             <BackgroundImage />
         </main>
