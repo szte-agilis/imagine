@@ -81,6 +81,17 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('list-lobbies', () => {
+        const result = [];
+        for (const [id, lobby] of Object.entries(lobbies)) {
+            result.push({
+                id,
+                users: Object.values(lobby.users).length,
+            });
+        }
+        io.emit('list-lobbies', result);
+    });
+
     socket.on('button clicked', (lobbyId, username) => {
         lobbies[lobbyId].buttonState = `${username} clicked the button`;
         io.to(lobbyId).emit('button change', lobbies[lobbyId].buttonState);
