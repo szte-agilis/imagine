@@ -12,6 +12,7 @@ export default function App() {
     }
 
     const [lobbyID, setLobbyID] = useState(100000);
+    const lobbies = [{ id: 123456, users: 6 }, { id: 234567, users: 1 }]
 
     function BackgroundImage() {
         const { src } = useImage({
@@ -53,6 +54,7 @@ export default function App() {
         );
     }
     function LogoImage() {
+
         const { src } = useImage({
             srcList: [logoImg, 'https://i.pinimg.com/736x/3e/f0/ee/3ef0ee4a246747e96ab8d7816780eb0b.jpg'],
         });
@@ -79,6 +81,7 @@ export default function App() {
         window.location.href = "/lobby";
     };
 
+
     return (
         <main>
             <div className="App relative">
@@ -94,6 +97,15 @@ export default function App() {
                     }
                 />
                 <button className="btn btn-success" onClick={joinLobby}>Csatlakozás</button>
+                <div>
+                    {lobbies.map((lobby) => (
+                        <div key={lobby.id}>
+                            <p>Lobby ID: {lobby.id}</p>
+                            <p>Number of Users: {lobby.users}</p>
+                            <button className="btn btn-success" onClick={() => setLobbyID(lobby.id)}>Kijelölés</button>
+                        </div>
+                    ))}
+                </div>
             </div>
             <BackgroundImage />
         </main>
