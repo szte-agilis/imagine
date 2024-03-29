@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.lobby-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    row-gap: 5vh;
+    width: 100vw;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+    align-items: center;
+    column-gap: 5vw;
+}
+
+#join-lobby:hover,
+#create-lobby:hover {
+    background-blend-mode: difference;
+}
+
+#join-lobby,
+#create-lobby {
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 16vw;
+    height: 30vh;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    color: white;
+}
+
+#join-lobby {
+    background-image: url('../../assets/lobby-list.png');
+}
+
+#create-lobby {
+    background-image: url('../../assets/create-lobby.png');
+}
+
+.btn-lobby p {
+    margin-top: 2vh;
+    font-size: 1.3em;
+}
