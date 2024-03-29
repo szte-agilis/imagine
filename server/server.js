@@ -79,7 +79,6 @@ io.on('connection', (socket) => {
                 timer: 15,
                 buttonState: 'Click me!',
                 correctGuesses: 0,
-                lobbyData: null,
             };
             logger('log', getLobby(lobbyId), 'New lobby created');
         } else {
@@ -136,8 +135,7 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
     });
 
-    socket.on('start game clicked', (lobbyId, lobbyData) => {
-        _lobbies[lobbyId].lobbyData = lobbyData;
+    socket.on('start game clicked', (lobbyId) => {
         io.to(lobbyId).emit('redirect', '/gamefield');
     });
 

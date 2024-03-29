@@ -238,7 +238,8 @@ export default function App() {
 
         //io.emit("start lobby");
         window.removeEventListener('beforeunload', handleBeforeUnload);
-        socket.emit('start game clicked', localLobby, lobbyData);
+        sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
+        socket.emit('start game clicked', localLobby);
     }
 
     const exit = async (event) => {
