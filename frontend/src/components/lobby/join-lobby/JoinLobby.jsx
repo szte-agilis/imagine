@@ -1,4 +1,4 @@
-import React, { useState, useEffect, startTransition } from "react";
+import React, { useState, useEffect } from "react";
 import io from 'socket.io-client';
 import "./join.css";
 import "../common.css";
@@ -12,7 +12,6 @@ export default function App() {
         window.location.href = "/";
     }
 
-    const [lobbyID, setLobbyID] = useState(100000);
     const [lobbies, setLobbies] = useState([])
 
     useEffect(() => {
@@ -86,36 +85,21 @@ export default function App() {
         );
     }
 
-    function handleSubmit(event) {
-        event.preventDefault();
-        return joinLobby(lobbyID);
-    }
-
     function joinLobby(id) {
         sessionStorage.setItem("lobby", id)
         window.location.href = "/lobby";
     };
+
     return (
         <main>
             <div className="App relative">
                 <p id="player-name">{sessionStorage.getItem("username")}</p>
-                <input
-                    type="text"
-                    placeholder="Lobby azonosító"
-                    className="input input-bordered w-full max-w-xs"
-                    id="lobbID"
-                    value={lobbyID}
-                    onChange={(e) =>
-                        setLobbyID(e.target.value)
-                    }
-                />
-                <button className="btn btn-success" onClick={joinLobby}>Csatlakozás</button>
                 <div className="lobby-list">
                     {lobbies.map((lobby) => (
                         <div className="lobby" key={lobby.id}>
                             <p className="lobby-id">ID: {lobby.id}</p>
                             <p className="lobby-users">Number of Users: {lobby.users}</p>
-                            <button className="btn btn-success" onClick={(e) => {joinLobby(lobby.id)}}>Csatlakozás</button>
+                            <button className="btn btn-success" onClick={() => {joinLobby(lobby.id)}}>Csatlakozás</button>
                         </div>
                     ))}
                 </div>
