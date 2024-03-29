@@ -12,9 +12,10 @@ function GameField() {
     const [showDrawerPass, setShowDrawerPass] = useState(false);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
-    const [localTimer, setlocalTimer] = useState(10);
+    const [localTimer, setlocalTimer] = useState(15);
     const chatWindow = document.getElementById('chat-window');
     const [solution, setSolution] = useState("");
+    const [myPoints, setMyPoints] = useState(0);
 
     useEffect(() => {
         const newSocket = io();
@@ -38,6 +39,16 @@ function GameField() {
                 setCanChat(!canDraw);
                 setCanDraw(canDraw);
                 setShowDrawerPass(canDraw);
+            });
+
+            socket.on('points-for-guesser', (pointsObject) => {
+                if(pointsObject.username === localUsername){
+                    setMyPoints(prevMyPoints => prevMyPoints + pointsObject.points)
+                }
+            });
+
+            socket.on('points-for-drawer', (points) => {
+                setMyPoints(prevMyPoints => prevMyPoints + points)
             });
 
             socket.on('user list', (usernames) => {
@@ -134,6 +145,7 @@ function GameField() {
             <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
             <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
             {canDraw && <div id="solution" style={{ marginTop: '20px' }}>Megfejtés: {solution}</div>}
+            <div id="timer-text" style={{ marginTop: '20px' }}>Pontjaim: {myPoints}</div>
         </div>
     );
 }

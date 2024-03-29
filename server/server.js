@@ -29,7 +29,7 @@ function getLobby(lobbyId) {
     }
     return _lobbies[lobbyId];
 }
-let correctGuesses = 0;
+//let correctGuesses = 0;
 let intervalId = null;
 
 io.on('connection', (socket) => {
@@ -76,8 +76,9 @@ io.on('connection', (socket) => {
                 users: {},
                 drawerSocketId: null,
                 drawerAssigned: false,
-                timer: 10,
+                timer: 15,
                 buttonState: 'Click me!',
+                correctGuesses: 0,
             };
             logger('log', getLobby(lobbyId), 'New lobby created');
         } else {
@@ -109,8 +110,9 @@ io.on('connection', (socket) => {
                 users: {},
                 drawerSocketId: null,
                 drawerAssigned: false,
-                timer: 10,
+                timer: 15,
                 buttonState: 'Click me!',
+                correctGuesses: 0,
             };
         }
 
@@ -142,14 +144,35 @@ io.on('connection', (socket) => {
         const username = lobby?.users[socket.id] || 'Anonymous';
         if (guess(msg)) {
             io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
-            correctGuesses++;
+            if (lobby.correctGuesses == 0) {
+                const pointsObject = {
+                    username: username,
+                    points: 1000 + lobby.timer,
+                };
+                io.to(lobbyId).emit('points-for-guesser', pointsObject);
+            } else {
+                const pointsObject = {
+                    username: username,
+                    points: 1000 - lobby.correctGuesses * 20 + lobby.timer,
+                };
+                io.to(lobbyId).emit('points-for-guesser', pointsObject);
+            }
+            lobby.correctGuesses++;
             if (
-                correctGuesses ===
+                lobby.correctGuesses ===
                 Object.values(_lobbies[lobbyId].users).length - 1
             ) {
-                clearInterval(intervalId);
+                clearInterval(lobby.intervalId);
+                io.to(lobby.drawerSocketId).emit(
+                    'points-for-drawer',
+                    lobby.correctGuesses * 50
+                );
+                console.log(
+                    'drawer awarded(everyone got it): ' +
+                        lobby.correctGuesses * 50
+                );
                 passDrawer(lobbyId);
-                correctGuesses = 0;
+                lobby.correctGuesses = 0;
             }
         } else {
             io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
@@ -200,15 +223,53 @@ io.on('connection', (socket) => {
             if (lobby.timer > 0) {
                 lobby.timer--;
                 console.log(lobby.timer);
+                lobby.intervalId = intervalId;
                 io.to(lobbyId).emit('timer', lobby.timer);
                 io.to(lobbyId).emit('solution', 'dummy');
             } else {
+                const numberOfPlayers = Object.keys(lobby.users).length;
+                if (
+                    lobby.correctGuesses >
+                    numberOfPlayers - 1 - lobby.correctGuesses
+                ) {
+                    io.to(lobby.drawerSocketId).emit(
+                        'points-for-drawer',
+                        lobby.correctGuesses * 35
+                    );
+                    console.log(
+                        'drawer awarded(more correct): ' +
+                            lobby.correctGuesses * 35
+                    );
+                } else if (
+                    lobby.correctGuesses <
+                    numberOfPlayers - 1 - lobby.correctGuesses
+                ) {
+                    io.to(lobby.drawerSocketId).emit(
+                        'points-for-drawer',
+                        lobby.correctGuesses * 15
+                    );
+                    console.log(
+                        'drawer awarded(less correct): ' +
+                            lobby.correctGuesses * 15
+                    );
+                } else if (
+                    lobby.correctGuesses ==
+                    numberOfPlayers - 1 - lobby.correctGuesses
+                ) {
+                    io.to(lobby.drawerSocketId).emit(
+                        'points-for-drawer',
+                        lobby.correctGuesses * 25
+                    );
+                    console.log(
+                        'drawer awarded(equal): ' + lobby.correctGuesses * 25
+                    );
+                }
                 clearInterval(lobby.intervalId);
                 lobby.intervalId = null;
                 passDrawer(lobbyId);
             }
         }, 1000);
-        lobby.timer = 10;
+        lobby.timer = 15;
     });
 
     socket.on('reset canvas', (lobbyId) => {
