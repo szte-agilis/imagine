@@ -86,9 +86,13 @@ export default function App() {
         );
     }
 
-    const joinLobby = async (event) => {
+    function handleSubmit(event) {
         event.preventDefault();
-        sessionStorage.setItem("lobby", lobbyID)
+        return joinLobby(lobbyID);
+    }
+
+    function joinLobby(id) {
+        sessionStorage.setItem("lobby", id)
         window.location.href = "/lobby";
     };
     return (
@@ -111,7 +115,7 @@ export default function App() {
                         <div className="lobby" key={lobby.id}>
                             <p className="lobby-id">ID: {lobby.id}</p>
                             <p className="lobby-users">Number of Users: {lobby.users}</p>
-                            <button className="btn btn-success" onClick={(e) => {setLobbyID(lobby.id); joinLobby(e)}}>Csatlakozás</button>
+                            <button className="btn btn-success" onClick={(e) => {joinLobby(lobby.id)}}>Csatlakozás</button>
                         </div>
                     ))}
                 </div>
