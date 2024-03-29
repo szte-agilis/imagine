@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, startTransition } from "react";
 import io from 'socket.io-client';
 import "./join.css";
 import "../common.css";
@@ -66,7 +66,6 @@ export default function App() {
         );
     }
     function LogoImage() {
-
         const { src } = useImage({
             srcList: [logoImg, 'https://i.pinimg.com/736x/3e/f0/ee/3ef0ee4a246747e96ab8d7816780eb0b.jpg'],
         });
@@ -92,25 +91,21 @@ export default function App() {
         sessionStorage.setItem("lobby", lobbyID)
         window.location.href = "/lobby";
     };
-
-
     return (
         <main>
-            <div className="container">
-                <div className="join-form">
-                    <p id="player-name">{sessionStorage.getItem("username")}</p>
-                    <input
-                        type="text"
-                        placeholder="Lobby azonosító"
-                        className="input input-bordered w-full max-w-xs"
-                        id="lobbID"
-                        value={lobbyID}
-                        onChange={(e) =>
-                            setLobbyID(e.target.value)
-                        }
-                    />
-                    <button className="btn btn-success" onClick={joinLobby}>Csatlakozás</button>
-                </div>
+            <div className="App relative">
+                <p id="player-name">{sessionStorage.getItem("username")}</p>
+                <input
+                    type="text"
+                    placeholder="Lobby azonosító"
+                    className="input input-bordered w-full max-w-xs"
+                    id="lobbID"
+                    value={lobbyID}
+                    onChange={(e) =>
+                        setLobbyID(e.target.value)
+                    }
+                />
+                <button className="btn btn-success" onClick={joinLobby}>Csatlakozás</button>
                 <div className="lobby-list">
                     {lobbies.map((lobby) => (
                         <div className="lobby" key={lobby.id}>
