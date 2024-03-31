@@ -9,7 +9,6 @@ function GameField() {
     const [chatInput, setChatInput] = useState("");
     const [messages, setMessages] = useState([]);
     const [users, setUsers] = useState([]);
-    const [showDrawerPass, setShowDrawerPass] = useState(false);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
     const [localTimer, setlocalTimer] = useState(15);
@@ -38,7 +37,6 @@ function GameField() {
             socket.on('Drawer', (canDraw) => {
                 setCanChat(!canDraw);
                 setCanDraw(canDraw);
-                setShowDrawerPass(canDraw);
             });
 
             socket.on('points-for-guesser', (pointsObject) => {
@@ -113,7 +111,7 @@ function GameField() {
     return (
         <div>
             <div id="container">
-                <Board />
+                <Board canDraw={canDraw} />
                 <div id="chat-container">
                     <div id="chat-window"></div>
                     <label htmlFor="chat-input"></label>
