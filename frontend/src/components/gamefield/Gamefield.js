@@ -13,6 +13,7 @@ function GameField() {
     const [canChat, setCanChat] = useState(false);
     const [localTimer, setlocalTimer] = useState(15);
     const chatWindow = document.getElementById('chat-window');
+    
     const [solution, setSolution] = useState("");
     const [myPoints, setMyPoints] = useState(0);
 
@@ -61,6 +62,10 @@ function GameField() {
                 }
             });
 
+            socket.on('clearChat',()=>{
+                chatWindow.innerHTML = "";
+            })
+
             socket.on('solution', (solutionFromSocket) => {
                 setSolution(solutionFromSocket);
             });
@@ -97,6 +102,12 @@ function GameField() {
         }
     }
 
+    const clearChat = () =>{
+        if(socket) {
+            socket.emit("clearChat", localLobby);
+        }
+    }
+
     const handleChatInputKeyPress = (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
@@ -130,7 +141,8 @@ function GameField() {
                     </button>}
                     {canDraw && <button
                         id="StartGameButton"
-                        onClick={startGameTimer}
+                        onClick={()=>{startGameTimer()
+                        clearChat()}}
                     >Start Game
                     </button>}
                 </div>

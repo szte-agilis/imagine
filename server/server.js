@@ -288,6 +288,10 @@ io.on('connection', (socket) => {
         lobby.timer = 15;
     });
 
+    socket.on('clearChat', (lobbyId) => {
+        io.to(lobbyId).emit('clearChat');
+    });
+
     socket.on('reset canvas', (lobbyId) => {
         //todo: implement (tabla csapat)
     });
