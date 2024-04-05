@@ -1,4 +1,4 @@
-import {MouseEvent, useState, useEffect} from 'react';
+import {useState, useEffect, UIEvent} from 'react';
 import CardViewer from './CardViewer';
 import Deck from './Deck';
 import {CardTransform} from '../../data/CardTransform';
@@ -107,12 +107,24 @@ export default function DrawerBoard() {
         //socket.emit('card-add', {card: card});
     }
 
+    function rotateCard(e: any) {
+        if (selectedIndex < 0) return;
+
+        const direction: number = e.deltaY > 0 ? 1 : -1;
+
+        cards[selectedIndex].rotation = (cards[selectedIndex].rotation + direction * 15 + 360) % 360;
+
+        setCards([...cards]);
+
+        console.log(`rotation: ${cards[selectedIndex].rotation}`);
+    }
+
     // the array of cards in the deck, that are all the cards currently not placed on the board
     const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
 
     // template
     return (
-        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700">
+        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700" onWheel={rotateCard}>
             <div className="flex justify-center w-full h-8 bg-sky-700 z-30">
                 <label className="swap text-xl text-gray-300 h-100 px-8 bg-opacity-40 bg-black font-bold">
                     <input type="checkbox" checked={isDeckOpen} onChange={e => setIsDeckOpen(e.target.checked)}/>
