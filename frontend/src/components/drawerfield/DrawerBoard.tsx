@@ -40,7 +40,12 @@ export default function DrawerBoard() {
 
     // pick up and start moving the card with the index 'i'
     function pickupCard(i: number) {
-        setSelectedIndex(i);
+        if(selectedIndex < 0) {
+            setSelectedIndex(i);
+        }
+        else {
+            setSelectedIndex(-1);
+        }
     }
 
     // put down the currently selected card
@@ -106,20 +111,24 @@ export default function DrawerBoard() {
 
     // template
     return (
-        <div id="board" className="h-full flex justify-center items-center relative border-4 border-slate-700" onMouseMove={moveCard}>
-            <span className="absolute text-gray-400 select-none text-3xl z-10">Drawer board</span>
-
-            <div className="absolute z-30 top-0">
-                <label className="swap text-xl text-gray-300 rounded-b-lg bg-slate-700 px-8 pb-1">
+        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700" onMouseMove={moveCard}>
+            <div className="flex justify-center w-full h-8 bg-sky-700 z-30">
+                <label className="swap text-xl text-gray-300 h-100 px-8 bg-opacity-40 bg-black font-bold">
                     <input type="checkbox" checked={isDeckOpen} onChange={e => setIsDeckOpen(e.target.checked)}/>
-                    <div className="swap-on text-rose-300">Close deck</div>
-                    <div className="swap-off text-green-300">Open deck</div>
+                    <div className="swap-on text-red-600">Close deck</div>
+                    <div className="swap-off text-green-600">Open deck</div>
                 </label>
             </div>
 
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-400 select-none text-3xl z-10">
+                Drawer board
+            </span>
+
             {isDeckOpen && <Deck onCardSelect={addCard} cardIds={cardsInDeck}/>}
 
-            <CardViewer cards={cards} selectCallback={pickupCard}/>
+            <div id="board" className="flex-grow relative">
+                <CardViewer cards={cards} selectedIndex={selectedIndex}  selectCallback={pickupCard}/>
+            </div>
         </div>
     );
 }

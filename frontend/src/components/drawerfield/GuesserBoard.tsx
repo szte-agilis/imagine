@@ -17,9 +17,14 @@ export default function GuesserBoard() {
     });*/
 
     return (
-        <div className="h-full flex justify-center items-center relative border-4 border-slate-700">
-            <span className="absolute text-gray-400 select-none text-3xl z-10">Guesser board</span>
-            <CardViewer cards={cards} />
+        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700">
+            <div className="flex justify-center w-full h-8 bg-sky-700 min-h-8"></div>
+
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-400 select-none text-3xl z-10">
+                Guesser board
+            </span>
+
+            <CardViewer cards={cards}/>
         </div>
     );
 }
