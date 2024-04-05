@@ -1,16 +1,28 @@
+import React, { useEffect, useState, useRef } from 'react';
 import { CardTransform } from '../../data/CardTransform';
-import { MouseEventHandler, CSSProperties, MouseEvent, useState } from 'react';
+import { MouseEventHandler, CSSProperties } from 'react';
 import { images } from './imageImports';
-//import { click } from '@testing-library/user-event/dist/click';
+
 
 export default function Card({ transform, selectCallback }: { transform: CardTransform; selectCallback: MouseEventHandler }) {
     const [selected, setSelected] = useState(false);
+
     
+    const cardRef = useRef<HTMLImageElement>(null);
+    const cardElement = cardRef.current;
+    if (cardElement && selected) {
+        const computedStyle = window.getComputedStyle(cardElement);
+        const borderStyle = computedStyle.getPropertyValue('border');
+        if (borderStyle == 'none') {
+            setSelected(false);
+        }
+    }
+   
 
     let style: CSSProperties = {
-        
-        top: `${transform.position.y}%`,
-        left: `${transform.position.x}%`,
+        position: 'absolute',
+        top: `${transform.position.y}px`,
+        left: `${transform.position.x}px`,
         transform: `scale(${transform.scale}) rotate(${transform.rotation}deg) translate(-50%, -50%)`,
         maxHeight: '25%',
         border: selected ? '2px solid white' : 'none',
@@ -36,7 +48,7 @@ export default function Card({ transform, selectCallback }: { transform: CardTra
             style={style}
             draggable={true}
             onMouseDown={Click_kijelol}
-            
+            // onClick={click}
             src={images.at(transform.image)}
             alt="card"
             

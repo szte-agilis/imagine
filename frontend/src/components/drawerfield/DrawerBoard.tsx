@@ -87,24 +87,23 @@ export default function DrawerBoard() {
 
     const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.image === id));
 
-    const move=(event:MouseEvent)=>{
+    const move = (event: MouseEvent) => {
         let divs = document.getElementsByClassName("Card");
         const { clientX, clientY } = event;
         for (let i = 0; i < divs.length; i++) {
+            let card = divs[i] as HTMLElement;
             
-                let card = divs[i];
-                const computedStyle = window.getComputedStyle(card);
-                const borderStyle = computedStyle.getPropertyValue('border');
-                if(borderStyle != "none"){
-                 
-                card.style.left = event.clientX; 
-                card.style.top = event.clientY; 
-
+            if (card.style.border != "none") {
+                card.style.left = `${clientX}px`;
+                card.style.top = `${clientY}px`;
+               // card.style.border='none';
+            }
         }
     };
+    
 
     return (
-        <div className="h-full flex justify-center items-center relative border-4 border-slate-700" onMouseMove={onMouseMove} onClick={move}>
+        <div className="h-full flex justify-center items-center relative border-4 border-slate-700" onMouseMove={onMouseMove} onClick={move} >
             <span className="absolute text-gray-400 select-none text-3xl z-10">Drawer board</span>
 
             <div className="absolute z-30 top-0">
