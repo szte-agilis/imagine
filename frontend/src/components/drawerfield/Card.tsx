@@ -1,57 +1,22 @@
-import React, { useEffect, useState, useRef } from 'react';
 import { CardTransform } from '../../data/CardTransform';
 import { MouseEventHandler, CSSProperties } from 'react';
 import { images } from './imageImports';
 
-
 export default function Card({ transform, selectCallback }: { transform: CardTransform; selectCallback: MouseEventHandler }) {
-    const [selected, setSelected] = useState(false);
-
-    
-    const cardRef = useRef<HTMLImageElement>(null);
-    const cardElement = cardRef.current;
-    if (cardElement && selected) {
-        const computedStyle = window.getComputedStyle(cardElement);
-        const borderStyle = computedStyle.getPropertyValue('border');
-        if (borderStyle == 'none') {
-            setSelected(false);
-        }
-    }
-   
-
     let style: CSSProperties = {
-        position: 'absolute',
         top: `${transform.position.y}%`,
         left: `${transform.position.x}%`,
         transform: `scale(${transform.scale}) rotate(${transform.rotation}deg) translate(-50%, -50%)`,
-        maxHeight: '25%',
-        border: selected ? '2px solid white' : 'none',
-        cursor: selected ? 'move': 'auto',
+        maxHeight: '25%'
     };
-
-    const Click_kijelol = () => {
-      
-
-        if (!selected) {
-            setSelected(true);
-        } else {
-            setSelected(false);
-           
-        }
-    };
-    
-    
 
     return (
         <img
-            className="z-10 absolute select-none Card"
+            className="z-10 absolute select-none"
             style={style}
-            draggable={true}
-            onMouseDown={Click_kijelol}
-            // onClick={click}
-            src={images.at(transform.image)}
+            onMouseDown={selectCallback}
+            src={images.at(transform.id)}
             alt="card"
-            
         />
     );
 }
