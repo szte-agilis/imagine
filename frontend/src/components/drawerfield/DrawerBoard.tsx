@@ -15,27 +15,32 @@ const margin: number = 1;
 
 export default function DrawerBoard() {
     // the array storing the transforms of the currently placed cards
-    let [cards, setCards] = useState([] as CardTransform[]);
+    const [cards, setCards] = useState([] as CardTransform[]);
 
     // the time of the last card movement update
-    let [lastUpdate, setLastUpdate] = useState(Date.now());
+    const [lastUpdate, setLastUpdate] = useState(Date.now());
 
     // is the deck currently open
-    let [isDeckOpen, setIsDeckOpen] = useState(false);
+    const [isDeckOpen, setIsDeckOpen] = useState(false);
 
     // the index of the selected card in the cards array, -1 if no card is selected
-    let [selectedIndex, setSelectedIndex] = useState(-1);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+
+    const board: HTMLElement = document.getElementById("board") as HTMLElement;
 
     // TODO socket connection
     //let socket = io()
 
-    // add a listener to the window for the mouse up event
-    // need this for removing cards even when moved outside the board
+    // add event listeners to the window
     // wrap it in useEffect ensuring it is added only once
     useEffect(() => {
         window.addEventListener('mouseup', putDownCard)
+        window.addEventListener('mousemove', moveCard)
 
-        return () => window.removeEventListener('mouseup', putDownCard);
+        return () => {
+            window.removeEventListener('mouseup', putDownCard);
+            window.removeEventListener('mousemove', moveCard);
+        }
     })
 
     // pick up and start moving the card with the index 'i'
@@ -67,18 +72,15 @@ export default function DrawerBoard() {
     }
 
     // move the selected card
-    function moveCard(e: MouseEvent) {
+    function moveCard(e: globalThis.MouseEvent) {
         if (selectedIndex < 0) return;
 
         e.preventDefault();
 
-        let board: HTMLElement = document.getElementById("board") as HTMLElement;
-
         const position: Vector2 = cards[selectedIndex].position;
 
-        position.x = (e.clientX * 100) / board.offsetWidth;
-        position.y = (e.clientY * 100) / board.offsetHeight;
-
+        position.x += (e.movementX * 100) / board.offsetWidth;
+        position.y += (e.movementY * 100) / board.offsetHeight;
 
         setCards([...cards]);
 
@@ -86,8 +88,7 @@ export default function DrawerBoard() {
         const elapsed: number = now - lastUpdate;
 
         if (elapsed >= updateFrequencyMs) {
-            lastUpdate = now;
-            setLastUpdate(lastUpdate);
+            setLastUpdate(now);
 
             // TODO emit card move
             //socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
@@ -111,7 +112,7 @@ export default function DrawerBoard() {
 
     // template
     return (
-        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700" onMouseMove={moveCard}>
+        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700">
             <div className="flex justify-center w-full h-8 bg-sky-700 z-30">
                 <label className="swap text-xl text-gray-300 h-100 px-8 bg-opacity-40 bg-black font-bold">
                     <input type="checkbox" checked={isDeckOpen} onChange={e => setIsDeckOpen(e.target.checked)}/>
