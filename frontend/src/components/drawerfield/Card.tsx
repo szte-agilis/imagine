@@ -21,8 +21,8 @@ export default function Card({ transform, selectCallback }: { transform: CardTra
 
     let style: CSSProperties = {
         position: 'absolute',
-        top: `${transform.position.y}px`,
-        left: `${transform.position.x}px`,
+        top: `${transform.position.y}%`,
+        left: `${transform.position.x}%`,
         transform: `scale(${transform.scale}) rotate(${transform.rotation}deg) translate(-50%, -50%)`,
         maxHeight: '25%',
         border: selected ? '2px solid white' : 'none',

@@ -5,6 +5,7 @@ import { CardTransform } from '../../data/CardTransform';
 import { Vector2 } from '../../data/Vector2';
 import { io } from 'socket.io-client';
 import { images } from './imageImports';
+import { Transform } from 'stream';
 
 const pollFrequencyMs: number = 100;
 
@@ -87,23 +88,57 @@ export default function DrawerBoard() {
 
     const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.image === id));
 
+    const findImageIndexBySrc = (src: any): number => {
+        for (let i = 0; i < images.length; i++) {
+            if (images[i] == src) {
+                return i;
+            }
+        }
+        return -1; // Ha nem találja meg a src-et, visszaadja -1-et
+    };
+    
+    const transform_keres=(kep_index:Number):number=>{
+        for (let i = 0; i < cards.length; i++) {
+            if (cards[i].image == kep_index) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    
+
     const move = (event: MouseEvent) => {
         let divs = document.getElementsByClassName("Card");
+        let asztal=document.getElementById("asztal")as HTMLElement;
+        const widthInPixels =  asztal.offsetWidth;
+        const heightInPixels =  asztal.offsetHeight;
         const { clientX, clientY } = event;
         for (let i = 0; i < divs.length; i++) {
-            let card = divs[i] as HTMLElement;
+            let card_dom = divs[i] as HTMLElement;
             
-            if (card.style.border != "none") {
-                card.style.left = `${clientX}px`;
-                card.style.top = `${clientY}px`;
+            if (card_dom.style.border != "none") {
+                let uj_x=(clientX*100)/widthInPixels;
+                let uj_y=(clientY*100)/heightInPixels;
+                card_dom.style.left = `${uj_x}%`;
+                card_dom.style.top = `${uj_y}%`;
                // card.style.border='none';
+
+               let src = card_dom.getAttribute("src");
+               let index=transform_keres(findImageIndexBySrc(src));
+               if(index>-1){
+                    cards[index].position=new Vector2(uj_x,uj_y);
+                    setCards(cards);
+               }
+                
+               
             }
         }
     };
     
 
     return (
-        <div className="h-full flex justify-center items-center relative border-4 border-slate-700" onMouseMove={onMouseMove} onClick={move} >
+        <div id="asztal" className="h-full flex justify-center items-center relative border-4 border-slate-700" onMouseMove={onMouseMove} onClick={move} >
             <span className="absolute text-gray-400 select-none text-3xl z-10">Drawer board</span>
 
             <div className="absolute z-30 top-0">
