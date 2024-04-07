@@ -1,20 +1,30 @@
 import CardViewer from './CardViewer';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { CardTransform } from '../../data/CardTransform';
-import { io } from 'socket.io-client';
+import {Socket} from 'socket.io-client';
 
-export default function GuesserBoard() {
+export default function GuesserBoard({socket}: {socket: Socket | null}) {
     let [cards, setCards] = useState([] as CardTransform[]);
-    /*let socket = io()
 
-    socket.on('card-add', function(card: CardTransform){
-        setCards([...cards, card]);
-    })
+    useEffect(() => {
+        if(socket){
+            socket.on('card-add', function(card: CardTransform){
+                setCards([...cards, card]);
+            })
 
-    socket.on('card-move', function(i: number, transform: CardTransform) {
-        cards[i] = transform;
-        setCards([...cards]);
-    });*/
+            socket.on('card-move', function(i: number, card: CardTransform) {
+                cards[i] = card;
+                setCards([...cards]);
+            });
+        }
+
+        return () => {
+            if(socket){
+                socket.off('card-add');
+                socket.off('card-move');
+            }
+        }
+    });
 
     return (
         <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700">

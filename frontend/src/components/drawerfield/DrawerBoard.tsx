@@ -1,10 +1,10 @@
-import {useState, useEffect, UIEvent} from 'react';
+import {useState, useEffect} from 'react';
 import CardViewer from './CardViewer';
 import Deck from './Deck';
 import {CardTransform} from '../../data/CardTransform';
 import {Vector2} from '../../data/Vector2';
 import {images} from './imageImports';
-import {io, Socket} from 'socket.io-client';
+import {Socket} from 'socket.io-client';
 
 // the number of milliseconds to wait between card position updates
 // lower number -> faster updates, smoother movement, more network and CPU used
@@ -13,7 +13,7 @@ const updateFrequencyMs: number = 100;
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const margin: number = 1;
 
-export default function DrawerBoard() {
+export default function DrawerBoard({socket}: { socket: Socket | null }) {
     // the array storing the transforms of the currently placed cards
     const [cards, setCards] = useState([] as CardTransform[]);
 
@@ -29,24 +29,15 @@ export default function DrawerBoard() {
     // the board HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
 
-    // the socket connection
-    let [socket, setSocket]: [Socket | undefined, (value: (((prevState: Socket | undefined) => Socket) | Socket)) => void] = useState<Socket | undefined>(undefined);
-
     // add event listeners to the window
     // wrap it in useEffect ensuring it is added only once
     useEffect(() => {
-        const newSocket = io();
-        setSocket(newSocket);
-
         window.addEventListener('mouseup', putDownCard);
         window.addEventListener('mousemove', moveCard);
-
-        console.log(socket);
 
         return () => {
             window.removeEventListener('mouseup', putDownCard);
             window.removeEventListener('mousemove', moveCard);
-            newSocket.close();
         }
     });
 
@@ -70,8 +61,9 @@ export default function DrawerBoard() {
 
             setCards([...cards]);
 
-            // TODO emit card remove
-            //socket.emit('card-remove', { index: selectedIndex });
+            if(socket){
+                socket.emit('card-remove', { index: selectedIndex });
+            }
         }
 
         setSelectedIndex(-1);
@@ -96,8 +88,9 @@ export default function DrawerBoard() {
         if (elapsed >= updateFrequencyMs) {
             setLastUpdate(now);
 
-            // TODO emit card move
-            //socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
+            if(socket){
+                socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
+            }
         }
     }
 
@@ -109,8 +102,9 @@ export default function DrawerBoard() {
 
         setIsDeckOpen(false);
 
-        // TODO emit card add
-        //socket.emit('card-add', {card: card});
+        if(socket){
+            socket.emit('card-add', {card: card});
+        }
     }
 
     function rotateCard(e: any) {
@@ -121,8 +115,6 @@ export default function DrawerBoard() {
         cards[selectedIndex].rotation = (cards[selectedIndex].rotation + direction * 15 + 360) % 360;
 
         setCards([...cards]);
-
-        console.log(`rotation: ${cards[selectedIndex].rotation}`);
     }
 
     // the array of cards in the deck, that are all the cards currently not placed on the board
