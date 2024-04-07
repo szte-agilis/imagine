@@ -15,6 +15,7 @@ function GameField() {
     const chatWindow = document.getElementById('chat-window');
     
     const [solution, setSolution] = useState("");
+    const [randomSolutions, setRandomSolutions] = useState([]);
     const [myPoints, setMyPoints] = useState(0);
 
     useEffect(() => {
@@ -66,6 +67,10 @@ function GameField() {
                 chatWindow.innerHTML = "";
             })
 
+            socket.on('choose solution', (randomSolutions) => {
+                setRandomSolutions(randomSolutions);
+            });
+
             socket.on('solution', (solutionFromSocket) => {
                 setSolution(solutionFromSocket);
             });
@@ -96,9 +101,10 @@ function GameField() {
         }
     };
 
-    const startGameTimer = () => {
+
+    const startGameTimer = (pickedsolution) => {
         if (socket) {
-            socket.emit('startGame', localLobby);
+            socket.emit('pick solution', {localLobby, pickedsolution});
         }
     }
 
@@ -147,14 +153,30 @@ function GameField() {
                         style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer' }}
                     >Pass Drawer Role
                     </button>}
-                    {canDraw && <button
+                    {/* {canDraw && <button
                         id="StartGameButton"
                         onClick={()=>{startGameTimer()
                         clearChat()}}
                         style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer', marginTop: '10px' }}
                     >Start Game
-                    </button>}
+                    </button>}*/}
                 </div>
+                <br />
+                {canDraw && (
+                <div>
+                    <h2>Choose a solution:</h2>
+                    <ul>
+                        {randomSolutions.map((solution, index) => (
+                            <li key={index}>
+                                <a href="#" onClick={() => {startGameTimer(solution); clearChat();}}>
+                                    {solution}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                )}
+                <br />
             </div>
             <div id="user-list" style={{ marginTop: '20px' }}>
                 {users.map((user, index) => (

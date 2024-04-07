@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const socketIo = require('socket.io');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -39,6 +40,9 @@ function lobbiesStats() {
 
 //let correctGuesses = 0;
 let intervalId = null;
+const solutions = JSON.parse(
+    fs.readFileSync(COMMON_STATIC + '\\solutions.json', 'utf-8')
+);
 
 io.on('connection', (socket) => {
     /**
@@ -142,6 +146,12 @@ io.on('connection', (socket) => {
             io.to(socket.id).emit('Drawer', false);
         }
 
+        if (socket.id === lobby.drawerSocketId) {
+            // Send the random solutions to the drawer
+            const randomSolutions = getRandomSolutions();
+            io.to(socket.id).emit('choose solution', randomSolutions);
+        }
+
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
 
         io.emit('list-lobbies', lobbiesStats());
@@ -205,6 +215,15 @@ io.on('connection', (socket) => {
         passDrawer(lobbyId);
     });
 
+    socket.on('get solutions', () => {
+        const randomSolutions = getRandomSolutions();
+        io.to(socket.id).emit('choose solution', randomSolutions);
+    });
+
+    socket.on('pick solution', ({ lobbyId, pickedSolution }) => {
+        io.to(socket.id).emit('startGame', { lobbyId, pickedSolution });
+    });
+
     function passDrawer(lobbyId) {
         const lobby = getLobby(lobbyId);
         const userIds = Object.keys(lobby.users);
@@ -233,7 +252,7 @@ io.on('connection', (socket) => {
         );
     }
 
-    socket.on('startGame', (lobbyId) => {
+    socket.on('startGame', ({ lobbyId, pickedSolution }) => {
         const lobby = getLobby(lobbyId);
         intervalId = setInterval(() => {
             if (lobby.timer > 0) {
@@ -241,7 +260,7 @@ io.on('connection', (socket) => {
                 console.log(lobby.timer);
                 lobby.intervalId = intervalId;
                 io.to(lobbyId).emit('timer', lobby.timer);
-                io.to(lobbyId).emit('solution', 'dummy');
+                io.to(lobbyId).emit('solution', pickedSolution);
             } else {
                 const numberOfPlayers = Object.keys(lobby.users).length;
                 if (
@@ -358,6 +377,17 @@ const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
     console.log(`Server is running at: http://localhost:${PORT}`);
 });
+
+function getRandomSolutions() {
+    const randomIndices = [];
+    while (randomIndices.length < 3) {
+        const randomIndex = Math.floor(Math.random() * solutions.length);
+        if (!randomIndices.includes(randomIndex)) {
+            randomIndices.push(randomIndex);
+        }
+    }
+    return randomIndices.map((index) => solutions[index]);
+}
 
 function guess(guess) {
     const solution = 'dummy';
