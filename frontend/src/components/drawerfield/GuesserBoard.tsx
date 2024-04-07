@@ -9,7 +9,8 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
     useEffect(() => {
         if(socket){
             socket.on('card-add', function(card: CardTransform){
-                setCards([...cards, card]);
+                cards.push(card);
+                setCards([...cards]);
             })
 
             socket.on('card-modify', function(i: number, card: CardTransform) {
