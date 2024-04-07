@@ -13,7 +13,7 @@ const updateFrequencyMs: number = 100;
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const margin: number = 1;
 
-export default function DrawerBoard({socket}: { socket: Socket | null }) {
+export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, socket: Socket | null}) {
     // the array storing the transforms of the currently placed cards
     const [cards, setCards] = useState([] as CardTransform[]);
 
@@ -62,7 +62,7 @@ export default function DrawerBoard({socket}: { socket: Socket | null }) {
             setCards([...cards]);
 
             if(socket){
-                socket.emit('card-remove', { index: selectedIndex });
+                socket.emit('card-remove', lobbyId, selectedIndex);
             }
         }
 
@@ -89,7 +89,7 @@ export default function DrawerBoard({socket}: { socket: Socket | null }) {
             setLastUpdate(now);
 
             if(socket){
-                socket.emit('card-move', { index: selectedIndex, transform: cards[selectedIndex] });
+                socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
             }
         }
     }
@@ -103,10 +103,11 @@ export default function DrawerBoard({socket}: { socket: Socket | null }) {
         setIsDeckOpen(false);
 
         if(socket){
-            socket.emit('card-add', {card: card});
+            socket.emit('card-add', lobbyId, card);
         }
     }
 
+    // rotate the selected card
     function rotateCard(e: any) {
         if (selectedIndex < 0) return;
 
@@ -115,6 +116,10 @@ export default function DrawerBoard({socket}: { socket: Socket | null }) {
         cards[selectedIndex].rotation = (cards[selectedIndex].rotation + direction * 15 + 360) % 360;
 
         setCards([...cards]);
+
+        if(socket){
+            socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
+        }
     }
 
     // the array of cards in the deck, that are all the cards currently not placed on the board

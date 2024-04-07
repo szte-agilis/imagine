@@ -12,8 +12,13 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
                 setCards([...cards, card]);
             })
 
-            socket.on('card-move', function(i: number, card: CardTransform) {
+            socket.on('card-modify', function(i: number, card: CardTransform) {
                 cards[i] = card;
+                setCards([...cards]);
+            });
+
+            socket.on('card-remove', function(i: number) {
+                cards.splice(i, 1);
                 setCards([...cards]);
             });
         }
@@ -21,10 +26,11 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
         return () => {
             if(socket){
                 socket.off('card-add');
-                socket.off('card-move');
+                socket.off('card-modify');
+                socket.off('card-remove');
             }
         }
-    });
+    }, [socket]);
 
     return (
         <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700">
