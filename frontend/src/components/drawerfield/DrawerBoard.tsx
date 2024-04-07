@@ -4,7 +4,7 @@ import Deck from './Deck';
 import {CardTransform} from '../../data/CardTransform';
 import {Vector2} from '../../data/Vector2';
 import {images} from './imageImports';
-import {io} from 'socket.io-client';
+import {io, Socket} from 'socket.io-client';
 
 // the number of milliseconds to wait between card position updates
 // lower number -> faster updates, smoother movement, more network and CPU used
@@ -26,29 +26,35 @@ export default function DrawerBoard() {
     // the index of the selected card in the cards array, -1 if no card is selected
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
+    // the board HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
 
-    // TODO socket connection
-    //let socket = io()
+    // the socket connection
+    let [socket, setSocket]: [Socket | undefined, (value: (((prevState: Socket | undefined) => Socket) | Socket)) => void] = useState<Socket | undefined>(undefined);
 
     // add event listeners to the window
     // wrap it in useEffect ensuring it is added only once
     useEffect(() => {
-        window.addEventListener('mouseup', putDownCard)
-        window.addEventListener('mousemove', moveCard)
+        const newSocket = io();
+        setSocket(newSocket);
+
+        window.addEventListener('mouseup', putDownCard);
+        window.addEventListener('mousemove', moveCard);
+
+        console.log(socket);
 
         return () => {
             window.removeEventListener('mouseup', putDownCard);
             window.removeEventListener('mousemove', moveCard);
+            newSocket.close();
         }
-    })
+    });
 
     // pick up and start moving the card with the index 'i'
     function pickupCard(i: number) {
-        if(selectedIndex < 0) {
+        if (selectedIndex < 0) {
             setSelectedIndex(i);
-        }
-        else {
+        } else {
             setSelectedIndex(-1);
         }
     }
@@ -140,7 +146,7 @@ export default function DrawerBoard() {
             {isDeckOpen && <Deck onCardSelect={addCard} cardIds={cardsInDeck}/>}
 
             <div id="board" className="flex-grow relative">
-                <CardViewer cards={cards} selectedIndex={selectedIndex}  selectCallback={pickupCard}/>
+                <CardViewer cards={cards} selectedIndex={selectedIndex} selectCallback={pickupCard}/>
             </div>
         </div>
     );
