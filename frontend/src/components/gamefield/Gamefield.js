@@ -15,6 +15,7 @@ function GameField() {
     const chatWindow = document.getElementById('chat-window');
     
     const [solution, setSolution] = useState("");
+    const [randomSolutions, setRandomSolutions] = useState([]);
     const [myPoints, setMyPoints] = useState(0);
 
     useEffect(() => {
@@ -66,6 +67,10 @@ function GameField() {
                 chatWindow.innerHTML = "";
             })
 
+            socket.on('choose solution', (randomSolutions) => {
+                setRandomSolutions(randomSolutions);
+            });
+
             socket.on('solution', (solutionFromSocket) => {
                 setSolution(solutionFromSocket);
             });
@@ -96,9 +101,12 @@ function GameField() {
         }
     };
 
-    const startGameTimer = () => {
-        if (socket) {
-            socket.emit('startGame', localLobby);
+
+    const startGameTimer = (pickedSolution) => {
+        if (socket && localLobby) {
+            socket.emit('startGame', {lobbyId: localLobby, pickedSolution: pickedSolution});
+            //socket.emit('startGame', localLobby);
+            setRandomSolutions([]);
         }
     }
 
@@ -147,14 +155,29 @@ function GameField() {
                         style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer' }}
                     >Pass Drawer Role
                     </button>}
-                    {canDraw && <button
+                    {/* {canDraw && <button
                         id="StartGameButton"
                         onClick={()=>{startGameTimer()
                         clearChat()}}
                         style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer', marginTop: '10px' }}
                     >Start Game
-                    </button>}
+                    </button>}*/}
                 </div>
+                <br />
+                {canDraw && randomSolutions.length > 0 && (
+                <div>
+                    <h2>Choose a solution:</h2>
+                        {randomSolutions.map((solution, index) => (
+                                <button id={index.toString()}
+                                        key={index}
+                                        onClick={() => {startGameTimer(solution); clearChat();}}
+                                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer' }}>
+                                    {solution}
+                                </button>
+                        ))}
+                </div>
+                )}
+                <br />
             </div>
             <div id="user-list" style={{ marginTop: '20px' }}>
                 {users.map((user, index) => (
