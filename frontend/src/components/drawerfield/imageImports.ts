@@ -17,16 +17,21 @@ import image16 from '../../assets/16.svg';
 import image17 from '../../assets/17.svg';
 import image18 from '../../assets/18.svg';
 import image19 from '../../assets/19.svg';
-//import image20 from '../../assets/20.svg';
+import image20 from '../../assets/20.svg';
 import image21 from '../../assets/21.svg';
 import image22 from '../../assets/22.svg';
 import image23 from '../../assets/23.svg';
 import image24 from '../../assets/24.svg';
 import image25 from '../../assets/25.svg';
 import image26 from '../../assets/26.svg';
+import image27 from '../../assets/27.svg';
+import image28 from '../../assets/28.svg';
+import image29 from '../../assets/29.svg';
+import image30 from '../../assets/30.svg';
 import image31 from '../../assets/31.svg';
-//import image32 from '../../assets/32.svg';
+import image32 from '../../assets/32.svg';
 import image33 from '../../assets/33.svg';
+import image34 from '../../assets/34.svg';
 import image35 from '../../assets/35.svg';
 import image36 from '../../assets/36.svg';
 import image37 from '../../assets/37.svg';
@@ -34,6 +39,8 @@ import image38 from '../../assets/38.svg';
 import image39 from '../../assets/39.svg';
 import image40 from '../../assets/40.svg';
 import image41 from '../../assets/41.svg';
+import image42 from '../../assets/42.svg';
+import image43 from '../../assets/43.svg';
 import image44 from '../../assets/44.svg';
 import image45 from '../../assets/45.svg';
 import image46 from '../../assets/46.svg';
@@ -45,7 +52,7 @@ import image51 from '../../assets/51.svg';
 import image52 from '../../assets/52.svg';
 import image53 from '../../assets/53.svg';
 import image54 from '../../assets/54.svg';
-//import image55 from '../../assets/55.svg';
+import image55 from '../../assets/55.svg';
 import image56 from '../../assets/56.svg';
 import image57 from '../../assets/57.svg';
 import image58 from '../../assets/58.svg';
@@ -72,16 +79,21 @@ export const images: any[] = [
     image17,
     image18,
     image19,
-    //image20,
+    image20,
     image21,
     image22,
     image23,
     image24,
     image25,
     image26,
+    image27,
+    image28,
+    image29,
+    image30,
     image31,
-    //image32,
+    image32,
     image33,
+    image34,
     image35,
     image36,
     image37,
@@ -89,6 +101,8 @@ export const images: any[] = [
     image39,
     image40,
     image41,
+    image42,
+    image43,
     image44,
     image45,
     image46,
@@ -100,7 +114,7 @@ export const images: any[] = [
     image52,
     image53,
     image54,
-    //image55,
+    image55,
     image56,
     image57,
     image58,
