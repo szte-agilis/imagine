@@ -34,12 +34,25 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
     useEffect(() => {
         window.addEventListener('mouseup', putDownCard);
         window.addEventListener('mousemove', moveCard);
+        window.addEventListener('keydown', handleKeyPress)
 
         return () => {
             window.removeEventListener('mouseup', putDownCard);
             window.removeEventListener('mousemove', moveCard);
+            window.removeEventListener('keydown', handleKeyPress)
         }
     });
+
+    function handleKeyPress(e: KeyboardEvent){
+        switch (e.key) {
+            case "ArrowLeft":
+                rotate(-1);
+                break;
+            case "ArrowRight":
+                rotate(1);
+                break;
+        }
+    }
 
     // pick up and start moving the card with the index 'i'
     function pickupCard(i: number) {
@@ -109,9 +122,12 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
 
     // rotate the selected card
     function rotateCard(e: any) {
-        if (selectedIndex < 0) return;
+        rotate(e.deltaY > 0 ? 1 : -1);
+    }
 
-        const direction: number = e.deltaY > 0 ? 1 : -1;
+    // rotate the selected card
+    function rotate(direction: number) {
+        if (selectedIndex < 0) return;
 
         cards[selectedIndex].rotation = (cards[selectedIndex].rotation + direction * 15 + 360) % 360;
 
