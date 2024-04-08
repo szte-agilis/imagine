@@ -126,6 +126,7 @@ io.on('connection', (socket) => {
                 drawerAssigned: false,
                 timer: 15,
                 buttonState: 'Click me!',
+                solution: '',
                 correctGuesses: 0,
             };
         }
@@ -164,7 +165,7 @@ io.on('connection', (socket) => {
     socket.on('chat message', (lobbyId, msg) => {
         const lobby = getLobby(lobbyId);
         const username = lobby?.users[socket.id] || 'Anonymous';
-        if (guess(msg)) {
+        if (guess(msg, lobby.solution)) {
             io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
             if (lobby.correctGuesses == 0) {
                 const pointsObject = {
@@ -245,6 +246,8 @@ io.on('connection', (socket) => {
         });
 
         io.to(lobby.drawerSocketId).emit('Drawer', true);
+        const randomSolutions = getRandomSolutions();
+        io.to(lobby.drawerSocketId).emit('choose solution', randomSolutions);
         const newDrawerUsername = lobby.users[lobby.drawerSocketId];
         io.to(lobbyId).emit(
             'chat message',
@@ -261,6 +264,7 @@ io.on('connection', (socket) => {
                 lobby.intervalId = intervalId;
                 io.to(lobbyId).emit('timer', lobby.timer);
                 io.to(lobbyId).emit('solution', pickedSolution);
+                lobby.solution = pickedSolution;
             } else {
                 const numberOfPlayers = Object.keys(lobby.users).length;
                 if (
@@ -389,8 +393,8 @@ function getRandomSolutions() {
     return randomIndices.map((index) => solutions[index]);
 }
 
-function guess(guess) {
-    const solution = 'dummy';
+function guess(guess, solution) {
+    //const solution = 'dummy';
     //ekezetek levetele meg kisbetusites
     guess
         .normalize('NFD')

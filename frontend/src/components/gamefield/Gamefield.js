@@ -102,9 +102,11 @@ function GameField() {
     };
 
 
-    const startGameTimer = (pickedsolution) => {
-        if (socket) {
-            socket.emit('pick solution', {localLobby, pickedsolution});
+    const startGameTimer = (pickedSolution) => {
+        if (socket && localLobby) {
+            socket.emit('startGame', {lobbyId: localLobby, pickedSolution: pickedSolution});
+            //socket.emit('startGame', localLobby);
+            setRandomSolutions([]);
         }
     }
 
@@ -162,18 +164,17 @@ function GameField() {
                     </button>}*/}
                 </div>
                 <br />
-                {canDraw && (
+                {canDraw && randomSolutions.length > 0 && (
                 <div>
                     <h2>Choose a solution:</h2>
-                    <ul>
                         {randomSolutions.map((solution, index) => (
-                            <li key={index}>
-                                <a href="#" onClick={() => {startGameTimer(solution); clearChat();}}>
+                                <button id={index.toString()}
+                                        key={index}
+                                        onClick={() => {startGameTimer(solution); clearChat();}}
+                                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer' }}>
                                     {solution}
-                                </a>
-                            </li>
+                                </button>
                         ))}
-                    </ul>
                 </div>
                 )}
                 <br />
