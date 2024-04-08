@@ -126,7 +126,7 @@ io.on('connection', (socket) => {
                 drawerAssigned: false,
                 timer: 15,
                 buttonState: 'Click me!',
-                solution: '',
+                solution: 'biztosnemtalaljakisenki',
                 correctGuesses: 0,
             };
         }
