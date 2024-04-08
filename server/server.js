@@ -336,6 +336,18 @@ io.on('connection', (socket) => {
         }
         io.emit('list-lobbies', lobbiesStats());
     });
+
+    socket.on('card-add', (lobbyId, card) => {
+        io.to(lobbyId).emit('card-add', card);
+    });
+
+    socket.on('card-modify', (lobbyId, index, card) => {
+        io.to(lobbyId).emit('card-modify', index, card);
+    });
+
+    socket.on('card-remove', (lobbyId, index) => {
+        io.to(lobbyId).emit('card-remove', index);
+    });
 });
 
 drawer = () => {

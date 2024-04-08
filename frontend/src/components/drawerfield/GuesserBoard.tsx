@@ -1,25 +1,47 @@
 import CardViewer from './CardViewer';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { CardTransform } from '../../data/CardTransform';
-import { io } from 'socket.io-client';
+import {Socket} from 'socket.io-client';
 
-export default function GuesserBoard() {
+export default function GuesserBoard({socket}: {socket: Socket | null}) {
     let [cards, setCards] = useState([] as CardTransform[]);
-    /*let socket = io()
 
-    socket.on('card-add', function(card: CardTransform){
-        setCards([...cards, card]);
-    })
+    useEffect(() => {
+        if(socket){
+            socket.on('card-add', function(card: CardTransform){
+                cards.push(card);
+                setCards([...cards]);
+            })
 
-    socket.on('card-move', function(i: number, transform: CardTransform) {
-        cards[i] = transform;
-        setCards([...cards]);
-    });*/
+            socket.on('card-modify', function(i: number, card: CardTransform) {
+                cards[i] = card;
+                setCards([...cards]);
+            });
+
+            socket.on('card-remove', function(i: number) {
+                cards.splice(i, 1);
+                setCards([...cards]);
+            });
+        }
+
+        return () => {
+            if(socket){
+                socket.off('card-add');
+                socket.off('card-modify');
+                socket.off('card-remove');
+            }
+        }
+    }, [socket]);
 
     return (
-        <div className="h-full flex justify-center items-center relative border-4 border-slate-700">
-            <span className="absolute text-gray-400 select-none text-3xl z-10">Guesser board</span>
-            <CardViewer cards={cards} />
+        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700">
+            <div className="flex justify-center w-full h-8 bg-sky-700 min-h-8"></div>
+
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-400 select-none text-3xl z-10">
+                Guesser board
+            </span>
+
+            <CardViewer cards={cards}/>
         </div>
     );
 }
