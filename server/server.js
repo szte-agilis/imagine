@@ -41,7 +41,7 @@ function lobbiesStats() {
 //let correctGuesses = 0;
 let intervalId = null;
 const solutions = JSON.parse(
-    fs.readFileSync(COMMON_STATIC + '\\solutions.json', 'utf-8')
+    fs.readFileSync(COMMON_STATIC + '/solutions.json', 'utf-8')
 );
 
 io.on('connection', (socket) => {
