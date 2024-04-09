@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
+import {io} from 'socket.io-client';
 import Board from '../drawerfield/Board';
 
 function GameField() {
@@ -9,24 +9,19 @@ function GameField() {
     const [chatInput, setChatInput] = useState("");
     const [messages, setMessages] = useState([]);
     const [users, setUsers] = useState([]);
-    const [showDrawerPass, setShowDrawerPass] = useState(false);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
-    const [localTimer, setlocalTimer] = useState(10);
+    const [localTimer, setlocalTimer] = useState(15);
     const chatWindow = document.getElementById('chat-window');
+    
     const [solution, setSolution] = useState("");
-
-    console.log(users);
+    const [randomSolutions, setRandomSolutions] = useState([]);
+    const [myPoints, setMyPoints] = useState(0);
 
     useEffect(() => {
         const newSocket = io();
         setSocket(newSocket);
         newSocket.emit('join lobby', localLobby, localUsername);
-
-        newSocket.on('random lobby code', (randomLobby) => {
-            setLocalLobby(randomLobby);
-            sessionStorage.setItem('lobby', randomLobby);
-        });
 
         return () => newSocket.close();
     }, []);
@@ -44,7 +39,16 @@ function GameField() {
             socket.on('Drawer', (canDraw) => {
                 setCanChat(!canDraw);
                 setCanDraw(canDraw);
-                setShowDrawerPass(canDraw);
+            });
+
+            socket.on('points-for-guesser', (pointsObject) => {
+                if(pointsObject.username === localUsername){
+                    setMyPoints(prevMyPoints => prevMyPoints + pointsObject.points)
+                }
+            });
+
+            socket.on('points-for-drawer', (points) => {
+                setMyPoints(prevMyPoints => prevMyPoints + points)
             });
 
             socket.on('user list', (usernames) => {
@@ -59,13 +63,21 @@ function GameField() {
                 }
             });
 
+            socket.on('clearChat',()=>{
+                chatWindow.innerHTML = "";
+            })
+
+            socket.on('choose solution', (randomSolutions) => {
+                setRandomSolutions(randomSolutions);
+            });
+
             socket.on('solution', (solutionFromSocket) => {
                 setSolution(solutionFromSocket);
             });
             const handleBeforeUnload = (event) => {
                 event.preventDefault();
                 if (socket) {
-                    socket.emit('window closed', localLobby);
+                    socket.emit('window closed', localLobby, localUsername);
                 }
                 event.returnValue = '';
             };
@@ -89,9 +101,18 @@ function GameField() {
         }
     };
 
-    const startGameTimer = () => {
-        if (socket) {
-            socket.emit('startGame', localLobby);
+
+    const startGameTimer = (pickedSolution) => {
+        if (socket && localLobby) {
+            socket.emit('startGame', {lobbyId: localLobby, pickedSolution: pickedSolution});
+            //socket.emit('startGame', localLobby);
+            setRandomSolutions([]);
+        }
+    }
+
+    const clearChat = () =>{
+        if(socket) {
+            socket.emit("clearChat", localLobby);
         }
     }
 
@@ -109,7 +130,7 @@ function GameField() {
     return (
         <div>
             <div id="container">
-                <Board />
+                <Board canDraw={canDraw} localLobby={localLobby} socket={socket}/>
                 <div id="chat-container">
                     <div id="chat-window"></div>
                     <label htmlFor="chat-input"></label>
@@ -120,18 +141,43 @@ function GameField() {
                         placeholder="Type a message and press Enter"
                         onKeyPress={handleChatInputKeyPress}
                         onChange={(event) => setChatInput(event.target.value)}
+                        style={{
+                            border: '1px solid #ccc',
+                            borderRadius: '5px',
+                            padding: '5px',
+                            marginTop: '10px',
+                            width: '100%',
+                        }}
                     />}
                     {canDraw && <button
                         id="passDrawerButton"
                         onClick={handlePassDrawer}
+                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer' }}
                     >Pass Drawer Role
                     </button>}
-                    {canDraw && <button
+                    {/* {canDraw && <button
                         id="StartGameButton"
-                        onClick={startGameTimer}
+                        onClick={()=>{startGameTimer()
+                        clearChat()}}
+                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer', marginTop: '10px' }}
                     >Start Game
-                    </button>}
+                    </button>}*/}
                 </div>
+                <br />
+                {canDraw && randomSolutions.length > 0 && (
+                <div>
+                    <h2>Choose a solution:</h2>
+                        {randomSolutions.map((solution, index) => (
+                                <button id={index.toString()}
+                                        key={index}
+                                        onClick={() => {startGameTimer(solution); clearChat();}}
+                                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer' }}>
+                                    {solution}
+                                </button>
+                        ))}
+                </div>
+                )}
+                <br />
             </div>
             <div id="user-list" style={{ marginTop: '20px' }}>
                 {users.map((user, index) => (
@@ -141,6 +187,7 @@ function GameField() {
             <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
             <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
             {canDraw && <div id="solution" style={{ marginTop: '20px' }}>Megfejtés: {solution}</div>}
+            <div id="timer-text" style={{ marginTop: '20px' }}>Pontjaim: {myPoints}</div>
         </div>
     );
 }

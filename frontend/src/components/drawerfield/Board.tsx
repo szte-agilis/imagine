@@ -1,18 +1,15 @@
-import { useState } from 'react';
 import DrawerBoard from './DrawerBoard';
 import GuesserBoard from './GuesserBoard';
+import {Socket} from 'socket.io-client';
 
-export default function Board() {
-    let [canDraw, setCanDraw] = useState(true);
+interface BoardProps {
+    canDraw: boolean;
+}
 
-    function switchBoardType() {
-        setCanDraw(!canDraw);
-    }
-
+export default function Board({canDraw, localLobby, socket}: {canDraw: BoardProps, localLobby: string | null, socket: Socket | null}) {
     return (
         <div className="h-[50vh]">
-            {canDraw ? <DrawerBoard /> : <GuesserBoard />}
-            <button className="btn btn-accent absolute top-0 m-4" onClick={switchBoardType}>Switch board type</button>
+            {canDraw ? <DrawerBoard lobbyId={localLobby} socket={socket} /> : <GuesserBoard socket={socket} />}
         </div>
     );
 }
