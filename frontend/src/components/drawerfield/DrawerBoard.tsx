@@ -44,6 +44,7 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
     });
 
     function handleKeyPress(e: KeyboardEvent){
+       
         switch (e.key) {
             case "ArrowLeft":
                 rotate(-1);
@@ -51,8 +52,17 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
             case "ArrowRight":
                 rotate(1);
                 break;
+            case "ArrowUp":
+                sizing(1);
+                
+                break;
+            case "ArrowDown":
+                sizing(-1);
+                break;
         }
     }
+
+   
 
     // pick up and start moving the card with the index 'i'
     function pickupCard(i: number) {
@@ -130,6 +140,23 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
         if (selectedIndex < 0) return;
 
         cards[selectedIndex].rotation = (cards[selectedIndex].rotation + direction * 15 + 360) % 360;
+
+        setCards([...cards]);
+
+        if(socket){
+            socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
+        }
+    }
+
+    function sizing(size: number) {
+        if (selectedIndex < 0) return;
+
+        cards[selectedIndex].size = (cards[selectedIndex].size +(size) ) ;
+        if(cards[selectedIndex].size>90){
+            cards[selectedIndex].size=90;
+        }else if(cards[selectedIndex].size<10){
+            cards[selectedIndex].size=10;
+        }
 
         setCards([...cards]);
 
