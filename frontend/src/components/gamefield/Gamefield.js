@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {io} from 'socket.io-client';
 import Board from '../drawerfield/Board';
+import Leaderboard from './Leaderboard';
 
 function GameField() {
     const rounds = 3;
@@ -21,7 +22,7 @@ function GameField() {
     
     const [solution, setSolution] = useState("");
     const [randomSolutions, setRandomSolutions] = useState([]);
-    const [myPoints, setMyPoints] = useState(0);
+    const [points, setPoints] = useState(new Array());
 
     useEffect(() => {
         const newSocket = io();
@@ -55,15 +56,19 @@ function GameField() {
                 }
             });
 
-            socket.on('points-for-guesser', (pointsObject) => {
-                if(pointsObject.username === localUsername){
-                    setMyPoints(prevMyPoints => prevMyPoints + pointsObject.points)
+            socket.on('new round', (currentRound) => {
+                setCurrentRound(currentRound);
+                if(rounds+1 === currentRound){
+                    setIsGameEnded(true)
                 }
             });
 
-            socket.on('points-for-drawer', (points) => {
-                setMyPoints(prevMyPoints => prevMyPoints + points)
+            socket.on('points', (pointsObject) => {
+                console.log(pointsObject);
+                setPoints(pointsObject);
             });
+
+            socket.emit('init-points',localLobby);
 
             socket.on('user list', (usernames) => {
                 setUsers(usernames);
@@ -207,7 +212,7 @@ function GameField() {
             <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
             {canDraw && <div id="solution" style={{ marginTop: '20px' }}>Megfejtés: {solution}</div>}
             <div style={{ marginTop: '20px' }}>Aktuális kör: {currentRound}</div>
-            <div id="timer-text" style={{ marginTop: '20px' }}>Pontjaim: {myPoints}</div>
+            <Leaderboard leaderboardArray={points}/>
         </div>)}
         </div>
     );
