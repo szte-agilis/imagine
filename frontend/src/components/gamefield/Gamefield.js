@@ -3,16 +3,21 @@ import {io} from 'socket.io-client';
 import Board from '../drawerfield/Board';
 
 function GameField() {
+    const rounds = 3;
+    //const lobbyData = JSON.parse(sessionStorage.getItem("lobbyData"));
+
     const [socket, setSocket] = useState(null);
     const [localUsername, setLocalUsername] = useState(sessionStorage.getItem('username'));
     const [localLobby, setLocalLobby] = useState(sessionStorage.getItem('lobby'));
     const [chatInput, setChatInput] = useState("");
+    const [currentRound, setCurrentRound] = useState(1);
     const [messages, setMessages] = useState([]);
     const [users, setUsers] = useState([]);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
     const [localTimer, setlocalTimer] = useState(15);
     const chatWindow = document.getElementById('chat-window');
+    const [isGameEnded, setIsGameEnded] = useState(false);
     
     const [solution, setSolution] = useState("");
     const [randomSolutions, setRandomSolutions] = useState([]);
@@ -32,13 +37,22 @@ function GameField() {
             socket.on('chat message', (message) => {
                 const messageElement = document.createElement('div');
                 messageElement.textContent = message;
-                chatWindow.appendChild(messageElement);
-                chatWindow.scrollTop = chatWindow.scrollHeight;
+                if(chatWindow !== null){
+                    chatWindow.appendChild(messageElement);
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }  
             });
 
             socket.on('Drawer', (canDraw) => {
                 setCanChat(!canDraw);
                 setCanDraw(canDraw);
+            });
+
+            socket.on('new round', (currentRound) => {
+                setCurrentRound(currentRound);
+                if(rounds+1 === currentRound){
+                    setIsGameEnded(true)
+                }
             });
 
             socket.on('points-for-guesser', (pointsObject) => {
@@ -129,6 +143,11 @@ function GameField() {
 
     return (
         <div>
+        {isGameEnded ? (<div>
+            <h2>Game Ended</h2>
+            <p>Game has ended, you can leave the lobby now</p>
+            <a href='http://localhost:3001'>Főoldal</a>
+        </div>):(<div>
             <div id="container">
                 <Board canDraw={canDraw} localLobby={localLobby} socket={socket}/>
                 <div id="chat-container">
@@ -187,7 +206,9 @@ function GameField() {
             <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
             <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
             {canDraw && <div id="solution" style={{ marginTop: '20px' }}>Megfejtés: {solution}</div>}
+            <div style={{ marginTop: '20px' }}>Aktuális kör: {currentRound}</div>
             <div id="timer-text" style={{ marginTop: '20px' }}>Pontjaim: {myPoints}</div>
+        </div>)}
         </div>
     );
 }
