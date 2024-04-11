@@ -41,7 +41,7 @@ function lobbiesStats() {
 //let correctGuesses = 0;
 let intervalId = null;
 const solutions = JSON.parse(
-    fs.readFileSync(COMMON_STATIC + '\\solutions.json', 'utf-8')
+    fs.readFileSync(COMMON_STATIC + '/solutions.json', 'utf-8')
 );
 
 io.on('connection', (socket) => {
@@ -91,6 +91,7 @@ io.on('connection', (socket) => {
                 timer: 15,
                 buttonState: 'Click me!',
                 correctGuesses: 0,
+                currentRound: 1,
             };
             logger('log', getLobby(lobbyId), 'New lobby created');
         } else {
@@ -128,6 +129,7 @@ io.on('connection', (socket) => {
                 buttonState: 'Click me!',
                 solution: 'biztosnemtalaljakisenki',
                 correctGuesses: 0,
+                currentRound: 1,
             };
         }
 
@@ -240,6 +242,9 @@ io.on('connection', (socket) => {
             }
         }
         io.to(lobbyId).emit('reset canvas', lobbyId);
+
+        lobby.currentRound++;
+        io.to(lobbyId).emit('new round', lobby.currentRound);
 
         userIds.forEach((id) => {
             io.to(id).emit('Drawer', false);
