@@ -105,8 +105,6 @@ io.on('connection', (socket) => {
 
         lobby.users[socket.id] = username;
 
-        console.log(lobby.users);
-
         lobby.pointMap.set(username, 0);
 
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
@@ -125,7 +123,6 @@ io.on('connection', (socket) => {
         const lobby = getLobby(lobbyId);
 
         lobby.users[socket.id] = username;
-        lobby.pointMap.set(username, 0);
 
         if (!lobby.drawerAssigned && username !== 'board') {
             lobby.drawerAssigned = true;
@@ -146,8 +143,6 @@ io.on('connection', (socket) => {
         }
 
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
-
-        console.log(lobby.users);
 
         io.emit('list-lobbies', lobbiesStats());
     });
