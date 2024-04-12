@@ -23,11 +23,6 @@ export default function App() {
         setSocket(newSocket);
         newSocket.emit('create lobby', localLobby, localUsername);
 
-        newSocket.on('random lobby code', (randomLobby) => {
-            setLocalLobby(randomLobby);
-            sessionStorage.setItem('lobby', randomLobby);
-        });
-
         return () => newSocket.close();
     }, [localLobby, localUsername]);
 
@@ -40,9 +35,6 @@ export default function App() {
 
             socket.on('redirect', () => {
                 window.location.href = '/gamefield';
-
-                // a new socket is created in the Gamefield component
-                socket.close();
             });
 
             window.addEventListener('beforeunload', handleBeforeUnload);
@@ -236,7 +228,6 @@ export default function App() {
             return;
         }
 
-        //io.emit("start lobby");
         window.removeEventListener('beforeunload', handleBeforeUnload);
         sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
         socket.emit('start game clicked', localLobby);

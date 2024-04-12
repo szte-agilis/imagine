@@ -27,7 +27,11 @@ function GameField() {
     useEffect(() => {
         const newSocket = io();
         setSocket(newSocket);
+
         newSocket.emit('join lobby', localLobby, localUsername);
+        newSocket.on('lobby not exists', () => {
+            window.location.href = '/';
+        });
 
         return () => newSocket.close();
     }, []);
