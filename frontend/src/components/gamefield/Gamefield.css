@@ -1,0 +1,19 @@
+.button_class {
+    border: 1px solid white;
+    padding: 5px;
+    border-radius: 5px; /* Changed to hyphenated form */
+    background-color: transparent; /* Changed to hyphenated form */
+    color: white;
+    cursor: pointer;
+}
+.div_style {
+    margin-top: 20px;
+}
+
+.input-style {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    margin-top: 10px;
+    width: 100%;
+}

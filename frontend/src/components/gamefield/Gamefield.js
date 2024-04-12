@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {io} from 'socket.io-client';
 import Board from '../drawerfield/Board';
 import Leaderboard from './Leaderboard';
+import "./Gamefield.css";
 
 function GameField() {
     const rounds = 3;
@@ -151,7 +152,7 @@ function GameField() {
         {isGameEnded ? (<div>
             <h2>Game Ended</h2>
             <p>Game has ended, you can leave the lobby now</p>
-            <a href='http://localhost:3001'>Főoldal</a>
+            <a href='http://localhost:3000'>Főoldal</a>
         </div>):(<div>
             <div id="container">
                 <Board canDraw={canDraw} localLobby={localLobby} socket={socket}/>
@@ -162,6 +163,7 @@ function GameField() {
                         id="chat-input"
                         type="text"
                         value={chatInput}
+                        className="input-style"
                         placeholder="Type a message and press Enter"
                         onKeyPress={handleChatInputKeyPress}
                         onChange={(event) => setChatInput(event.target.value)}
@@ -175,8 +177,8 @@ function GameField() {
                     />}
                     {canDraw && <button
                         id="passDrawerButton"
+                        className="button_class"
                         onClick={handlePassDrawer}
-                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer' }}
                     >Pass Drawer Role
                     </button>}
                     {/* {canDraw && <button
@@ -193,9 +195,9 @@ function GameField() {
                     <h2>Choose a solution:</h2>
                         {randomSolutions.map((solution, index) => (
                                 <button id={index.toString()}
+                                        className="button_class"
                                         key={index}
-                                        onClick={() => {startGameTimer(solution); clearChat();}}
-                                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer' }}>
+                                        onClick={() => {startGameTimer(solution); clearChat();}}>
                                     {solution}
                                 </button>
                         ))}
@@ -203,15 +205,15 @@ function GameField() {
                 )}
                 <br />
             </div>
-            <div id="user-list" style={{ marginTop: '20px' }}>
+            <div id="user-list" className="div_style">
                 {users.map((user, index) => (
                     <div key={index}>{user}</div>
                 ))}
             </div>
-            <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
-            <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
-            {canDraw && <div id="solution" style={{ marginTop: '20px' }}>Megfejtés: {solution}</div>}
-            <div style={{ marginTop: '20px' }}>Aktuális kör: {currentRound}</div>
+            <div id="lobby-id" className="div_style">Lobby kód: {localLobby}</div>
+            <div id="timer-text" className="div_style">Timer: {localTimer}</div>
+            {canDraw && <div id="solution" className="div_style">Megfejtés: {solution}</div>}
+            <div className="div_style">Aktuális kör: {currentRound}</div>
             <Leaderboard leaderboardArray={points}/>
         </div>)}
         </div>
