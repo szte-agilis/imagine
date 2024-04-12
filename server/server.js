@@ -35,6 +35,7 @@ function lobbiesStats() {
     return Object.entries(_lobbies).map(([id, lobby]) => ({
         id,
         users: Object.values(lobby.users).length,
+        gameStarted: lobby.gameStarted,
     }));
 }
 
@@ -87,6 +88,7 @@ io.on('connection', (socket) => {
                 correctGuesses: 0,
                 currentRound: 1,
                 pointMap: pointMap,
+                gameStarted: false,
             };
             logger('log', getLobby(lobbyId), 'New lobby created');
         } else {
@@ -108,8 +110,6 @@ io.on('connection', (socket) => {
         lobby.pointMap.set(username, 0);
 
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
-
-        io.emit('list-lobbies', lobbiesStats());
     });
 
     socket.on('join lobby', (lobbyId, username) => {
@@ -143,13 +143,12 @@ io.on('connection', (socket) => {
         }
 
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
-
-        io.emit('list-lobbies', lobbiesStats());
     });
 
     socket.on('start game clicked', (lobbyId) => {
         const lobby = getLobby(lobbyId);
         lobby.users = {};
+        lobby.gameStarted = true;
         io.to(lobbyId).emit('redirect', '/gamefield');
     });
 
