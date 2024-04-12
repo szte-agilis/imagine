@@ -14,7 +14,7 @@ jobs:
                   node-version: '20.x'
             - run: CI=false npm run build-all
             - name: Start Node.js server
-              run: npm start &
+              run: npm start-production &
 
             - name: Wait for server to start
               run: sleep 5
