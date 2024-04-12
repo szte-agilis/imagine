@@ -27,6 +27,14 @@ export default function App() {
         return () => newSocket.close();
     }, []);
 
+    useEffect(() => {
+        const lobby = lobbies.find(lobby => lobby.id === sessionStorage.getItem("lobby"));
+        if (lobby && !lobby.gameStarted) {
+            sessionStorage.setItem("lobby", lobby.id)
+            window.location.href = "/lobby";
+        }
+    }, [lobbies]);
+
     function BackgroundImage() {
         const { src } = useImage({
             srcList: [bgImg, 'https://cdn.wallpapersafari.com/69/10/CEokAi.jpg'],
@@ -88,18 +96,8 @@ export default function App() {
     }
 
     function joinLobby(id) {
+        sessionStorage.setItem("lobby", id)
         socket.emit('list-lobbies');
-
-        socket.on('list-lobbies', (lobbies) => {
-            setLobbies(lobbies);
-
-            const lobby = lobbies.find(lobby => lobby.id === id);
-
-            if(!lobby.gameStarted){
-                sessionStorage.setItem("lobby", id)
-                window.location.href = "/lobby";
-            }
-        });
     }
 
     return (
