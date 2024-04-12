@@ -88,18 +88,12 @@ export default function App() {
     }
 
     function joinLobby(id) {
-        socket.emit('list-lobbies');
+        const lobby = lobbies.find(lobby => lobby.id === id);
 
-        socket.on('list-lobbies', (lobbies) => {
-            setLobbies(lobbies);
-
-            const lobby = lobbies.find(lobby => lobby.id === id);
-
-            if(!lobby.gameStarted){
-                sessionStorage.setItem("lobby", id)
-                window.location.href = "/lobby";
-            }
-        });
+        if(!lobby.gameStarted){
+            sessionStorage.setItem("lobby", id)
+            window.location.href = "/lobby";
+        }
     }
 
     return (
