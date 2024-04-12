@@ -293,6 +293,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('reset canvas', (lobbyId) => {
+        io.to(lobbyId).emit('reset canvas');
         //todo: implement (tabla csapat)
     });
 
