@@ -75,6 +75,13 @@ io.on('connection', (socket) => {
     }
 
     socket.on('create lobby', (lobbyId, username) => {
+        if (lobbyId === '0') {
+            do {
+                lobbyId = Math.floor(
+                    100000 + Math.random() * 900000
+                ).toString();
+            } while (_lobbies.hasOwnProperty(lobbyId));
+        }
         let pointMap = new Map();
         if (!_lobbies[lobbyId]) {
             _lobbies[lobbyId] = {
@@ -204,6 +211,10 @@ io.on('connection', (socket) => {
                     'points',
                     Array.from(lobby.pointMap.entries())
                 );
+                console.log(
+                    'drawer awarded(everyone got it): ' +
+                        lobby.correctGuesses * 50
+                );
                 passDrawer(lobbyId);
                 lobby.correctGuesses = 0;
             }
@@ -301,6 +312,10 @@ io.on('connection', (socket) => {
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
+                    console.log(
+                        'drawer awarded(more correct): ' +
+                            lobby.correctGuesses * 35
+                    );
                 } else if (
                     lobby.correctGuesses <
                     numberOfPlayers - 1 - lobby.correctGuesses
@@ -314,6 +329,10 @@ io.on('connection', (socket) => {
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
+                    console.log(
+                        'drawer awarded(less correct): ' +
+                            lobby.correctGuesses * 15
+                    );
                 } else if (
                     lobby.correctGuesses ==
                     numberOfPlayers - 1 - lobby.correctGuesses
@@ -326,6 +345,9 @@ io.on('connection', (socket) => {
                     io.to(lobby.drawerSocketId).emit(
                         'points',
                         Array.from(lobby.pointMap.entries())
+                    );
+                    console.log(
+                        'drawer awarded(equal): ' + lobby.correctGuesses * 25
                     );
                 }
                 clearInterval(lobby.intervalId);

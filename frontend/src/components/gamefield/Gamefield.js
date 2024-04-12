@@ -19,7 +19,8 @@ function GameField() {
     const [localTimer, setlocalTimer] = useState(15);
     const chatWindow = document.getElementById('chat-window');
     const [isGameEnded, setIsGameEnded] = useState(false);
-    
+
+
     const [solution, setSolution] = useState("");
     const [randomSolutions, setRandomSolutions] = useState([]);
     const [points, setPoints] = useState(new Array());
@@ -45,7 +46,7 @@ function GameField() {
                 if(chatWindow !== null){
                     chatWindow.appendChild(messageElement);
                     chatWindow.scrollTop = chatWindow.scrollHeight;
-                }  
+                }
             });
 
             socket.on('Drawer', (canDraw) => {
