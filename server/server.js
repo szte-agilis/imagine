@@ -35,6 +35,7 @@ function lobbiesStats() {
     return Object.entries(_lobbies).map(([id, lobby]) => ({
         id,
         users: Object.values(lobby.users).length,
+        gameStarted: lobby.gameStarted,
     }));
 }
 
@@ -81,7 +82,6 @@ io.on('connection', (socket) => {
                 ).toString();
             } while (_lobbies.hasOwnProperty(lobbyId));
         }
-
         let pointMap = new Map();
         if (!_lobbies[lobbyId]) {
             _lobbies[lobbyId] = {
@@ -91,9 +91,11 @@ io.on('connection', (socket) => {
                 drawerAssigned: false,
                 timer: 15,
                 buttonState: 'Click me!',
+                solution: 'biztosnemtalaljakisenki',
                 correctGuesses: 0,
                 currentRound: 1,
                 pointMap: pointMap,
+                gameStarted: false,
             };
             logger('log', getLobby(lobbyId), 'New lobby created');
         } else {
@@ -111,36 +113,23 @@ io.on('connection', (socket) => {
         const lobby = getLobby(lobbyId);
 
         lobby.users[socket.id] = username;
+
         lobby.pointMap.set(username, 0);
 
-        io.to(socket.id).emit('random lobby code', lobbyId);
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
-
-        io.emit('list-lobbies', lobbiesStats());
     });
 
     socket.on('join lobby', (lobbyId, username) => {
-        socket.join(lobbyId);
-        let pointMap = new Map();
         if (!_lobbies[lobbyId]) {
-            _lobbies[lobbyId] = {
-                id: lobbyId,
-                users: {},
-                drawerSocketId: null,
-                drawerAssigned: false,
-                timer: 15,
-                buttonState: 'Click me!',
-                solution: 'biztosnemtalaljakisenki',
-                correctGuesses: 0,
-                currentRound: 1,
-                pointMap: pointMap,
-            };
+            socket.emit('lobby not exists', 'Lobby does not exist');
+            return;
         }
+
+        socket.join(lobbyId);
 
         const lobby = getLobby(lobbyId);
 
         lobby.users[socket.id] = username;
-        lobby.pointMap.set(username, 0);
 
         if (!lobby.drawerAssigned && username !== 'board') {
             lobby.drawerAssigned = true;
@@ -161,19 +150,23 @@ io.on('connection', (socket) => {
         }
 
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
-
-        io.emit('list-lobbies', lobbiesStats());
     });
 
     socket.on('start game clicked', (lobbyId) => {
+        const lobby = getLobby(lobbyId);
+        lobby.users = {};
+        lobby.gameStarted = true;
         io.to(lobbyId).emit('redirect', '/gamefield');
     });
 
     socket.on('init-points', (lobbyId) => {
-        io.to(lobbyId).emit(
-            'points',
-            Array.from(getLobby(lobbyId).pointMap.entries())
-        );
+        const lobby = getLobby(lobbyId);
+        if (lobby) {
+            io.to(lobbyId).emit(
+                'points',
+                Array.from(getLobby(lobbyId).pointMap.entries())
+            );
+        }
     });
 
     socket.on('chat message', (lobbyId, msg) => {
