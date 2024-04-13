@@ -160,6 +160,11 @@ function GameField() {
             <a href='http://localhost:3000'>Főoldal</a>
         </div>):(<div>
             <div id="container">
+                <div className="header-bar">
+                    <div className="first">Round ( {currentRound} / {rounds} )</div>
+                    <div className="second">Time: {localTimer}</div>
+                    <div className="third">Imagine</div>
+                </div>
                 <Board canDraw={canDraw} localLobby={localLobby} socket={socket}/>
                 <div id="chat-container">
                     <div id="chat-window"></div>
