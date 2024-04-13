@@ -37,6 +37,10 @@ export default function App() {
                 window.location.href = '/gamefield';
             });
 
+            socket.on('change lobby data', (lobbyData) => {
+                setLobbyData(lobbyData);
+            });
+
             window.addEventListener('beforeunload', handleBeforeUnload);
 
             // Remember to clean up the event listener
@@ -47,6 +51,12 @@ export default function App() {
         }
 
     }, [socket]);
+
+    useEffect(() => {
+        if (socket && IsOwner(localUsername)) {
+            socket.emit('lobby data changed', localLobby, lobbyData);
+        }
+    });
 
     const handleBeforeUnload = useCallback((event) => {
         event.preventDefault();
