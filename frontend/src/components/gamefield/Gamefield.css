@@ -9,13 +9,7 @@
 .div_style {
     margin-top: 20px;
 }
-.input-style {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 5px;
-    margin-top: 10px;
-    width: 100%;
-}
+
 .header-bar {
     display: flex;
     justify-content: flex-start;
@@ -40,22 +34,44 @@
     margin-right: 2rem;
 }
 
+#chat-container {
+    float: right;
+    height: 100%;
+    background-color: #252729;
+    color: white;
+    border-left: 1px solid #ccc;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 20%;
+}
+
+#chat-window {
+    flex: 1;
+}
+
+.input-style {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    width: calc(100% - 12px);
+    box-sizing: border-box;
+    background-color: white;
+    color: #252729;
+}
+
 #gamefield-container {
     display: flex;
     justify-content: space-between;
     align-items: stretch;
-    height: 100vh;
+    height: 90vh;
 }
 
 #left-div {
     width: 15%;
-    padding: 10px;
-    box-sizing: border-box;
-    height: 100%;
-}
-
-#chat-container {
-    width: 20%;
     padding: 10px;
     box-sizing: border-box;
     height: 100%;

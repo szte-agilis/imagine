@@ -201,13 +201,6 @@ function GameField() {
                                 placeholder="Type a message and press Enter"
                                 onKeyPress={handleChatInputKeyPress}
                                 onChange={(event) => setChatInput(event.target.value)}
-                                style={{
-                                    border: '1px solid #ccc',
-                                    borderRadius: '5px',
-                                    padding: '5px',
-                                    marginTop: '10px',
-                                    width: '100%',
-                                }}
                             />}
                             {canDraw && <button
                                 id="passDrawerButton"
