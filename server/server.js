@@ -231,6 +231,10 @@ io.on('connection', (socket) => {
         socket.emit('list-lobbies', lobbiesStats());
     });
 
+    socket.on('lobby data changed', (lobbyId, lobbyData) => {
+        socket.to(lobbyId).emit('change lobby data', lobbyData);
+    });
+
     socket.on('button clicked', (lobbyId, username) => {
         const lobby = getLobby(lobbyId);
         lobby.buttonState = `${username} clicked the button`;
