@@ -30,12 +30,44 @@
     z-index: 10000;
     margin-bottom: .75rem;
 }
-.first {
+.first-three {
     margin-left: 2rem;
     margin-right: 5rem;
 }
-.third {
+.fourth {
     display: flex;
     margin-left: auto;
     margin-right: 2rem;
+}
+
+#gamefield-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    height: 100vh;
+}
+
+#left-div {
+    width: 15%;
+    padding: 10px;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+#chat-container {
+    width: 20%;
+    padding: 10px;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+#middle-div {
+    flex: 1;
+    padding: 10px;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+#board{
+    height: 90% !important;
 }

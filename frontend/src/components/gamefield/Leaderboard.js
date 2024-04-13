@@ -1,4 +1,5 @@
 import React from 'react';
+import "./Leaderboard.css";
 
 class Leaderboard extends React.Component {
   render() {
@@ -12,15 +13,25 @@ class Leaderboard extends React.Component {
     leaderboardArray.sort((a, b) => b[1] - a[1]);
 
     return (
-      <div>
+      <div id="leaderborad-container">
         <h2>Leaderboard</h2>
-        <ul>
+        <div>
           {leaderboardArray.map(([name, points], index) => (
-            <li key={index}>
-              {name}: {points}
-            </li>
+            <div id="container-lbd">
+            <div id="left-square-lbd">
+                #{index+1}
+            </div>
+            <div id="right-rectangles-lbd">
+                <div class="top-rectangle-lbd">
+                    {name}
+                </div>
+                <div class="bottom-rectangle-lbd">
+                    {points}
+                </div>
+            </div>
+        </div>
           ))}
-        </ul>
+        </div>
       </div>
     );
   }
