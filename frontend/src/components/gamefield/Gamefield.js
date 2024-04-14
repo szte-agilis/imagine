@@ -71,7 +71,6 @@ function GameField() {
             });
 
             socket.on('points', (pointsObject) => {
-                console.log(pointsObject);
                 setPoints(pointsObject);
             });
 
