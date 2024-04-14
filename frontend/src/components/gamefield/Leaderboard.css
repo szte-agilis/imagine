@@ -20,6 +20,7 @@
     display: flex;
     border-radius: 10px;
     color: black;
+    font-weight: bold;
 }
 
 #right-rectangles-lbd {
@@ -38,6 +39,7 @@
     align-items: center;
     border-radius: 10px;
     color: black;
+    font-weight: bold;
 }
 
 .bottom-rectangle-lbd {
@@ -48,8 +50,13 @@
     align-items: center;
     border-radius: 10px;
     color: goldenrod;
+    font-weight: bold;
 }
 
 #leaderborad-container{
     justify-content: center;
+}
+
+.localPlayer{
+    background-color: darkcyan !important;
 }

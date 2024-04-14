@@ -4,7 +4,7 @@ import "./Leaderboard.css";
 class Leaderboard extends React.Component {
   render() {
     
-    const { leaderboardArray } = this.props;
+    const { leaderboardArray, localPlayer} = this.props;
     if (leaderboardArray.length === 0) {
         return null;
     }
@@ -17,7 +17,7 @@ class Leaderboard extends React.Component {
         <h2>Leaderboard</h2>
         <div>
           {leaderboardArray.map(([name, points], index) => (
-            <div id="container-lbd">
+            <div id="container-lbd" className={name === localPlayer ? 'localPlayer' : ''}>
             <div id="left-square-lbd">
                 #{index+1}
             </div>

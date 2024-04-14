@@ -169,7 +169,7 @@ function GameField() {
                     </div>
                     <div id="gamefield-container">
                         <div id="left-container">
-                            <Leaderboard leaderboardArray={points} />
+                            <Leaderboard leaderboardArray={points} localPlayer={localUsername}/>
                             {canDraw && randomSolutions.length > 0 && (
                                 <div>
                                     <h2>Choose a solution:</h2>
