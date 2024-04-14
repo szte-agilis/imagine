@@ -3,6 +3,7 @@ import "./lobby.css";
 import "../common.css";
 import bgImg from '../../../assets/background.jpg';
 import logoImg from '../../../assets/imagine-logo.png';
+import { useNavigate } from 'react-router-dom';
 import { useImage } from 'react-image';
 import io from 'socket.io-client';
 
@@ -12,11 +13,13 @@ export default function App() {
     const [localLobby, setLocalLobby] = useState(sessionStorage.getItem('lobby'));
     const [lobbyAdmin, setLobbyAdmin] = useState(null);
     const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
 
-    if (sessionStorage.getItem("username") === null || sessionStorage.getItem("username") === undefined ||
-        sessionStorage.getItem("lobby") === null || sessionStorage.getItem("lobby") === undefined) {
-        window.location.href = "/";
-    }
+    useEffect(() => {
+        if (!sessionStorage.getItem("username") || !sessionStorage.getItem("lobby")) {
+            navigate('/');
+        }
+    }, [navigate]);
 
     useEffect(() => {
         const newSocket = io();
@@ -34,7 +37,7 @@ export default function App() {
             });
 
             socket.on('redirect', () => {
-                window.location.href = '/gamefield';
+                navigate('/gamefield');
             });
 
             socket.on('change lobby data', (lobbyData) => {
@@ -59,7 +62,7 @@ export default function App() {
     });
 
     const handleBeforeUnload = useCallback((event) => {
-        event.preventDefault();
+        //event.preventDefault();
         if(socket) {
             socket.emit('window closed', localLobby, localUsername);
         }
@@ -243,11 +246,8 @@ export default function App() {
         socket.emit('start game clicked', localLobby);
     }
 
-    const exit = async (event) => {
-        event.preventDefault();
-
-        //io.emit("exit lobby");
-        window.location.href = "/";
+    const exit = async () => {
+        navigate("/");
     }
 
     return (

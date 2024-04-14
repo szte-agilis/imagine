@@ -1,6 +1,7 @@
 import React, { useState, startTransition, useEffect } from "react";
 import "./Login.css";
 import "./common.css";
+import { useNavigate } from 'react-router-dom';
 import bgImg from '../../assets/background.jpg';
 import logoImg from '../../assets/imagine-logo.png';
 import { useImage } from 'react-image';
@@ -9,6 +10,7 @@ export default function App() {
     const [showWarning, setShowWarning] = useState(false);
     const [warningMessage, setWarningMessage] = useState("");
     const MAX_NAME_LENGTH = 15;
+    const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
 
@@ -114,7 +116,7 @@ export default function App() {
 
         setShowWarning(false);
         sessionStorage.setItem("username", username);
-        window.location.href = "/join";
+        navigate('/join');
     };
 
     const createLobby = async (event) => {
@@ -138,7 +140,7 @@ export default function App() {
         startTransition(() => {
             sessionStorage.setItem("lobby", number);
             sessionStorage.setItem("username", username.trim());
-            window.location.href = "/lobby";
+            navigate("/lobby");
         });
     }
 
