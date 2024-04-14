@@ -60,6 +60,8 @@ export default function App() {
 
     const handleBeforeUnload = useCallback((event) => {
         event.preventDefault();
+        console.log('lobbyData', JSON.stringify(lobbyData))
+        sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
         if(socket) {
             socket.emit('window closed', localLobby, localUsername);
         }
