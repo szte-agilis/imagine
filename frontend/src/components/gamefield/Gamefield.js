@@ -20,6 +20,7 @@ function GameField() {
     const [localTimer, setlocalTimer] = useState(15);
     const chatWindow = document.getElementById('chat-window');
     const [isGameEnded, setIsGameEnded] = useState(false);
+    const [guessSet, setGuessSet] = useState(true);
 
 
     const [solution, setSolution] = useState("");
@@ -53,6 +54,9 @@ function GameField() {
             socket.on('Drawer', (canDraw) => {
                 setCanChat(!canDraw);
                 setCanDraw(canDraw);
+                if (canDraw===true){
+                    setGuessSet(false)
+                }
                 setSolution();
             });
 
@@ -122,6 +126,7 @@ function GameField() {
 
     const startGameTimer = (pickedSolution) => {
         if (socket && localLobby) {
+            setGuessSet(true);
             socket.emit('startGame', { lobbyId: localLobby, pickedSolution: pickedSolution });
             //socket.emit('startGame', localLobby);
             setRandomSolutions([]);
@@ -161,15 +166,19 @@ function GameField() {
                     </div>
                     <div id="gamefield-container">
                         <div id="left-container">
-                            <Leaderboard leaderboardArray={points} localPlayer={localUsername}/>
+                            <Leaderboard leaderboardArray={points} localPlayer={localUsername} />
                             {canDraw && randomSolutions.length > 0 && (
                                 <div>
                                     <h2>Choose a solution:</h2>
                                     {randomSolutions.map((solution, index) => (
                                         <button id={index.toString()}
-                                            className="button_class"
-                                            key={index}
-                                            onClick={() => { startGameTimer(solution); clearChat();  setSolution(solution)}}>
+                                                className="button_class"
+                                                key={index}
+                                                onClick={() => {
+                                                    startGameTimer(solution);
+                                                    clearChat();
+                                                    setSolution(solution)
+                                                }}>
                                             {solution}
                                         </button>
                                     ))}
@@ -180,7 +189,11 @@ function GameField() {
                             }
                         </div>
                         <div id="middle-div">
-                            <Board id="board" canDraw={canDraw} localLobby={localLobby} socket={socket} />
+                            {guessSet ? (
+                                <Board id="board" canDraw={canDraw} localLobby={localLobby} socket={socket} />
+                            ) : (
+                                <Board id="board" canDraw={false} localLobby={localLobby} socket={socket} />
+                            )}
                         </div>
                         <div id="chat-container">
                             <div id="chat-window"></div>
