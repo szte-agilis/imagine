@@ -127,15 +127,40 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
     }
 
     function multipleSelectionCenter (){
-        const posx: number[] = cards.map(a => a.position.x)
-        const posy: number[] = cards.map(b => b.position.y)
+        // const posx: number[] = cards.map(a => a.position.x)
+        // const posy: number[] = cards.map(b => b.position.y)
 
-        const minX: number = Math.min(...posx);
-        const minY: number = Math.min(...posy);
-        const maxX: number = Math.max(...posx);
-        const maxY: number = Math.max(...posy);
+        // const minX: number = Math.min(...posx);
+        // const minY: number = Math.min(...posy);
+        // const maxX: number = Math.max(...posx);
+        // const maxY: number = Math.max(...posy);
 
-        return new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
+        // return new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
+
+        if (selectedIndexes.length === 0) {
+            return new Vector2(); // This shouldn't really happen...
+        }
+    
+        // Initialize min and max values to the first selected card
+        let minX : number = cards[selectedIndexes[0]].position.x;
+        let maxX : number = cards[selectedIndexes[0]].position.x;
+        let minY : number = cards[selectedIndexes[0]].position.y;
+        let maxY : number = cards[selectedIndexes[0]].position.y;
+    
+        // Iterate through each selected card and update min and max values
+        selectedIndexes.forEach(value => {
+            const card : CardTransform = cards[value];
+            minX = Math.min(minX, card.position.x);
+            maxX = Math.max(maxX, card.position.x);
+            minY = Math.min(minY, card.position.y);
+            maxY = Math.max(maxY, card.position.y);
+        });
+    
+        // Calculate center of the bounding box
+        const centerX : number = (minX + maxX) / 2.0;
+        const centerY : number = (minY + maxY) / 2.0;
+    
+        return new Vector2(centerX, centerY);
     }
 
     // move the selected card
@@ -191,17 +216,37 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
 
     // rotate the selected card
     function rotate(direction: number) {
-        /*
-        if (selectedIndex < 0) return;
+        if (selectedIndexes.length < 1)
+            return;
 
-        cards[selectedIndex].rotation = (cards[selectedIndex].rotation + direction * 15 + 360) % 360;
+        const ANGLE_DEG_AMOUNT : number = 15.0;
+        const ANGLE_RAD_AMOUNT : number = ANGLE_DEG_AMOUNT * Math.PI / 180.0;
+
+        const pivotPos         : Vector2 = multipleSelectionCenter();
+        const angleRad         : number = ANGLE_RAD_AMOUNT * direction; 
+        const angleDeg         : number = ANGLE_DEG_AMOUNT * direction;
+        const cosTheta         : number = Math.cos(angleRad);
+        const sinTheta         : number = Math.sin(angleRad);
+
+        selectedIndexes.forEach((value) => {
+            const card : CardTransform = cards[value];
+            const posX : number = card.position.x
+            const posY : number = card.position.y
+
+            var newPosX : number = (posX - pivotPos.x) * cosTheta - (posY - pivotPos.y) * sinTheta + pivotPos.x;
+            var newPosY : number = (posX - pivotPos.x) * sinTheta + (posY - pivotPos.y) * cosTheta + pivotPos.y;
+
+            card.position.x = newPosX;
+            card.position.y = newPosY;
+
+            card.rotation = (cards[value].rotation + angleDeg + 360) % 360;
+        })
 
         setCards([...cards]);
 
-        if(socket){
-            socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
-        }
-        */
+        // if(socket){
+        //     socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
+        // }
     }
 
     function sizing(size: number) {
