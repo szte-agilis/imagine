@@ -2,16 +2,21 @@ import React, { useState, useEffect } from "react";
 import io from 'socket.io-client';
 import "./join.css";
 import "../common.css";
+import { useNavigate } from 'react-router-dom';
 import bgImg from '../../../assets/background.jpg';
 import logoImg from '../../../assets/imagine-logo.png';
 import { useImage } from 'react-image';
 
 export default function App() {
     const [socket, setSocket] = useState(null);
+    const navigate = useNavigate();
 
-    if (sessionStorage.getItem("username") === null || sessionStorage.getItem("username") === undefined) {
-        window.location.href = "/";
-    }
+    useEffect(() => {
+        if (!sessionStorage.getItem("username")) {
+            console.error('nincs username megadva', sessionStorage)
+            navigate('/');
+        }
+    }, [navigate]);
 
     const [lobbies, setLobbies] = useState([])
 
@@ -91,8 +96,8 @@ export default function App() {
         const lobby = lobbies.find(lobby => lobby.id === id);
 
         if(!lobby.gameStarted){
-            sessionStorage.setItem("lobby", id)
-            window.location.href = "/lobby";
+            sessionStorage.setItem("lobby", id);
+            navigate('/lobby');
         }
     }
 

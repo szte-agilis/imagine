@@ -3,6 +3,7 @@ import "./lobby.css";
 import "../common.css";
 import bgImg from '../../../assets/background.jpg';
 import logoImg from '../../../assets/imagine-logo.png';
+import { useNavigate } from 'react-router-dom';
 import { useImage } from 'react-image';
 import io from 'socket.io-client';
 
@@ -12,11 +13,14 @@ export default function App() {
     const [localLobby, setLocalLobby] = useState(sessionStorage.getItem('lobby'));
     const [lobbyAdmin, setLobbyAdmin] = useState(null);
     const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
 
-    if (sessionStorage.getItem("username") === null || sessionStorage.getItem("username") === undefined ||
-        sessionStorage.getItem("lobby") === null || sessionStorage.getItem("lobby") === undefined) {
-        window.location.href = "/";
-    }
+    useEffect(() => {
+        if (!sessionStorage.getItem("username") || !sessionStorage.getItem("lobby")) {
+            console.error("Nincsen beállítva username vagy lobby", sessionStorage)
+            navigate('/');
+        }
+    }, [navigate]);
 
     useEffect(() => {
         const newSocket = io();
@@ -34,7 +38,10 @@ export default function App() {
             });
 
             socket.on('redirect', () => {
-                window.location.href = '/gamefield';
+                console.log('redirect called via socket.io')
+                console.log('lobbyData', JSON.stringify(lobbyData))
+                sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
+                navigate('/gamefield');
             });
 
             socket.on('change lobby data', (lobbyData) => {
@@ -59,9 +66,6 @@ export default function App() {
     });
 
     const handleBeforeUnload = useCallback((event) => {
-        event.preventDefault();
-        console.log('lobbyData', JSON.stringify(lobbyData))
-        sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
         if(socket) {
             socket.emit('window closed', localLobby, localUsername);
         }
@@ -153,7 +157,7 @@ export default function App() {
                     backgroundImage: `url(${src})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    width: '25vw',
+                    width: '100%',
                     aspectRatio: 2.5
                 }}
             ></div>
@@ -164,7 +168,7 @@ export default function App() {
         return (
             <div id="player-list">
                 <div id="player-count-div" className="bg-gray-700">
-                    <p>Játékosok száma: {users.length}</p>
+                    <p>{users.length} Játékos</p>
                 </div>
                 <div id="list-column" className="bg-gray-800">
                     {users.map((user, index) => (
@@ -241,22 +245,18 @@ export default function App() {
         }
 
         window.removeEventListener('beforeunload', handleBeforeUnload);
-        sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
         socket.emit('start game clicked', localLobby);
     }
 
-    const exit = async (event) => {
-        event.preventDefault();
-
-        //io.emit("exit lobby");
-        window.location.href = "/";
+    const exit = async () => {
+        navigate("/");
     }
 
     return (
         <main>
             {showWarning && IsOwner(localUsername) &&
                 <div id="warning" className="absolute z-50 pointer-events-none w-full text-center py-4 lg:px-4 animated-warning">
-                    <div className="p-2 bg-red-100 items-center text-red-700 leading-none lg:rounded-full flex lg:inline-flex" role="alert">
+                    <div id='warning-msg' className="p-2 bg-red-100 items-center text-red-700 leading-none lg:rounded-full flex lg:inline-flex" role="alert">
                         <span className="flex rounded-full bg-red-200 uppercase px-2 py-1 text-xs font-bold mr-3">Hoppá!</span>
                         <span className="font-semibold mr-2 text-left flex-auto text-red-500">{warningMessage}</span>
                         <svg id="warning-svg" onClick={hideWarning} className="cursor-pointer pointer-events-auto fill-current opacity-75 h-6 w-6 transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none max-w-[40px] max-h-[40px] text-xs hover:bg-gray-900/10 active:bg-gray-900/20 rounded-full " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
@@ -301,7 +301,7 @@ export default function App() {
                                     min={ROUNDS_MIN}
                                     max={ROUNDS_MAX}
                                 />
-                                <label for="rounds" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Körök száma</label>
+                                <label for="rounds" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Körszám</label>
                             </div>
                             <div class="relative z-0 w-full mb-5 group">
                                 <input type="number" name="roundTime" id="roundTime" disabled={!IsOwner(localUsername)} class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required
@@ -319,10 +319,10 @@ export default function App() {
                                     min={MAXPLAYERS_MIN}
                                     max={MAXPLAYERS_MAX}
                                 />
-                                <label for="maxPlayers" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Játékos szám</label>
+                                <label for="maxPlayers" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Játékosszám</label>
                             </div>
                         </div>
-                        <label for="category" class="block mb-2 text-sm font-medium text-gray-500 dark:text-white"><p id="category-p" className="text-gray-400">Kategória</p>
+                        <label for="category" class="block mb-2 text-sm font-medium text-gray-500 dark:text-white"><p id="category-p">Kategória</p>
                             <select id="category" name="category" disabled={!IsOwner(localUsername)} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 value={lobbyData.category}
                                 onChange={handleFormChange}
