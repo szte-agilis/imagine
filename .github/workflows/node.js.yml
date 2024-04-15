@@ -1,7 +1,6 @@
 name: Node.js CI
 
 on:
-  push:
   pull_request:
 
 jobs:
@@ -24,4 +23,3 @@ jobs:
               run: |
                   kill $(lsof -t -i:4000)
               if: always()
-

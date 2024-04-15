@@ -2,20 +2,27 @@ import React, { useState, useEffect } from "react";
 import io from 'socket.io-client';
 import "./join.css";
 import "../common.css";
+import { useNavigate } from 'react-router-dom';
 import bgImg from '../../../assets/background.jpg';
 import logoImg from '../../../assets/imagine-logo.png';
 import { useImage } from 'react-image';
 
 export default function App() {
+    const [socket, setSocket] = useState(null);
+    const navigate = useNavigate();
 
-    if (sessionStorage.getItem("username") === null || sessionStorage.getItem("username") === undefined) {
-        window.location.href = "/";
-    }
+    useEffect(() => {
+        if (!sessionStorage.getItem("username")) {
+            console.error('nincs username megadva', sessionStorage)
+            navigate('/');
+        }
+    }, [navigate]);
 
     const [lobbies, setLobbies] = useState([])
 
     useEffect(() => {
         const newSocket = io();
+        setSocket(newSocket);
         newSocket.emit('list-lobbies');
 
         newSocket.on('list-lobbies', (lobbies) => {
@@ -86,9 +93,13 @@ export default function App() {
     }
 
     function joinLobby(id) {
-        sessionStorage.setItem("lobby", id)
-        window.location.href = "/lobby";
-    };
+        const lobby = lobbies.find(lobby => lobby.id === id);
+
+        if(!lobby.gameStarted){
+            sessionStorage.setItem("lobby", id);
+            navigate('/lobby');
+        }
+    }
 
     return (
         <main>
@@ -99,7 +110,8 @@ export default function App() {
                         <div className="lobby" key={lobby.id}>
                             <p className="lobby-id">ID: {lobby.id}</p>
                             <p className="lobby-users">Number of Users: {lobby.users}</p>
-                            <button className="btn btn-success" onClick={() => {joinLobby(lobby.id)}}>Csatlakozás</button>
+                            <p className="lobby-status">Státusz: {lobby.gameStarted ? 'Játék folyamatban' : 'Várakozás'}</p>
+                            <button className="btn btn-success" onClick={() => {joinLobby(lobby.id)}} disabled={lobby.gameStarted}>Csatlakozás</button>
                         </div>
                     ))}
                 </div>

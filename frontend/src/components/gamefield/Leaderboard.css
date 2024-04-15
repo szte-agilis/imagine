@@ -1,0 +1,62 @@
+#container-lbd {
+    display: flex;
+    height: 5%; 
+    width: 220px; 
+    background-color: darkgray;
+    align-items: center;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 3px;
+}
+
+#left-square-lbd {
+    height: 30%; 
+    width: 30%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: lightgrey;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    border-radius: 10px;
+    color: black;
+    font-weight: bold;
+}
+
+#right-rectangles-lbd {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 10px;
+}
+
+.top-rectangle-lbd{
+    flex: 1;
+    background-color: lightgrey;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    color: black;
+    font-weight: bold;
+}
+
+.bottom-rectangle-lbd {
+    flex: 1;
+    background-color: lightgrey;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    color: goldenrod;
+    font-weight: bold;
+}
+
+#leaderborad-container{
+    justify-content: center;
+}
+
+.localPlayer{
+    background-color: darkcyan !important;
+}

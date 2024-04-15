@@ -8,7 +8,7 @@
     flex-direction: column;
     align-items: center;
     height: 100vh;
-    row-gap: 5vh;
+    row-gap: 12vh;
     width: 100vw;
 }
 
@@ -29,12 +29,16 @@
 #create-lobby {
     background-size: cover;
     background-repeat: no-repeat;
-    width: 16vw;
-    height: 30vh;
+    width: 34vmin;
+    height: 34vmin;
     display: flex;
     justify-content: center;
     align-items: start;
     color: white;
+}
+
+#name{
+    width: 40vmin;
 }
 
 #join-lobby {
@@ -46,6 +50,6 @@
 }
 
 .btn-lobby p {
-    margin-top: 2vh;
-    font-size: 1.3em;
+    margin-top: 2.5vmin;
+    font-size: 2.7vmin;
 }
