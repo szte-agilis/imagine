@@ -12,7 +12,7 @@ export default function App() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!sessionStorage.getItem("username") || !sessionStorage.getItem("lobby")) {
+        if (!sessionStorage.getItem("username")) {
             navigate('/');
         }
     }, [navigate]);
