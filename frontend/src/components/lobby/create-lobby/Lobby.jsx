@@ -37,6 +37,8 @@ export default function App() {
             });
 
             socket.on('redirect', () => {
+                console.log('lobbyData', JSON.stringify(lobbyData))
+                sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
                 navigate('/gamefield');
             });
 
@@ -241,7 +243,6 @@ export default function App() {
         }
 
         window.removeEventListener('beforeunload', handleBeforeUnload);
-        sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
         socket.emit('start game clicked', localLobby);
     }
 
