@@ -37,6 +37,8 @@ export default function App() {
             });
 
             socket.on('redirect', () => {
+                console.log('lobbyData', JSON.stringify(lobbyData))
+                sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
                 navigate('/gamefield');
             });
 
@@ -63,6 +65,7 @@ export default function App() {
 
     const handleBeforeUnload = useCallback((event) => {
         //event.preventDefault();
+        event.preventDefault();
         if(socket) {
             socket.emit('window closed', localLobby, localUsername);
         }

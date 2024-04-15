@@ -5,8 +5,9 @@ import Leaderboard from './Leaderboard';
 import "./Gamefield.css";
 
 function GameField() {
-    const rounds = 3;
-    //const lobbyData = JSON.parse(sessionStorage.getItem("lobbyData"));
+    const lobbyData = JSON.parse(sessionStorage.getItem("lobbyData"));
+    console.log(lobbyData);
+    const rounds = lobbyData.rounds;
 
     const [socket, setSocket] = useState(null);
     const [localUsername, setLocalUsername] = useState(sessionStorage.getItem('username'));
@@ -17,9 +18,10 @@ function GameField() {
     const [users, setUsers] = useState([]);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
-    const [localTimer, setlocalTimer] = useState(15);
+    const [localTimer, setlocalTimer] = useState(lobbyData.roundTime);
     const chatWindow = document.getElementById('chat-window');
     const [isGameEnded, setIsGameEnded] = useState(false);
+    const [guessSet, setGuessSet] = useState(true);
 
 
     const [solution, setSolution] = useState("");
@@ -53,6 +55,9 @@ function GameField() {
             socket.on('Drawer', (canDraw) => {
                 setCanChat(!canDraw);
                 setCanDraw(canDraw);
+                if (canDraw===true){
+                    setGuessSet(false)
+                }
                 setSolution();
             });
 
@@ -63,15 +68,7 @@ function GameField() {
                 }
             });
 
-            socket.on('new round', (currentRound) => {
-                setCurrentRound(currentRound);
-                if (rounds + 1 === currentRound) {
-                    setIsGameEnded(true)
-                }
-            });
-
             socket.on('points', (pointsObject) => {
-                console.log(pointsObject);
                 setPoints(pointsObject);
             });
 
@@ -130,6 +127,7 @@ function GameField() {
 
     const startGameTimer = (pickedSolution) => {
         if (socket && localLobby) {
+            setGuessSet(true);
             socket.emit('startGame', { lobbyId: localLobby, pickedSolution: pickedSolution });
             //socket.emit('startGame', localLobby);
             setRandomSolutions([]);
@@ -156,9 +154,9 @@ function GameField() {
     return (
         <div>
             {isGameEnded ? (<div>
-                <h2>Game Ended</h2>
-                <p>Game has ended, you can leave the lobby now</p>
-                <a href='http://localhost:3000'>Főoldal</a>
+                <h2>Vége a játéknak!</h2>
+                <p>*leaderboard placeholder*</p>
+                <a href='http://localhost:3001'>Vissza a Főoldalra</a>
             </div>) : (<div>
                 <div id="container">
                     <div className="header-bar">
@@ -169,15 +167,19 @@ function GameField() {
                     </div>
                     <div id="gamefield-container">
                         <div id="left-container">
-                            <Leaderboard leaderboardArray={points} localPlayer={localUsername}/>
+                            <Leaderboard leaderboardArray={points} localPlayer={localUsername} />
                             {canDraw && randomSolutions.length > 0 && (
                                 <div>
                                     <h2>Choose a solution:</h2>
                                     {randomSolutions.map((solution, index) => (
                                         <button id={index.toString()}
-                                            className="button_class"
-                                            key={index}
-                                            onClick={() => { startGameTimer(solution); clearChat();  setSolution(solution)}}>
+                                                className="button_class"
+                                                key={index}
+                                                onClick={() => {
+                                                    startGameTimer(solution);
+                                                    clearChat();
+                                                    setSolution(solution)
+                                                }}>
                                             {solution}
                                         </button>
                                     ))}
@@ -188,7 +190,11 @@ function GameField() {
                             }
                         </div>
                         <div id="middle-div">
-                            <Board id="board" canDraw={canDraw} localLobby={localLobby} socket={socket} />
+                            {guessSet ? (
+                                <Board id="board" canDraw={canDraw} localLobby={localLobby} socket={socket} />
+                            ) : (
+                                <Board id="board" canDraw={false} localLobby={localLobby} socket={socket} />
+                            )}
                         </div>
                         <div id="chat-container">
                             <div id="chat-window"></div>
