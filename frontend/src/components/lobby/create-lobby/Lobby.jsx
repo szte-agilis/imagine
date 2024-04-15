@@ -168,7 +168,7 @@ export default function App() {
         return (
             <div id="player-list">
                 <div id="player-count-div" className="bg-gray-700">
-                    <p>Játékosszám: {users.length}</p>
+                    <p>{users.length} Játékos</p>
                 </div>
                 <div id="list-column" className="bg-gray-800">
                     {users.map((user, index) => (
