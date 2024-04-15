@@ -103,9 +103,9 @@ export default function App() {
 
     return (
         <main>
-            <div className="App relative">
-                <p id="player-name">{sessionStorage.getItem("username")}</p>
+            <div className="xd">
                 <div className="lobby-list">
+                <p id="player-name">Válassz lobby-t {sessionStorage.getItem("username")}!</p>
                     {lobbies.map((lobby) => (
                         <div className="lobby" key={lobby.id}>
                             <p className="lobby-id">ID: {lobby.id}</p>

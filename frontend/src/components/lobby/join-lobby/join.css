@@ -1,3 +1,10 @@
+#root{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+}
 .container{
     display: flex;
     flex-flow: column;
@@ -17,17 +24,17 @@
 }
 #player-name{
     font-size: large;
+    margin-bottom: 15px;
 }
 .lobby-list{
     display: flex;
     flex-flow: column;
     align-items: center;
     justify-content: flex-start;
-    margin-top: 20px;
     width: 60vw;
     height: 70vh;
     overflow-y: scroll;
-    background-color: #292d33;
+    background-color: #1c1d20e3;
     border-radius: 10px;
     padding: 15px;
 
@@ -46,6 +53,11 @@
     padding-right: 0px;
     border-radius: 5px;
     background-color: #252729;
+}
+.xd{
+    display: flex;
+    flex-flow: column;
+    align-items: center;
 }
 .lobby-id{
 
