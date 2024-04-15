@@ -5,6 +5,7 @@ import {CardTransform} from '../../data/CardTransform';
 import {Vector2} from '../../data/Vector2';
 import {images} from './imageImports';
 import {Socket} from 'socket.io-client';
+import ts from 'typescript';
 
 // the number of milliseconds to wait between card position updates
 // lower number -> faster updates, smoother movement, more network and CPU used
@@ -28,6 +29,8 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
 
     // is the left control key pressed
     const [isCtrlDown, setIsCtrlDown] = useState(false);
+    // is the left mouse button is pressed
+    const [isMouseDown, setIsMouseDown] = useState(false);
 
     // the board HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
@@ -38,14 +41,16 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
         window.addEventListener('mouseup', putDownCard);
         window.addEventListener('mousemove', moveCard);
         window.addEventListener('keydown', handleKeyPress);
-        window.addEventListener('keyup', handleKeyUp)
+        window.addEventListener('keyup', handleKeyUp);
+        window.addEventListener('mousedown', handleMouseDown)
         
 
         return () => {
             window.removeEventListener('mouseup', putDownCard);
             window.removeEventListener('mousemove', moveCard);
             window.removeEventListener('keydown', handleKeyPress);
-            window.removeEventListener('keyup', handleKeyUp)
+            window.removeEventListener('keyup', handleKeyUp);
+            window.removeEventListener('mousedown', handleMouseDown)
             
         }
     });
@@ -79,19 +84,24 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
         }
     }
 
+    function handleMouseDown(e: MouseEvent){
+        if (onmousedown) {
+            setIsMouseDown(true);
+        }
+    }
 
     // pick up and start moving the card with the index 'i'
+    // if control is held down multiple cards can be selected
     function pickupCard(i: number) {
-        if (selectedIndexes.length === 0) {
-            setSelectedIndexes([i]);
+
+        console.log("cards:", cards);
+
+        if(isCtrlDown){
+            if(!selectedIndexes.includes(i)){
+                setSelectedIndexes([...selectedIndexes, i]);
+            } 
         } else {
-            if(isCtrlDown){
-                if(selectedIndexes.includes(i)){
-                    setSelectedIndexes(selectedIndexes.filter(k => k !== i));
-                } else {
-                    setSelectedIndexes([...selectedIndexes, i]);
-                }
-            }
+            setSelectedIndexes([i]);
         }
     }
 
@@ -111,7 +121,9 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
             }*/
         }
 
-        setSelectedIndexes([]);
+        if(!isCtrlDown){
+            setSelectedIndexes([]);
+        }
     }
 
     function multipleSelectionCenter (){
@@ -127,40 +139,44 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
     }
 
     // move the selected card
+    // if multiple cards are selected move them together
     function moveCard(e: globalThis.MouseEvent) {
         if (selectedIndexes.length === 0) return;
 
-        e.preventDefault();
+        if(selectedIndexes.length >= 1 && isCtrlDown && !isMouseDown){
+            return;
+        } 
 
-        for(const i in selectedIndexes ){
-            const position: Vector2 = cards[i].position;
+        if(!isMouseDown){
 
-            position.x += (e.movementX * 100) / board.offsetWidth;
-            position.y += (e.movementY * 100) / board.offsetHeight;
-        }
+            e.preventDefault();
 
-        
+            selectedIndexes.forEach((value,key) => {
+                const position: Vector2 = cards[value].position;
 
-        setCards([...cards]);
+                position.x += (e.movementX * 100) / board.offsetWidth;
+                position.y += (e.movementY * 100) / board.offsetHeight;
+            })
 
-        const now: number = Date.now();
-        const elapsed: number = now - lastUpdate;
+            setCards([...cards]);
 
-        if (elapsed >= updateFrequencyMs) {
-            setLastUpdate(now);
+            const now: number = Date.now();
+            const elapsed: number = now - lastUpdate;
 
-            /*if(socket){
-                socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
-            }*/
+            if (elapsed >= updateFrequencyMs) {
+                setLastUpdate(now);
+
+                /*if(socket){
+                    socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
+                }*/
+            }
         }
     }
 
     // add a card to the board from the deck
     function addCard(id: number) {
-        const card: CardTransform = new CardTransform(id, new Vector2(50, 50), 0, 1);
-
-        setCards([...cards, card]);
-
+        const card: CardTransform = new CardTransform(id, new Vector2(50, 50), 0, 1);    
+        setCards([...cards, card]);    
         setIsDeckOpen(false);
 
         if(socket){
