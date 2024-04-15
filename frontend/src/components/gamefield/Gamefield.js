@@ -5,8 +5,9 @@ import Leaderboard from './Leaderboard';
 import "./Gamefield.css";
 
 function GameField() {
-    const rounds = 3;
-    //const lobbyData = JSON.parse(sessionStorage.getItem("lobbyData"));
+    const lobbyData = JSON.parse(sessionStorage.getItem("lobbyData"));
+    console.log(lobbyData);
+    const rounds = lobbyData.rounds;
 
     const [socket, setSocket] = useState(null);
     const [localUsername, setLocalUsername] = useState(sessionStorage.getItem('username'));
@@ -17,7 +18,7 @@ function GameField() {
     const [users, setUsers] = useState([]);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
-    const [localTimer, setlocalTimer] = useState(15);
+    const [localTimer, setlocalTimer] = useState(lobbyData.roundTime);
     const chatWindow = document.getElementById('chat-window');
     const [isGameEnded, setIsGameEnded] = useState(false);
     const [guessSet, setGuessSet] = useState(true);
