@@ -13,6 +13,7 @@ export default function App() {
 
     useEffect(() => {
         if (!sessionStorage.getItem("username")) {
+            console.error('nincs username megadva', sessionStorage)
             navigate('/');
         }
     }, [navigate]);

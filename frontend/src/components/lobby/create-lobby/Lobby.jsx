@@ -17,6 +17,7 @@ export default function App() {
 
     useEffect(() => {
         if (!sessionStorage.getItem("username") || !sessionStorage.getItem("lobby")) {
+            console.error("Nincsen beállítva username vagy lobby", sessionStorage)
             navigate('/');
         }
     }, [navigate]);
@@ -37,6 +38,7 @@ export default function App() {
             });
 
             socket.on('redirect', () => {
+                console.log('redirect called via socket.io')
                 console.log('lobbyData', JSON.stringify(lobbyData))
                 sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
                 navigate('/gamefield');
