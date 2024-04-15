@@ -68,12 +68,6 @@ function GameField() {
                 chatWindow.innerHTML = "";
             })
 
-            socket.on('reset canvas',()=>{
-                for(let i = 60; i >= 0; i--){
-                    socket.emit('card-remove', localLobby, i);
-                };
-            });
-
             socket.on('solution', (solutionFromSocket) => {
                 setSolution(solutionFromSocket);
             });
@@ -115,12 +109,6 @@ function GameField() {
             socket.emit("clearChat", localLobby);
         }
     }
-
-    /*const resetCanvas = () =>{
-        if(socket) {
-            socket.emit("reset canvas", localLobby);
-        }
-    }*/
 
     const handleChatInputKeyPress = (event) => {
         if (event.key === 'Enter') {

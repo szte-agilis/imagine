@@ -22,6 +22,10 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
                 cards.splice(i, 1);
                 setCards([...cards]);
             });
+
+            socket.on('reset canvas', function() {
+                setCards([]);
+            });
         }
 
         return () => {
