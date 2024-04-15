@@ -156,7 +156,7 @@ function GameField() {
             {isGameEnded ? (<div>
                 <h2>Vége a játéknak!</h2>
                 <p>*leaderboard placeholder*</p>
-                <a href='http://localhost:3001'>Vissza a Főoldalra</a>
+                <a href='http://localhost:3000'>Vissza a Főoldalra</a>
             </div>) : (<div>
                 <div id="container">
                     <div className="header-bar">
