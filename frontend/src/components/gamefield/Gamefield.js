@@ -63,13 +63,6 @@ function GameField() {
                 }
             });
 
-            socket.on('new round', (currentRound) => {
-                setCurrentRound(currentRound);
-                if (rounds + 1 === currentRound) {
-                    setIsGameEnded(true)
-                }
-            });
-
             socket.on('points', (pointsObject) => {
                 setPoints(pointsObject);
             });
@@ -155,9 +148,9 @@ function GameField() {
     return (
         <div>
             {isGameEnded ? (<div>
-                <h2>Game Ended</h2>
-                <p>Game has ended, you can leave the lobby now</p>
-                <a href='http://localhost:3000'>Főoldal</a>
+                <h2>Vége a játéknak!</h2>
+                <p>*leaderboard placeholder*</p>
+                <a href='http://localhost:3001'>Vissza a Főoldalra</a>
             </div>) : (<div>
                 <div id="container">
                     <div className="header-bar">
