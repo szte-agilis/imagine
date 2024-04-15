@@ -21,6 +21,7 @@ app.get('*', (req, res) =>
 app.use(require('body-parser').json());
 
 let _lobbies = {};
+let counter = 0;
 
 function getLobby(lobbyId) {
     console.debug('getLobby', { id: lobbyId });
@@ -270,8 +271,14 @@ io.on('connection', (socket) => {
         }
         io.to(lobbyId).emit('reset canvas', lobbyId);
 
-        lobby.currentRound++;
-        io.to(lobbyId).emit('new round', lobby.currentRound);
+        counter++;
+        console.log('counter' + counter);
+        console.log('userids' + userIds.length);
+        if (counter == userIds.length) {
+            io.to(lobbyId).emit('new round', lobby.currentRound + 1);
+            lobby.currentRound++;
+            counter = 0;
+        }
 
         userIds.forEach((id) => {
             io.to(id).emit('Drawer', false);
