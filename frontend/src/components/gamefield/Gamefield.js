@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {io} from 'socket.io-client';
 import Board from '../drawerfield/Board';
 import Deck from '../drawerfield/Deck';
-import DrawerBoard from '../drawerfield/DrawerBoard';
+import GuesserBoard from '../drawerfield/GuesserBoard';
 
 function GameField() {
     const [socket, setSocket] = useState(null);
@@ -69,7 +69,7 @@ function GameField() {
             })
 
             socket.on('reset canvas',()=>{
-                for(let i = 0; i < 60; i++){
+                for(let i = 60; i >= 0; i--){
                     socket.emit('card-remove', localLobby, i);
                 };
             });
@@ -116,11 +116,11 @@ function GameField() {
         }
     }
 
-    const reserCanvas = () =>{
+    /*const resetCanvas = () =>{
         if(socket) {
             socket.emit("reset canvas", localLobby);
         }
-    }
+    }*/
 
     const handleChatInputKeyPress = (event) => {
         if (event.key === 'Enter') {

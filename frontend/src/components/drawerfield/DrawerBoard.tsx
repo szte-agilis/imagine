@@ -22,9 +22,12 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
 
     // is the deck currently open
     const [isDeckOpen, setIsDeckOpen] = useState(false);
+    
+    // array to store the indexes of the selected cards
+    const [selectedIndexes, setSelectedIndexes] = useState([] as number[]);
 
-    // the index of the selected card in the cards array, -1 if no card is selected
-    const [selectedIndex, setSelectedIndex] = useState(-1);
+    // is the left control key pressed
+    const [isCtrlDown, setIsCtrlDown] = useState(false);
 
     // the board HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
@@ -34,12 +37,16 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
     useEffect(() => {
         window.addEventListener('mouseup', putDownCard);
         window.addEventListener('mousemove', moveCard);
-        window.addEventListener('keydown', handleKeyPress)
+        window.addEventListener('keydown', handleKeyPress);
+        window.addEventListener('keyup', handleKeyUp)
+        
 
         return () => {
             window.removeEventListener('mouseup', putDownCard);
             window.removeEventListener('mousemove', moveCard);
-            window.removeEventListener('keydown', handleKeyPress)
+            window.removeEventListener('keydown', handleKeyPress);
+            window.removeEventListener('keyup', handleKeyUp)
+            
         }
     });
 
@@ -59,49 +66,80 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
             case "ArrowDown":
                 sizing(-1);
                 break;
+            case"Control":
+                setIsCtrlDown(true);
+                break;
+        
         }
     }
 
-   
+    function handleKeyUp(e: KeyboardEvent){
+        if (e.key === 'Control') {
+            setIsCtrlDown(false);
+        }
+    }
+
 
     // pick up and start moving the card with the index 'i'
     function pickupCard(i: number) {
-        if (selectedIndex < 0) {
-            setSelectedIndex(i);
+        if (selectedIndexes.length === 0) {
+            setSelectedIndexes([i]);
         } else {
-            setSelectedIndex(-1);
+            if(isCtrlDown){
+                if(selectedIndexes.includes(i)){
+                    setSelectedIndexes(selectedIndexes.filter(k => k !== i));
+                } else {
+                    setSelectedIndexes([...selectedIndexes, i]);
+                }
+            }
         }
     }
 
+
     // put down the currently selected card
     function putDownCard(e: globalThis.MouseEvent) {
-        if (selectedIndex < 0) return;
+        if (selectedIndexes.length === 0) return;
 
-        const position: Vector2 = cards[selectedIndex].position;
+        const position: Vector2 = multipleSelectionCenter();
 
         if (position.x < margin || position.x > 100 - margin || position.y < margin || position.y > 100 - margin) {
-            cards.splice(selectedIndex, 1);
+            
+            setCards(cards.filter((p, i) => !selectedIndexes.includes(i)));
 
-            setCards([...cards]);
-
-            if(socket){
+            /*if(socket){
                 socket.emit('card-remove', lobbyId, selectedIndex);
-            }
+            }*/
         }
 
-        setSelectedIndex(-1);
+        setSelectedIndexes([]);
+    }
+
+    function multipleSelectionCenter (){
+        const posx: number[] = cards.map(a => a.position.x)
+        const posy: number[] = cards.map(b => b.position.y)
+
+        const minX: number = Math.min(...posx);
+        const minY: number = Math.min(...posy);
+        const maxX: number = Math.max(...posx);
+        const maxY: number = Math.max(...posy);
+
+        return new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
     }
 
     // move the selected card
     function moveCard(e: globalThis.MouseEvent) {
-        if (selectedIndex < 0) return;
+        if (selectedIndexes.length === 0) return;
 
         e.preventDefault();
 
-        const position: Vector2 = cards[selectedIndex].position;
+        for(const i in selectedIndexes ){
+            const position: Vector2 = cards[i].position;
 
-        position.x += (e.movementX * 100) / board.offsetWidth;
-        position.y += (e.movementY * 100) / board.offsetHeight;
+            position.x += (e.movementX * 100) / board.offsetWidth;
+            position.y += (e.movementY * 100) / board.offsetHeight;
+        }
+
+        
 
         setCards([...cards]);
 
@@ -111,9 +149,9 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
         if (elapsed >= updateFrequencyMs) {
             setLastUpdate(now);
 
-            if(socket){
+            /*if(socket){
                 socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
-            }
+            }*/
         }
     }
 
@@ -137,6 +175,7 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
 
     // rotate the selected card
     function rotate(direction: number) {
+        /*
         if (selectedIndex < 0) return;
 
         cards[selectedIndex].rotation = (cards[selectedIndex].rotation + direction * 15 + 360) % 360;
@@ -146,9 +185,11 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
         if(socket){
             socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
         }
+        */
     }
 
     function sizing(size: number) {
+        /*
         if (selectedIndex < 0) return;
 
         cards[selectedIndex].size = (cards[selectedIndex].size +(size) ) ;
@@ -163,8 +204,8 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
         if(socket){
             socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
         }
+        */
     }
-
     // the array of cards in the deck, that are all the cards currently not placed on the board
     const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
 
@@ -186,7 +227,7 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
             {isDeckOpen && <Deck onCardSelect={addCard} cardIds={cardsInDeck}/>}
 
             <div id="board" className="flex-grow relative">
-                <CardViewer cards={cards} selectedIndex={selectedIndex} selectCallback={pickupCard}/>
+                <CardViewer cards={cards} selectedIndexes={selectedIndexes} selectCallback={pickupCard}/>
             </div>
         </div>
     );
