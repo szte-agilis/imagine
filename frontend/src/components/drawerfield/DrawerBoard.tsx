@@ -250,22 +250,27 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
     }
 
     function sizing(size: number) {
-        /*
-        if (selectedIndex < 0) return;
+        
+        if (selectedIndexes.length === 0) return;
 
-        cards[selectedIndex].size = (cards[selectedIndex].size +(size) ) ;
-        if(cards[selectedIndex].size>90){
-            cards[selectedIndex].size=90;
-        }else if(cards[selectedIndex].size<10){
-            cards[selectedIndex].size=10;
+    selectedIndexes.forEach(index => {
+        if (index < 0 || index >= cards.length) return;
+        
+        cards[index].size += size;
+
+        if (cards[index].size > 90) {
+            cards[index].size = 90;
+        } else if (cards[index].size < 10) {
+            cards[index].size = 10;
         }
-
-        setCards([...cards]);
-
-        if(socket){
-            socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
+        
+        if (socket) {
+            socket.emit('card-modify', lobbyId, index, cards[index]);
         }
-        */
+    });
+
+    setCards([...cards]);
+        
     }
     // the array of cards in the deck, that are all the cards currently not placed on the board
     const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
