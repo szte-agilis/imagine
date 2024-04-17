@@ -182,7 +182,7 @@ io.on('connection', (socket) => {
             if (lobby.correctGuesses == 0) {
                 lobby.pointMap.set(
                     username,
-                    lobby.pointMap.get(username) + 1000 + lobby.timer
+                    lobby.pointMap.get(username) + 1000 + lobby.timer * 5
                 );
                 io.to(lobbyId).emit(
                     'points',
@@ -193,8 +193,8 @@ io.on('connection', (socket) => {
                     username,
                     lobby.pointMap.get(username) +
                         1000 -
-                        lobby.correctGuesses * 20 +
-                        lobby.timer
+                        lobby.correctGuesses * 50 +
+                        lobby.timer * 5
                 );
                 io.to(lobbyId).emit(
                     'points',
@@ -209,17 +209,13 @@ io.on('connection', (socket) => {
                 clearInterval(lobby.intervalId);
                 lobby.pointMap.set(
                     lobby.users[lobby.drawerSocketId],
-                    lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
-                        lobby.correctGuesses * 50
+                    lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) + 1000 //mindenki kitalalta -> drawer 1000 pontot kap
                 );
                 io.to(lobby.drawerSocketId).emit(
                     'points',
                     Array.from(lobby.pointMap.entries())
                 );
-                console.log(
-                    'drawer awarded(everyone got it): ' +
-                        lobby.correctGuesses * 50
-                );
+                console.log('drawer awarded(everyone got it): ' + 1000);
                 passDrawer(lobbyId);
                 lobby.correctGuesses = 0;
             }
@@ -321,16 +317,13 @@ io.on('connection', (socket) => {
                     lobby.pointMap.set(
                         lobby.users[lobby.drawerSocketId],
                         lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
-                            lobby.correctGuesses * 35
+                            750
                     );
                     io.to(lobby.drawerSocketId).emit(
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
-                    console.log(
-                        'drawer awarded(more correct): ' +
-                            lobby.correctGuesses * 35
-                    );
+                    console.log('drawer awarded(more correct): ' + 750);
                 } else if (
                     lobby.correctGuesses <
                     numberOfPlayers - 1 - lobby.correctGuesses
@@ -338,15 +331,14 @@ io.on('connection', (socket) => {
                     lobby.pointMap.set(
                         lobby.users[lobby.drawerSocketId],
                         lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
-                            lobby.correctGuesses * 15
+                            250
                     );
                     io.to(lobby.drawerSocketId).emit(
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
                     console.log(
-                        'drawer awarded(less correct): ' +
-                            lobby.correctGuesses * 15
+                        'drawer awarded(less correct): ' + 250 //kevesebb a jó tipp -> 250 pont
                     );
                 } else if (
                     lobby.correctGuesses ==
@@ -355,14 +347,14 @@ io.on('connection', (socket) => {
                     lobby.pointMap.set(
                         lobby.users[lobby.drawerSocketId],
                         lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
-                            lobby.correctGuesses * 25
+                            500
                     );
                     io.to(lobby.drawerSocketId).emit(
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
                     console.log(
-                        'drawer awarded(equal): ' + lobby.correctGuesses * 25
+                        'drawer awarded(equal): ' + 500 // Egyenlő rossz tipp mint jó -> 500 pont
                     );
                 }
                 clearInterval(lobby.intervalId);
