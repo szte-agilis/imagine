@@ -1,10 +1,3 @@
-#root{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    height: 100vh;
-}
 .container{
     display: flex;
     flex-flow: column;
@@ -13,6 +6,7 @@
     width: 100vw;
     height: 100vh;
 }
+
 .join-form{
     display: flex;
     flex-direction: row;
@@ -22,10 +16,12 @@
     height: 10vh;
     border-radius: 5px;
 }
+
 #player-name{
     font-size: large;
     margin-bottom: 15px;
 }
+
 .lobby-list{
     display: flex;
     flex-flow: column;
@@ -40,6 +36,7 @@
 
 
 }
+
 .lobby{
     display: flex;
     flex-direction: row;
@@ -54,15 +51,3 @@
     border-radius: 5px;
     background-color: #252729;
 }
-.xd{
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-}
-.lobby-id{
-
-}
-.lobby-users{
-
-}
-

@@ -103,7 +103,7 @@ export default function App() {
 
     return (
         <main>
-            <div className="xd">
+            <div className="flex items-center py-4 justify-center">
                 <div className="lobby-list">
                 <p id="player-name">Válassz lobby-t {sessionStorage.getItem("username")}!</p>
                     {lobbies.map((lobby) => (
