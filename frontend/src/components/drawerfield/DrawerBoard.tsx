@@ -5,7 +5,6 @@ import {CardTransform} from '../../data/CardTransform';
 import {Vector2} from '../../data/Vector2';
 import {images} from './imageImports';
 import {Socket} from 'socket.io-client';
-import ts from 'typescript';
 
 // the number of milliseconds to wait between card position updates
 // lower number -> faster updates, smoother movement, more network and CPU used
@@ -14,7 +13,7 @@ const updateFrequencyMs: number = 100;
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const margin: number = 1;
 
-export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, socket: Socket | null}) {
+export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null, socket: Socket | null }) {
     // the array storing the transforms of the currently placed cards
     const [cards, setCards] = useState([] as CardTransform[]);
 
@@ -23,12 +22,13 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
 
     // is the deck currently open
     const [isDeckOpen, setIsDeckOpen] = useState(false);
-    
+
     // array to store the indexes of the selected cards
     const [selectedIndexes, setSelectedIndexes] = useState([] as number[]);
 
     // is the left control key pressed
     const [isCtrlDown, setIsCtrlDown] = useState(false);
+
     // is the left mouse button is pressed
     const [isMouseDown, setIsMouseDown] = useState(false);
 
@@ -43,7 +43,7 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
         window.addEventListener('keydown', handleKeyPress);
         window.addEventListener('keyup', handleKeyUp);
         window.addEventListener('mousedown', handleMouseDown)
-        
+
 
         return () => {
             window.removeEventListener('mouseup', putDownCard);
@@ -51,12 +51,11 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
             window.removeEventListener('keydown', handleKeyPress);
             window.removeEventListener('keyup', handleKeyUp);
             window.removeEventListener('mousedown', handleMouseDown)
-            
         }
     });
 
-    function handleKeyPress(e: KeyboardEvent){
-       
+    function handleKeyPress(e: KeyboardEvent) {
+
         switch (e.key) {
             case "ArrowLeft":
                 rotate(-1);
@@ -65,26 +64,26 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
                 rotate(1);
                 break;
             case "ArrowUp":
-                sizing(1);
-                
+                /*sizing(1);*/
+
                 break;
             case "ArrowDown":
-                sizing(-1);
+                /*sizing(-1);*/
                 break;
             case"Control":
                 setIsCtrlDown(true);
                 break;
-        
+
         }
     }
 
-    function handleKeyUp(e: KeyboardEvent){
+    function handleKeyUp(e: KeyboardEvent) {
         if (e.key === 'Control') {
             setIsCtrlDown(false);
         }
     }
 
-    function handleMouseDown(e: MouseEvent){
+    function handleMouseDown(e: MouseEvent) {
         if (onmousedown) {
             setIsMouseDown(true);
         }
@@ -96,10 +95,10 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
 
         console.log("cards:", cards);
 
-        if(isCtrlDown){
-            if(!selectedIndexes.includes(i)){
+        if (isCtrlDown) {
+            if (!selectedIndexes.includes(i)) {
                 setSelectedIndexes([...selectedIndexes, i]);
-            } 
+            }
         } else {
             setSelectedIndexes([i]);
         }
@@ -113,7 +112,7 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
         const position: Vector2 = multipleSelectionCenter();
 
         if (position.x < margin || position.x > 100 - margin || position.y < margin || position.y > 100 - margin) {
-            
+
             setCards(cards.filter((p, i) => !selectedIndexes.includes(i)));
 
             /*if(socket){
@@ -121,12 +120,12 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
             }*/
         }
 
-        if(!isCtrlDown){
+        if (!isCtrlDown) {
             setSelectedIndexes([]);
         }
     }
 
-    function multipleSelectionCenter (){
+    function multipleSelectionCenter() {
         // const posx: number[] = cards.map(a => a.position.x)
         // const posy: number[] = cards.map(b => b.position.y)
 
@@ -140,26 +139,26 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
         if (selectedIndexes.length === 0) {
             return new Vector2(); // This shouldn't really happen...
         }
-    
+
         // Initialize min and max values to the first selected card
-        let minX : number = cards[selectedIndexes[0]].position.x;
-        let maxX : number = cards[selectedIndexes[0]].position.x;
-        let minY : number = cards[selectedIndexes[0]].position.y;
-        let maxY : number = cards[selectedIndexes[0]].position.y;
-    
+        let minX: number = cards[selectedIndexes[0]].position.x;
+        let maxX: number = cards[selectedIndexes[0]].position.x;
+        let minY: number = cards[selectedIndexes[0]].position.y;
+        let maxY: number = cards[selectedIndexes[0]].position.y;
+
         // Iterate through each selected card and update min and max values
         selectedIndexes.forEach(value => {
-            const card : CardTransform = cards[value];
+            const card: CardTransform = cards[value];
             minX = Math.min(minX, card.position.x);
             maxX = Math.max(maxX, card.position.x);
             minY = Math.min(minY, card.position.y);
             maxY = Math.max(maxY, card.position.y);
         });
-    
+
         // Calculate center of the bounding box
-        const centerX : number = (minX + maxX) / 2.0;
-        const centerY : number = (minY + maxY) / 2.0;
-    
+        const centerX: number = (minX + maxX) / 2.0;
+        const centerY: number = (minY + maxY) / 2.0;
+
         return new Vector2(centerX, centerY);
     }
 
@@ -168,15 +167,15 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
     function moveCard(e: globalThis.MouseEvent) {
         if (selectedIndexes.length === 0) return;
 
-        if(selectedIndexes.length >= 1 && isCtrlDown && !isMouseDown){
+        if (selectedIndexes.length >= 1 && isCtrlDown && !isMouseDown) {
             return;
-        } 
+        }
 
-        if(!isMouseDown){
+        if (!isMouseDown) {
 
             e.preventDefault();
 
-            selectedIndexes.forEach((value,key) => {
+            selectedIndexes.forEach((value, key) => {
                 const position: Vector2 = cards[value].position;
 
                 position.x += (e.movementX * 100) / board.offsetWidth;
@@ -200,11 +199,11 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
 
     // add a card to the board from the deck
     function addCard(id: number) {
-        const card: CardTransform = new CardTransform(id, new Vector2(50, 50), 0, 1);    
-        setCards([...cards, card]);    
+        const card: CardTransform = new CardTransform(id, new Vector2(50, 50));
+        setCards([...cards, card]);
         setIsDeckOpen(false);
 
-        if(socket){
+        if (socket) {
             socket.emit('card-add', lobbyId, card);
         }
     }
@@ -216,25 +215,26 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
 
     // rotate the selected card
     function rotate(direction: number) {
-        if (selectedIndexes.length < 1)
+        if (selectedIndexes.length < 1){
             return;
+        }
 
-        const ANGLE_DEG_AMOUNT : number = 15.0;
-        const ANGLE_RAD_AMOUNT : number = ANGLE_DEG_AMOUNT * Math.PI / 180.0;
+        const ANGLE_DEG_AMOUNT: number = 15.0;
+        const ANGLE_RAD_AMOUNT: number = ANGLE_DEG_AMOUNT * Math.PI / 180.0;
 
-        const pivotPos         : Vector2 = multipleSelectionCenter();
-        const angleRad         : number = ANGLE_RAD_AMOUNT * direction; 
-        const angleDeg         : number = ANGLE_DEG_AMOUNT * direction;
-        const cosTheta         : number = Math.cos(angleRad);
-        const sinTheta         : number = Math.sin(angleRad);
+        const pivotPos: Vector2 = multipleSelectionCenter();
+        const angleRad: number = ANGLE_RAD_AMOUNT * direction;
+        const angleDeg: number = ANGLE_DEG_AMOUNT * direction;
+        const cosTheta: number = Math.cos(angleRad);
+        const sinTheta: number = Math.sin(angleRad);
 
         selectedIndexes.forEach((value) => {
-            const card : CardTransform = cards[value];
-            const posX : number = card.position.x
-            const posY : number = card.position.y
+            const card: CardTransform = cards[value];
+            const posX: number = card.position.x
+            const posY: number = card.position.y
 
-            var newPosX : number = (posX - pivotPos.x) * cosTheta - (posY - pivotPos.y) * sinTheta + pivotPos.x;
-            var newPosY : number = (posX - pivotPos.x) * sinTheta + (posY - pivotPos.y) * cosTheta + pivotPos.y;
+            const newPosX: number = (posX - pivotPos.x) * cosTheta - (posY - pivotPos.y) * sinTheta + pivotPos.x;
+            const newPosY: number = (posX - pivotPos.x) * sinTheta + (posY - pivotPos.y) * cosTheta + pivotPos.y;
 
             card.position.x = newPosX;
             card.position.y = newPosY;
@@ -249,29 +249,33 @@ export default function DrawerBoard({lobbyId, socket}: {lobbyId: string | null, 
         // }
     }
 
-    function sizing(size: number) {
-        
-        if (selectedIndexes.length === 0) return;
-
-    selectedIndexes.forEach(index => {
-        if (index < 0 || index >= cards.length) return;
-        
-        cards[index].size += size;
-
-        if (cards[index].size > 90) {
-            cards[index].size = 90;
-        } else if (cards[index].size < 10) {
-            cards[index].size = 10;
+    /*function sizing(size: number) {
+        if (selectedIndexes.length === 0){
+            return;
         }
-        
-        if (socket) {
-            socket.emit('card-modify', lobbyId, index, cards[index]);
-        }
-    });
 
-    setCards([...cards]);
-        
-    }
+        selectedIndexes.forEach(index => {
+            if (index < 0 || index >= cards.length){
+                return;
+            }
+
+            cards[index].scale += size;
+
+            if (cards[index].scale > 0.9) {
+                cards[index].scale = 0.9;
+            }
+            else if (cards[index].scale < 0.1) {
+                cards[index].scale = 0.1;
+            }
+
+            if (socket) {
+                socket.emit('card-modify', lobbyId, index, cards[index]);
+            }
+        });
+
+        setCards([...cards]);
+    }*/
+
     // the array of cards in the deck, that are all the cards currently not placed on the board
     const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
 

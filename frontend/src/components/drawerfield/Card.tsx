@@ -7,14 +7,12 @@ export default function Card({ transform, isSelected = false, selectCallback }: 
         top: `${transform.position.y}%`,
         left: `${transform.position.x}%`,
         transform: `scale(${transform.scale}) translate(-50%, -50%) rotate(${transform.rotation}deg)`,
-        maxHeight: `${transform.size}%`,
-        boxShadow: isSelected ? '0px 0px 3px 1px rgba(46,248,255,0.9)' : 'none',
-        borderRadius: '0.5rem'
+        boxShadow: isSelected ? '0px 0px 3px 1px rgba(46,248,255,0.9)' : 'none'
     };
 
     return (
         <img
-            className="z-10 absolute select-none"
+            className="z-10 absolute select-none max-h-full"
             style={style}
             onMouseDown={selectCallback}
             src={images.at(transform.id)}
