@@ -15,8 +15,9 @@ function GameField() {
     const [canChat, setCanChat] = useState(false);
     const [localTimer, setlocalTimer] = useState(15);
     const chatWindow = document.getElementById('chat-window');
-    
+
     const [solution, setSolution] = useState("");
+    const [randomSolutions, setRandomSolutions] = useState([]);
     const [myPoints, setMyPoints] = useState(0);
 
     useEffect(() => {
@@ -68,6 +69,10 @@ function GameField() {
                 chatWindow.innerHTML = "";
             })
 
+            socket.on('choose solution', (randomSolutions) => {
+                setRandomSolutions(randomSolutions);
+            });
+
             socket.on('solution', (solutionFromSocket) => {
                 setSolution(solutionFromSocket);
             });
@@ -98,9 +103,12 @@ function GameField() {
         }
     };
 
-    const startGameTimer = () => {
-        if (socket) {
-            socket.emit('startGame', localLobby);
+
+    const startGameTimer = (pickedSolution) => {
+        if (socket && localLobby) {
+            socket.emit('startGame', {lobbyId: localLobby, pickedSolution: pickedSolution});
+            //socket.emit('startGame', localLobby);
+            setRandomSolutions([]);
         }
     }
 
@@ -135,19 +143,43 @@ function GameField() {
                         placeholder="Type a message and press Enter"
                         onKeyPress={handleChatInputKeyPress}
                         onChange={(event) => setChatInput(event.target.value)}
+                        style={{
+                            border: '1px solid #ccc',
+                            borderRadius: '5px',
+                            padding: '5px',
+                            marginTop: '10px',
+                            width: '100%',
+                        }}
                     />}
                     {canDraw && <button
                         id="passDrawerButton"
                         onClick={handlePassDrawer}
+                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer' }}
                     >Pass Drawer Role
                     </button>}
-                    {canDraw && <button
+                    {/* {canDraw && <button
                         id="StartGameButton"
                         onClick={()=>{startGameTimer()
                         clearChat()}}
+                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer', marginTop: '10px' }}
                     >Start Game
-                    </button>}
+                    </button>}*/}
                 </div>
+                <br />
+                {canDraw && randomSolutions.length > 0 && (
+                <div>
+                    <h2>Choose a solution:</h2>
+                        {randomSolutions.map((solution, index) => (
+                                <button id={index.toString()}
+                                        key={index}
+                                        onClick={() => {startGameTimer(solution); clearChat();}}
+                                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer' }}>
+                                    {solution}
+                                </button>
+                        ))}
+                </div>
+                )}
+                <br />
             </div>
             <div id="user-list" style={{ marginTop: '20px' }}>
                 {users.map((user, index) => (
@@ -157,7 +189,6 @@ function GameField() {
             <div id="lobby-id" style={{ marginTop: '20px' }}>Lobby kód: {localLobby}</div>
             <div id="timer-text" style={{ marginTop: '20px' }}>Timer: {localTimer}</div>
             {canDraw && <div id="solution" style={{ marginTop: '20px' }}>Megfejtés: {solution}</div>}
-            <div id="timer-text" style={{ marginTop: '20px' }}>Pontjaim: {myPoints}</div>
         </div>
     );
 }
