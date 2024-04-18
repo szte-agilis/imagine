@@ -40,6 +40,17 @@ function lobbiesStats() {
     }));
 }
 
+function checkUsername(name) {
+    for (const l of Object.keys(_lobbies)) {
+        for (const n of Object.values(_lobbies[l]['users'])) {
+            if (n === name) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 //let correctGuesses = 0;
 let intervalId = null;
 const solutions = JSON.parse(
@@ -222,6 +233,10 @@ io.on('connection', (socket) => {
         } else {
             io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
         }
+    });
+
+    socket.on('check username', (name) => {
+        io.to(socket.id).emit('username taken', checkUsername(name));
     });
 
     socket.on('list-lobbies', () => {
