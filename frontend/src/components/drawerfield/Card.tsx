@@ -6,13 +6,14 @@ export default function Card({ transform, isSelected = false, selectCallback }: 
     let style: CSSProperties = {
         top: `${transform.position.y}%`,
         left: `${transform.position.x}%`,
-        transform: `scale(${transform.scale}) translate(-50%, -50%) rotate(${transform.rotation}deg)`,
+        height: '100%',
+        transform: `translate(-50%, -50%) scale(${transform.scale}) rotate(${transform.rotation}deg)`,
         boxShadow: isSelected ? '0px 0px 3px 1px rgba(46,248,255,0.9)' : 'none'
     };
 
     return (
         <img
-            className="z-10 absolute select-none max-h-full"
+            className="z-10 absolute select-none"
             style={style}
             onMouseDown={selectCallback}
             src={images.at(transform.id)}
