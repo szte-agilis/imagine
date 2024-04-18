@@ -190,11 +190,7 @@ function GameField() {
                             }
                         </div>
                         <div id="middle-div">
-                            {guessSet ? (
-                                <Board id="board" canDraw={canDraw} localLobby={localLobby} socket={socket} />
-                            ) : (
-                                <Board id="board" canDraw={false} localLobby={localLobby} socket={socket} />
-                            )}
+                            <Board canDraw={guessSet && canDraw} localLobby={localLobby} socket={socket} />
                         </div>
                         <div id="chat-container">
                             <div id="chat-window"></div>
