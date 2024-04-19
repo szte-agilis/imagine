@@ -58,6 +58,9 @@ import image57 from '../../assets/57.svg';
 import image58 from '../../assets/58.svg';
 import image59 from '../../assets/59.svg';
 import image60 from '../../assets/60.svg';
+import image61 from '../../assets/61.svg';
+import image62 from '../../assets/62.svg';
+import imageKossuth from '../../assets/kossuth.svg';
 
 export const images: any[] = [
     image1,
@@ -119,5 +122,8 @@ export const images: any[] = [
     image57,
     image58,
     image59,
-    image60
+    image60,
+    image61,
+    image62,
+    imageKossuth
 ];
