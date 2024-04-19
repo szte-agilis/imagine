@@ -125,41 +125,18 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         }
     }
 
-    function multipleSelectionCenter() {
-        // const posx: number[] = cards.map(a => a.position.x)
-        // const posy: number[] = cards.map(b => b.position.y)
+    function multipleSelectionCenter(): Vector2 {
+        const selectedCards: CardTransform[] = cards.filter((_, index) => selectedIndexes.includes(index));
 
-        // const minX: number = Math.min(...posx);
-        // const minY: number = Math.min(...posy);
-        // const maxX: number = Math.max(...posx);
-        // const maxY: number = Math.max(...posy);
+        const posX: number[] = selectedCards.map(a => a.position.x)
+        const posY: number[] = selectedCards.map(b => b.position.y)
 
-        // return new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
+        const minX: number = Math.min(...posX);
+        const minY: number = Math.min(...posY);
+        const maxX: number = Math.max(...posX);
+        const maxY: number = Math.max(...posY);
 
-        if (selectedIndexes.length === 0) {
-            return new Vector2(); // This shouldn't really happen...
-        }
-
-        // Initialize min and max values to the first selected card
-        let minX: number = cards[selectedIndexes[0]].position.x;
-        let maxX: number = cards[selectedIndexes[0]].position.x;
-        let minY: number = cards[selectedIndexes[0]].position.y;
-        let maxY: number = cards[selectedIndexes[0]].position.y;
-
-        // Iterate through each selected card and update min and max values
-        selectedIndexes.forEach(value => {
-            const card: CardTransform = cards[value];
-            minX = Math.min(minX, card.position.x);
-            maxX = Math.max(maxX, card.position.x);
-            minY = Math.min(minY, card.position.y);
-            maxY = Math.max(maxY, card.position.y);
-        });
-
-        // Calculate center of the bounding box
-        const centerX: number = (minX + maxX) / 2.0;
-        const centerY: number = (minY + maxY) / 2.0;
-
-        return new Vector2(centerX, centerY);
+        return new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
     }
 
     // move the selected card
