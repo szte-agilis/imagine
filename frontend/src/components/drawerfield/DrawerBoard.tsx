@@ -64,11 +64,10 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
                 rotate(1);
                 break;
             case "ArrowUp":
-                /*sizing(1);*/
-
+                sizing(1.1);
                 break;
             case "ArrowDown":
-                /*sizing(-1);*/
+                sizing(0.9);
                 break;
             case"Control":
                 setIsCtrlDown(true);
@@ -249,24 +248,50 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         // }
     }
 
-    /*function sizing(size: number) {
-        if (selectedIndexes.length === 0){
-            return;
-        }
+    // resizing the selected card
+    function sizing(size: number) {
+        if (selectedIndexes.length === 0) return;
+
+        let minMaxSize: number = size;
+        selectedIndexes.forEach(index => {
+            if (index < 0 || index >= cards.length){
+                return;
+            }
+
+            let scale = cards[index].scale * size;
+
+            if (scale > 0.9) {
+                scale = 0.9;
+            }
+            else if (scale < 0.1) {
+                scale = 0.1;
+            }
+
+            let actualSize = scale / cards[index].scale;
+            
+            if(size < 1){
+                minMaxSize = Math.max(minMaxSize, actualSize);
+            } else {
+                minMaxSize = Math.min(minMaxSize, actualSize);
+            }
+            
+        })
+
+        const pivotPos: Vector2 = multipleSelectionCenter();
 
         selectedIndexes.forEach(index => {
             if (index < 0 || index >= cards.length){
                 return;
             }
 
-            cards[index].scale += size;
+            cards[index].scale *= minMaxSize;
 
-            if (cards[index].scale > 0.9) {
-                cards[index].scale = 0.9;
-            }
-            else if (cards[index].scale < 0.1) {
-                cards[index].scale = 0.1;
-            }
+            // substraction of card position and center
+            let cardPivotDifference: Vector2 = Vector2.sub(cards[index].position, pivotPos);
+            // card and center difference change
+            cardPivotDifference = Vector2.mul(cardPivotDifference, minMaxSize);
+            // set card new shifted position
+            cards[index].position = Vector2.add(pivotPos, cardPivotDifference);
 
             if (socket) {
                 socket.emit('card-modify', lobbyId, index, cards[index]);
@@ -274,7 +299,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         });
 
         setCards([...cards]);
-    }*/
+    }
 
     // the array of cards in the deck, that are all the cards currently not placed on the board
     const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
