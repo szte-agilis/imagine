@@ -414,12 +414,22 @@ io.on('connection', (socket) => {
             });
             return;
         }
+
+        if (lobby.drawerSocketId === socket.id) {
+            lobby.timer = 0;
+            io.to(lobbyId).emit('timer', lobby.timer);
+        }
+        io.to(lobbyId).emit(
+            'chat message',
+            `${lobby.users[socket.id]} left the game.`
+        );
         if (lobby.drawerSocketId === socket.id) {
             passDrawer(lobbyId);
         }
-
+        lobby.pointMap.delete(lobby.users[socket.id]);
         delete lobby.users[socket.id];
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
+        io.to(lobbyId).emit('points', Array.from(lobby.pointMap.entries()));
 
         if (Object.keys(lobby.users).length === 0) {
             logger('log', lobby, 'Deleting empty lobby');

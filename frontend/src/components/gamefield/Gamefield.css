@@ -25,7 +25,7 @@
     font-weight: bold;
     top: 0;
     background-color: #252729;
-    z-index: 10000;
+    z-index: 500;
     margin-bottom: .75rem;
 }
 .first-three {
@@ -90,4 +90,37 @@
 
 #board{
     height: 90% !important;
+}
+
+#left-container{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#leave-button{
+    margin-top: 10%;
+    margin-bottom: 10%;
+    background-color: rgb(153, 11, 11);
+}
+
+#leave-popup
+{
+    margin: auto;
+    background: grey;
+}
+
+.modal-buttons-container
+{
+    display: grid;
+    align-items: center;
+    justify-content: center;
+}
+
+#modal-cancel-button
+{
+}
+
+#modal-leave-button
+{
 }

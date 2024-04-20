@@ -5,6 +5,8 @@ import Leaderboard from './Leaderboard';
 import "./Gamefield.css";
 import "./GameEnd.js";
 import GameEnd from './GameEnd.js';
+import { useNavigate } from 'react-router-dom';
+import Popup from 'reactjs-popup';
 
 function GameField() {
     const lobbyData = JSON.parse(sessionStorage.getItem("lobbyData"));
@@ -24,6 +26,7 @@ function GameField() {
     const chatWindow = document.getElementById('chat-window');
     const [isGameEnded, setIsGameEnded] = useState(false);
     const [guessSet, setGuessSet] = useState(true);
+    const navigate = useNavigate();
 
 
     const [solution, setSolution] = useState("");
@@ -83,9 +86,6 @@ function GameField() {
 
             socket.on('timer', (time) => {
                 setlocalTimer(time);
-                if (time === 0) {
-                    setlocalTimer(10);
-                }
             });
 
             socket.on('clearChat', () => {
@@ -153,6 +153,10 @@ function GameField() {
         }
     };
 
+    const leaveGamePressed = () => {
+        navigate('/');
+    };
+
     return (
         <div id="container">
             {isGameEnded ? (<GameEnd leaderboardArray={points} localPlayer={localUsername}/>) : 
@@ -167,6 +171,46 @@ function GameField() {
                     <div id="gamefield-container">
                         <div id="left-container">
                             <Leaderboard leaderboardArray={points} localPlayer={localUsername} />
+
+                            <Popup
+                                trigger={
+                                    <button
+                                        id="leave-button"
+                                        className="button_class"
+                                        >Meccs elhagyása
+                                    </button>
+                                }
+                                modal
+                                nested
+                            >
+                                {close => (
+                                <div style={{overlay: {zIndex: 1000}}} id='leave-popup'>
+                                    <div className="content">
+                                    {' '}
+                                        Biztosan feladod a játékot?
+                                    </div>
+                                    
+                                    <div className="modal-button-container">
+                                        <button
+                                            id="modal-leave-button"
+                                            onClick={leaveGamePressed}
+                                        >
+                                            Kilépés
+                                        </button>
+                                        <button
+                                            className="modal-cancel-button"
+                                            onClick={() => {
+                                            close();
+                                            }}
+                                        >
+                                            Mégse
+                                        </button>
+                                    </div>
+
+                                </div>
+                                )}
+                            </Popup>
+
                             {canDraw && randomSolutions.length > 0 && (
                                 <div>
                                     <h2>Choose a solution:</h2>
