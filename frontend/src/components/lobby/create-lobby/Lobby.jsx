@@ -17,8 +17,10 @@ export default function App() {
 
     useEffect(() => {
         if (!sessionStorage.getItem("username") || !sessionStorage.getItem("lobby")) {
-            console.error("Nincsen beállítva username vagy lobby", sessionStorage)
-            navigate('/');
+            startTransition(() => {
+                console.error("Nincsen beállítva username vagy lobby", sessionStorage)
+                navigate('/');
+            })
         }
     }, [navigate]);
 
@@ -40,8 +42,10 @@ export default function App() {
             socket.on('redirect', () => {
                 console.log('redirect called via socket.io')
                 console.log('lobbyData', JSON.stringify(lobbyData))
-                sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
-                navigate('/gamefield');
+                startTransition(() => {
+                    sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
+                    navigate('/gamefield');
+                })
             });
 
             socket.on('change lobby data', (lobbyData) => {
@@ -101,6 +105,10 @@ export default function App() {
 
     function IsOwner(testedUser) {
         return lobbyAdmin === testedUser;
+    }
+
+    function EnoughPlayers() {
+        return users && users.length > 1
     }
 
     function BackgroundImage() {
@@ -208,6 +216,12 @@ export default function App() {
 
         if (!IsOwner(localUsername)) return;
 
+        if (!EnoughPlayers()) {
+            setWarningMessage("Nincs elegendő játékos! Minimum: 2");
+            setShowWarning(true);
+            return;
+        }
+
         if (lobbyData.name.length < LOBBYNAME_MIN || lobbyData.name.length > LOBBYNAME_MAX) {
             setWarningMessage("Nem megfelelő szoba név hossz! [" + LOBBYNAME_MIN + "," + LOBBYNAME_MAX + "] ");
             setShowWarning(true);
@@ -249,7 +263,9 @@ export default function App() {
     }
 
     const exit = async () => {
-        navigate("/");
+        startTransition(() => {
+            navigate("/");
+        })
     }
 
     return (
@@ -267,7 +283,7 @@ export default function App() {
                 <PlayerList />
                 <div id="center-column">
                     <LogoImage />
-                    <button id="start-button" className={"btn btn-success disabled:bg-emerald-900" + (IsOwner(localUsername)?'':' opacity-60')} onClick={start} disabled={!IsOwner(localUsername)}>Start</button>
+                    <button id="start-button" className={"btn btn-success disabled:bg-emerald-900" + (IsOwner(localUsername)?'':' opacity-60')} onClick={start} disabled={!IsOwner(localUsername) || !EnoughPlayers()}>Start</button>
                     <button id="exit-button" className="btn btn-error" onClick={exit}>Kilépés</button>
                 </div>
                 <div id="settings">

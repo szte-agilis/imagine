@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, startTransition } from "react";
 import io from 'socket.io-client';
 import "./join.css";
 import "../common.css";
@@ -13,8 +13,10 @@ export default function App() {
 
     useEffect(() => {
         if (!sessionStorage.getItem("username")) {
-            console.error('nincs username megadva', sessionStorage)
-            navigate('/');
+            startTransition(() => {
+                console.error('nincs username megadva', sessionStorage)
+                navigate('/');
+            })
         }
     }, [navigate]);
 
@@ -71,50 +73,35 @@ export default function App() {
             </div>
         );
     }
-    function LogoImage() {
-        const { src } = useImage({
-            srcList: [logoImg, 'https://i.pinimg.com/736x/3e/f0/ee/3ef0ee4a246747e96ab8d7816780eb0b.jpg'],
-        });
-
-        return (
-            <div
-                className="logo-image"
-                style={{
-                    overflow: 'hidden',
-                    zIndex: 0,
-                    backgroundImage: `url(${src})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    width: '25vw',
-                    aspectRatio: 2.5
-                }}
-            ></div>
-        );
-    }
 
     function joinLobby(id) {
         const lobby = lobbies.find(lobby => lobby.id === id);
 
         if(!lobby.gameStarted){
-            sessionStorage.setItem("lobby", id);
-            navigate('/lobby');
+            startTransition(() => {
+                sessionStorage.setItem("lobby", id);
+                navigate('/lobby');
+            })
         }
     }
 
     return (
-        <main>
-            <div className="xd">
-                <div className="lobby-list">
-                <p id="player-name">Válassz lobby-t {sessionStorage.getItem("username")}!</p>
+        <main id="root-join">
+            <div id="container-join">
+                <div id="header-join" className="bg-gray-700">
+                    <p id="header-text-join">Válassz szobát <span id="username-join">{sessionStorage.getItem("username")}</span>!</p>
+                </div>
+                <div id="lobby-list-join" className="bg-gray-800">
                     {lobbies.map((lobby) => (
-                        <div className="lobby" key={lobby.id}>
+                        <div className="lobby bg-gray-700" key={lobby.id}>
                             <p className="lobby-id">ID: {lobby.id}</p>
-                            <p className="lobby-users">Number of Users: {lobby.users}</p>
+                            <p className="lobby-users">Játékosszám: {lobby.users}</p>
                             <p className="lobby-status">Státusz: {lobby.gameStarted ? 'Játék folyamatban' : 'Várakozás'}</p>
-                            <button className="btn btn-success" onClick={() => {joinLobby(lobby.id)}} disabled={lobby.gameStarted}>Csatlakozás</button>
+                            <button className="btn btn-success join-button" onClick={() => {joinLobby(lobby.id)}} disabled={lobby.gameStarted}>Csatlakozás</button>
                         </div>
                     ))}
                 </div>
+                <div id="shadow-join"></div>
             </div>
             <BackgroundImage />
         </main>
