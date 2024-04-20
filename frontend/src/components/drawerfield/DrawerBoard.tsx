@@ -11,7 +11,7 @@ import {Socket} from 'socket.io-client';
 const updateFrequencyMs: number = 100;
 
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
-const margin: number = 1;
+const cardRemoveMargin: number = 1;
 
 export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null, socket: Socket | null }) {
     // the array storing the transforms of the currently placed cards
@@ -35,97 +35,140 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
     // the board HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
 
+    // the array of cards in the deck (all the cards currently not placed on the board)
+    const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
+
     // add event listeners to the window
     // wrap it in useEffect ensuring it is added only once
     useEffect(() => {
-        window.addEventListener('mouseup', putDownCard);
-        window.addEventListener('mousemove', moveCard);
-        window.addEventListener('keydown', handleKeyPress);
-        window.addEventListener('keyup', handleKeyUp);
-        window.addEventListener('mousedown', handleMouseDown)
-
+        window.addEventListener('mousedown', onMouseDown);
+        window.addEventListener('mouseup', onMouseUp);
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('keyup', onKeyUp);
+        window.addEventListener('keydown', onKeyDown);
 
         return () => {
-            window.removeEventListener('mouseup', putDownCard);
-            window.removeEventListener('mousemove', moveCard);
-            window.removeEventListener('keydown', handleKeyPress);
-            window.removeEventListener('keyup', handleKeyUp);
-            window.removeEventListener('mousedown', handleMouseDown)
+            window.removeEventListener('mousedown', onMouseDown);
+            window.removeEventListener('mouseup', onMouseUp);
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('keyup', onKeyUp);
+            window.removeEventListener('keydown', onKeyDown);
         }
     });
 
-    function handleKeyPress(e: KeyboardEvent) {
-
-        switch (e.key) {
-            case "ArrowLeft":
-                rotate(-1);
-                break;
-            case "ArrowRight":
-                rotate(1);
-                break;
-            case "ArrowUp":
-                sizing(1.1);
-                break;
-            case "ArrowDown":
-                sizing(0.9);
-                break;
-            case"Control":
-                setIsCtrlDown(true);
-                break;
-
-        }
+    // handle mouse down event
+    function onMouseDown(_: MouseEvent) {
+        setIsMouseDown(true);
     }
 
-    function handleKeyUp(e: KeyboardEvent) {
-        if (e.key === 'Control') {
-            setIsCtrlDown(false);
+    // handle mouse up event
+    function onMouseUp(_: MouseEvent) {
+        setIsMouseDown(false);
+
+        if (selectedIndexes.length === 0) {
+            return;
         }
-    }
 
-    function handleMouseDown(e: MouseEvent) {
-        if (onmousedown) {
-            setIsMouseDown(true);
-        }
-    }
+        const indexesToRemove: number[] = selectedIndexes.filter(index => {
+            const position: Vector2 = cards[index].position;
 
-    // pick up and start moving the card with the index 'i'
-    // if control is held down multiple cards can be selected
-    function pickupCard(i: number) {
+            return position.x < cardRemoveMargin || position.x > 100 - cardRemoveMargin || position.y < cardRemoveMargin || position.y > 100 - cardRemoveMargin;
+        })
 
-        console.log("cards:", cards);
+        setCards(cards.filter((_, index) => !indexesToRemove.includes(index)));
 
-        if (isCtrlDown) {
-            if (!selectedIndexes.includes(i)) {
-                setSelectedIndexes([...selectedIndexes, i]);
-            }
-        } else {
-            setSelectedIndexes([i]);
-        }
-    }
-
-
-    // put down the currently selected card
-    function putDownCard(e: globalThis.MouseEvent) {
-        if (selectedIndexes.length === 0) return;
-
-        const position: Vector2 = multipleSelectionCenter();
-
-        if (position.x < margin || position.x > 100 - margin || position.y < margin || position.y > 100 - margin) {
-
-            setCards(cards.filter((p, i) => !selectedIndexes.includes(i)));
-
-            /*if(socket){
-                socket.emit('card-remove', lobbyId, selectedIndex);
-            }*/
-        }
+        // TODO emit socket message to remove cards
 
         if (!isCtrlDown) {
             setSelectedIndexes([]);
         }
     }
 
-    function multipleSelectionCenter(): Vector2 {
-        const selectedCards: CardTransform[] = cards.filter((_, index) => selectedIndexes.includes(index));
+    // handle key down events
+    function onKeyDown(e: KeyboardEvent) {
+        switch (e.key) {
+            case "ArrowLeft":
+                rotateCards(-1);
+                break;
+            case "ArrowRight":
+                rotateCards(1);
+                break;
+            case "ArrowUp":
+                resizeCards(1.1);
+                break;
+            case "ArrowDown":
+                resizeCards(0.9);
+                break;
+            case "Control":
+                setIsCtrlDown(true);
+                break;
+        }
+    }
+
+    // handle key up events
+    function onKeyUp(e: KeyboardEvent) {
+        if (e.key === 'Control') {
+            setIsCtrlDown(false);
+        }
+    }
+
+    // handle mouse movement
+    function onMouseMove(e: MouseEvent) {
+        // prevent default dragging behaviour
+        e.preventDefault();
+
+        // no cards to move
+        if (selectedIndexes.length === 0) {
+            return;
+        }
+
+        // do not move the cards if the mouse is not pressed
+        if (!isMouseDown) {
+            return;
+        }
+
+        // modify the position of all selected cards
+        selectedIndexes.forEach(index => {
+            const position: Vector2 = cards[index].position;
+
+            position.x += (e.movementX * 100) / board.offsetWidth;
+            position.y += (e.movementY * 100) / board.offsetHeight;
+        })
+
+        // update cards
+        setCards([...cards]);
+
+        const now: number = Date.now();
+        const elapsed: number = now - lastUpdate;
+
+        if (elapsed >= updateFrequencyMs) {
+            setLastUpdate(now);
+
+            // TODO emit socket message to update cards
+            /*if(socket){
+                socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
+            }*/
+        }
+    }
+
+    // select a card
+    function selectCard(index: number) {
+        // ctrl is pressed and the card is not yet selected -> add to selection
+        if (isCtrlDown) {
+            if (!selectedIndexes.includes(index)) {
+                setSelectedIndexes([...selectedIndexes, index]);
+            }
+        }
+
+        // set single card selection
+        else {
+            setSelectedIndexes([index]);
+        }
+    }
+
+    // get the center of the current card selection
+    function getSelectionCenter(): Vector2 {
+        const selectedCards: CardTransform[] = selectedIndexes.map(index => cards[index]);
 
         const posX: number[] = selectedCards.map(a => a.position.x)
         const posY: number[] = selectedCards.map(b => b.position.y)
@@ -138,42 +181,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         return new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
     }
 
-    // move the selected card
-    // if multiple cards are selected move them together
-    function moveCard(e: globalThis.MouseEvent) {
-        if (selectedIndexes.length === 0) return;
-
-        if (selectedIndexes.length >= 1 && isCtrlDown && !isMouseDown) {
-            return;
-        }
-
-        if (!isMouseDown) {
-
-            e.preventDefault();
-
-            selectedIndexes.forEach((value, key) => {
-                const position: Vector2 = cards[value].position;
-
-                position.x += (e.movementX * 100) / board.offsetWidth;
-                position.y += (e.movementY * 100) / board.offsetHeight;
-            })
-
-            setCards([...cards]);
-
-            const now: number = Date.now();
-            const elapsed: number = now - lastUpdate;
-
-            if (elapsed >= updateFrequencyMs) {
-                setLastUpdate(now);
-
-                /*if(socket){
-                    socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
-                }*/
-            }
-        }
-    }
-
-    // add a card to the board from the deck
+    // add a card to the board
     function addCard(id: number) {
         const card: CardTransform = new CardTransform(id, new Vector2(50, 50));
         setCards([...cards, card]);
@@ -184,21 +192,16 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         }
     }
 
-    // rotate the selected card
-    function rotateCard(e: any) {
-        rotate(e.deltaY > 0 ? 1 : -1);
-    }
-
-    // rotate the selected card
-    function rotate(direction: number) {
-        if (selectedIndexes.length < 1){
+    // rotate the selected cards
+    function rotateCards(direction: number) {
+        if (selectedIndexes.length === 0) {
             return;
         }
 
         const ANGLE_DEG_AMOUNT: number = 15.0;
         const ANGLE_RAD_AMOUNT: number = ANGLE_DEG_AMOUNT * Math.PI / 180.0;
 
-        const pivotPos: Vector2 = multipleSelectionCenter();
+        const pivotPos: Vector2 = getSelectionCenter();
         const angleRad: number = ANGLE_RAD_AMOUNT * direction;
         const angleDeg: number = ANGLE_DEG_AMOUNT * direction;
         const cosTheta: number = Math.cos(angleRad);
@@ -211,7 +214,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
             // Normalize x coordinate by aspect ratio
             const normalizedX = posX * ASPECT_RATIO;
-            const normalizedY = posY; 
+            const normalizedY = posY;
 
             // Calculate normalized pivot
             const normalizedPivotX = pivotPos.x * ASPECT_RATIO;
@@ -237,56 +240,59 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
         setCards([...cards]);
 
+        // TODO emit socket message to update cards
         // if(socket){
         //     socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
         // }
     }
 
-    // resizing the selected card
-    function sizing(size: number) {
-        if (selectedIndexes.length === 0) return;
+    // resize the selected cards
+    function resizeCards(size: number) {
+        if (selectedIndexes.length === 0) {
+            return;
+        }
 
-        let minMaxSize: number = size;
+        let scalingFactor: number = size;
+
         selectedIndexes.forEach(index => {
-            if (index < 0 || index >= cards.length){
+            if (index < 0 || index >= cards.length) {
                 return;
             }
 
             let scale = cards[index].scale * size;
 
-            if (scale > 0.9) {
-                scale = 0.9;
-            }
-            else if (scale < 0.1) {
-                scale = 0.1;
-            }
+            scale = Math.min(0.9, Math.max(0.1, scale));
+
 
             let actualSize = scale / cards[index].scale;
-            
-            if(size < 1){
-                minMaxSize = Math.max(minMaxSize, actualSize);
+
+            if (size < 1) {
+                scalingFactor = Math.max(scalingFactor, actualSize);
             } else {
-                minMaxSize = Math.min(minMaxSize, actualSize);
+                scalingFactor = Math.min(scalingFactor, actualSize);
             }
-            
+
         })
 
-        const pivotPos: Vector2 = multipleSelectionCenter();
+        const pivotPos: Vector2 = getSelectionCenter();
 
         selectedIndexes.forEach(index => {
-            if (index < 0 || index >= cards.length){
+            if (index < 0 || index >= cards.length) {
                 return;
             }
 
-            cards[index].scale *= minMaxSize;
+            cards[index].scale *= scalingFactor;
 
-            // substraction of card position and center
+            // subtraction of card position and center
             let cardPivotDifference: Vector2 = Vector2.sub(cards[index].position, pivotPos);
+
             // card and center difference change
-            cardPivotDifference = Vector2.mul(cardPivotDifference, minMaxSize);
+            cardPivotDifference = Vector2.mul(cardPivotDifference, scalingFactor);
+
             // set card new shifted position
             cards[index].position = Vector2.add(pivotPos, cardPivotDifference);
 
+            // TODO 1 socket emit outside the for loop
             if (socket) {
                 socket.emit('card-modify', lobbyId, index, cards[index]);
             }
@@ -295,12 +301,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         setCards([...cards]);
     }
 
-    // the array of cards in the deck, that are all the cards currently not placed on the board
-    const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
-
     // template
     return (
-        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700" onWheel={rotateCard}>
+        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700" onWheel={e => rotateCards(e.deltaY > 0 ? 1 : -1)}>
             <div className="flex justify-center w-full h-8 bg-sky-700 z-30">
                 <label className="swap text-xl text-gray-300 h-100 px-8 bg-opacity-40 bg-black font-bold">
                     <input type="checkbox" checked={isDeckOpen} onChange={e => setIsDeckOpen(e.target.checked)}/>
@@ -312,7 +315,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             {isDeckOpen && <Deck onCardSelect={addCard} cardIds={cardsInDeck}/>}
 
             <div id="board" className="flex-grow relative">
-                <CardViewer cards={cards} selectedIndexes={selectedIndexes} selectCallback={pickupCard}/>
+                <CardViewer cards={cards} selectedIndexes={selectedIndexes} selectCallback={selectCard}/>
             </div>
         </div>
     );
