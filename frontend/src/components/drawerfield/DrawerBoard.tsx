@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import CardViewer from './CardViewer';
+import CardViewer, { ASPECT_RATIO } from './CardViewer';
 import Deck from './Deck';
 import {CardTransform} from '../../data/CardTransform';
 import {Vector2} from '../../data/Vector2';
@@ -209,11 +209,28 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             const posX: number = card.position.x
             const posY: number = card.position.y
 
-            const newPosX: number = (posX - pivotPos.x) * cosTheta - (posY - pivotPos.y) * sinTheta + pivotPos.x;
-            const newPosY: number = (posX - pivotPos.x) * sinTheta + (posY - pivotPos.y) * cosTheta + pivotPos.y;
+            // Normalize x coordinate by aspect ratio
+            const normalizedX = posX * ASPECT_RATIO;
+            const normalizedY = posY; 
 
-            card.position.x = newPosX;
-            card.position.y = newPosY;
+            // Calculate normalized pivot
+            const normalizedPivotX = pivotPos.x * ASPECT_RATIO;
+            const normalizedPivotY = pivotPos.y;
+
+            // Translate to origin based on normalized pivot
+            const translatedX = normalizedX - normalizedPivotX;
+            const translatedY = normalizedY - normalizedPivotY;
+
+            // Rotate
+            const rotatedX = cosTheta * translatedX - sinTheta * translatedY;
+            const rotatedY = sinTheta * translatedX + cosTheta * translatedY;
+
+            // Translate back and convert back to percentage coordinates
+            const newX = (rotatedX + normalizedPivotX) / ASPECT_RATIO; // De-normalize x coordinate
+            const newY = rotatedY + normalizedPivotY;
+
+            card.position.x = newX;
+            card.position.y = newY;
 
             card.rotation = (cards[value].rotation + angleDeg + 360) % 360;
         })
