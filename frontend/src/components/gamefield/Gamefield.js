@@ -3,6 +3,8 @@ import { io } from 'socket.io-client';
 import Board from '../drawerfield/Board';
 import Leaderboard from './Leaderboard';
 import "./Gamefield.css";
+import "./GameEnd.js";
+import GameEnd from './GameEnd.js';
 
 function GameField() {
     const lobbyData = JSON.parse(sessionStorage.getItem("lobbyData"));
@@ -154,9 +156,7 @@ function GameField() {
     return (
         <div>
             {isGameEnded ? (<div>
-                <h2>Vége a játéknak!</h2>
-                <p>*leaderboard placeholder*</p>
-                <a href='http://localhost:3000'>Vissza a Főoldalra</a>
+                <GameEnd leaderboardArray={points} localPlayer={localUsername}/>
             </div>) : (<div>
                 <div id="container">
                     <div className="header-bar">
