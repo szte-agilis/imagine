@@ -154,11 +154,10 @@ function GameField() {
     };
 
     return (
-        <div>
-            {isGameEnded ? (<div>
-                <GameEnd leaderboardArray={points} localPlayer={localUsername}/>
-            </div>) : (<div>
-                <div id="container">
+        <div id="container">
+            {isGameEnded ? (<GameEnd leaderboardArray={points} localPlayer={localUsername}/>) : 
+            (<div>
+                <div >
                     <div className="header-bar">
                         <div className="first-three ">Round ( {currentRound} / {rounds} )</div>
                         <div className="first-three ">Time: {localTimer}</div>

@@ -1,5 +1,8 @@
 #gameEnd-container {
     text-align: center;
+    width: 100%;
+    height: 100%;
+
 }
 
 h1 {
@@ -13,9 +16,120 @@ h1 {
     vertical-align: top;
 }
 
-.button-container {
+.layout-setter{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80%;
+}
+
+
+.podium-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 300px;
+    width: 50%;
+}
+
+.colored-div {
+    width: 100px;
+}
+
+.left {
+    height: 150px;
+    background-color: lightslategray;
+}
+
+.middle {
+    height: 200px;
+    background-color: lightslategray;
+}
+
+.right {
+    height: 100px;
+    background-color: lightslategray; 
+}
+
+
+.arc-text-container {
+    position: relative;
+    width: 200px;
+    height: 100px;
+}
+
+.arc-text {
+    font-size: 24px;
+    color: white;
     position: absolute;
-    bottom: 20px;
+    bottom: 0;
     left: 50%;
-    transform: translateX(-50%);
+    transform-origin: bottom center;
+    animation: jump 1.5s ease-in-out infinite;
+}
+
+@keyframes jump {
+    0% {
+        transform: translateY(0%) translateX(0%);
+    }
+    5% {
+        transform: translateY(-15%) translateX(-5%);
+    }
+    10% {
+        transform: translateY(-25%) translateX(-10%);
+    }
+    15% {
+        transform: translateY(-38%) translateX(-15%);
+    }
+    20% {
+        transform: translateY(-45%) translateX(-20%);
+    }
+    25% {
+        transform: translateY(-50%) translateX(-25%);
+    }
+    30% {
+        transform: translateY(-45%) translateX(-30%);
+    }
+    35% {
+        transform: translateY(-38%) translateX(-35%);
+    }
+    40% {
+        transform: translateY(-25%) translateX(-40%);
+    }
+    45% {
+        transform: translateY(-10%) translateX(-45%);
+    }
+    50% {
+        transform: translateY(0%) translateX(-50%);
+    }
+    55% {
+        transform: translateY(-10%) translateX(-45%);
+    }
+    60% {
+        transform: translateY(-25%) translateX(-40%);
+    }
+    65% {
+        transform: translateY(-38%) translateX(-35%);
+    }
+    70% {
+        transform: translateY(-47%) translateX(-30%);
+    }
+    75% {
+        transform: translateY(-50%) translateX(-25%);
+    }
+    80% {
+        transform: translateY(-47%) translateX(-20%);
+    }
+    85% {
+        transform: translateY(-38%) translateX(-15%);
+    }
+    90% {
+        transform: translateY(-25%) translateX(-10%);
+    }
+    95% {
+        transform: translateY(-15%) translateX(-5%);
+    }
+    100% {
+        transform: translateY(0%) translateX(0%);
+    }
 }
