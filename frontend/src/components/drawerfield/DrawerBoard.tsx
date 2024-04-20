@@ -309,10 +309,6 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
                 </label>
             </div>
 
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-400 select-none text-3xl z-10">
-                Drawer board
-            </span>
-
             {isDeckOpen && <Deck onCardSelect={addCard} cardIds={cardsInDeck}/>}
 
             <div id="board" className="flex-grow relative">

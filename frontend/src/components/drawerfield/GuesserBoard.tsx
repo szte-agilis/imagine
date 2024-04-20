@@ -23,8 +23,9 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
                 setCards([...cards]);
             });
 
-            socket.on('reset canvas', function() {
-                setCards([]);
+            socket.on('reset', function() {
+                cards = [];
+                setCards([...cards]);
             });
         }
 
@@ -33,6 +34,7 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
                 socket.off('card-add');
                 socket.off('card-modify');
                 socket.off('card-remove');
+                socket.off('reset');
             }
         }
     }, [socket]);
@@ -40,10 +42,6 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
     return (
         <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700">
             <div className="flex justify-center w-full h-8 bg-sky-700 min-h-8"></div>
-
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-400 select-none text-3xl z-10">
-                Guesser board
-            </span>
 
             <CardViewer cards={cards}/>
         </div>

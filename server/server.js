@@ -90,7 +90,7 @@ io.on('connection', (socket) => {
                 users: {},
                 drawerSocketId: null,
                 drawerAssigned: false,
-                timer: 15,
+                timer: 150,
                 buttonState: 'Click me!',
                 solution: 'biztosnemtalaljakisenki',
                 correctGuesses: 0,
@@ -239,7 +239,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on('pass drawer button', (lobbyId) => {
-        passDrawer(lobbyId);
+        const lobby = getLobby(lobbyId);
+
+        lobby.timer = 0;
     });
 
     socket.on('get solutions', () => {
@@ -300,6 +302,9 @@ io.on('connection', (socket) => {
             'points',
             Array.from(lobby.pointMap.entries())
         );
+
+        io.to(lobbyId).emit('reset');
+
         intervalId = setInterval(() => {
             if (lobby.timer > 0) {
                 lobby.timer--;
@@ -362,16 +367,11 @@ io.on('connection', (socket) => {
                 passDrawer(lobbyId);
             }
         }, 1000);
-        lobby.timer = 15;
+        lobby.timer = 150;
     });
 
     socket.on('clearChat', (lobbyId) => {
         io.to(lobbyId).emit('clearChat');
-    });
-
-    socket.on('reset canvas', (lobbyId) => {
-        io.to(lobbyId).emit('reset canvas');
-        //todo: implement (tabla csapat)
     });
 
     socket.on('window closed', (lobbyId, username) => {

@@ -6,7 +6,6 @@ import "./Gamefield.css";
 
 function GameField() {
     const lobbyData = JSON.parse(sessionStorage.getItem("lobbyData"));
-    console.log(lobbyData);
     const rounds = lobbyData.rounds;
 
     const [socket, setSocket] = useState(null);
@@ -119,11 +118,9 @@ function GameField() {
     const handlePassDrawer = () => {
         if (socket) {
             socket.emit('pass drawer button', localLobby);
-            socket.emit('reset canvas', localLobby);
             setSolution("");
         }
     };
-
 
     const startGameTimer = (pickedSolution) => {
         if (socket && localLobby) {
@@ -210,13 +207,6 @@ function GameField() {
                                 onClick={handlePassDrawer}
                             >Pass Drawer Role
                             </button>}
-                            {/* {canDraw && <button
-                        id="StartGameButton"
-                        onClick={()=>{startGameTimer()
-                        clearChat()}}
-                        style={{ border: '1px solid white', padding: '5px', borderRadius: '5px', backgroundColor: 'transparent', color: 'white', cursor: 'pointer', marginTop: '10px' }}
-                    >Start Game
-                    </button>}*/}
                         </div>
                     </div>
                 </div>
