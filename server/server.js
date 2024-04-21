@@ -419,8 +419,8 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('card-add', card);
     });
 
-    socket.on('card-modify', (lobbyId, index, card) => {
-        io.to(lobbyId).emit('card-modify', index, card);
+    socket.on('card-modify', ( _cards,lobbyId) => {
+        io.to(lobbyId).emit('card-modify', _cards);
     });
 
     socket.on('card-remove', (lobbyId, index) => {
