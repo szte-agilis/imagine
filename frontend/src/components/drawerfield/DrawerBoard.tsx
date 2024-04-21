@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, WheelEvent} from 'react';
 import CardViewer, { ASPECT_RATIO } from './CardViewer';
 import Deck from './Deck';
 import {CardTransform} from '../../data/CardTransform';
@@ -153,10 +153,20 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
     // select a card
     function selectCard(index: number) {
-        // ctrl is pressed and the card is not yet selected -> add to selection
+        // ctrl is pressed
         if (isCtrlDown) {
-            if (!selectedIndexes.includes(index)) {
-                setSelectedIndexes([...selectedIndexes, index]);
+            const matchIndex: number = selectedIndexes.indexOf(index);
+
+            // not selected -> add to selection
+            if(matchIndex < 0) {
+                selectedIndexes.push(index);
+                setSelectedIndexes([...selectedIndexes]);
+            }
+
+            // already selected -> remove from selection
+            else {
+                selectedIndexes.splice(matchIndex, 1);
+                setSelectedIndexes([...selectedIndexes]);
             }
         }
 
