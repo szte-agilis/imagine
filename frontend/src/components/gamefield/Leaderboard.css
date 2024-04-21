@@ -2,7 +2,7 @@
     display: flex;
     height: 5%; 
     width: 220px; 
-    background-color: darkgray;
+    background-color: #464646;
     align-items: center;
     border-radius: 10px;
     overflow: hidden;
@@ -14,12 +14,12 @@
     width: 30%;
     padding-top: 5px;
     padding-bottom: 5px;
-    background-color: lightgrey;
+    background-color: #666666;
     justify-content: center;
     align-items: center;
     display: flex;
     border-radius: 10px;
-    color: black;
+    color: white;
     font-weight: bold;
 }
 
@@ -32,19 +32,19 @@
 
 .top-rectangle-lbd{
     flex: 1;
-    background-color: lightgrey;
+    background-color: #666666;
     margin-bottom: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 10px;
-    color: black;
+    color: white;
     font-weight: bold;
 }
 
 .bottom-rectangle-lbd {
     flex: 1;
-    background-color: lightgrey;
+    background-color: #666666;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -58,5 +58,5 @@
 }
 
 .localPlayer{
-    background-color: darkcyan !important;
+    background-color: rgb(3 105 161) !important;
 }

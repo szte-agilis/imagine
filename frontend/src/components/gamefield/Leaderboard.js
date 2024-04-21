@@ -11,7 +11,7 @@ const Leaderboard = (props) => {
 
   return (
     <div id="leaderborad-container">
-      <h2>Leaderboard</h2>
+      <h1>Tabella</h1>
       <div>
         {leaderboardArray.map(([name, points], index) => (
           <div id="container-lbd" className={name === localPlayer ? 'localPlayer' : ''} key={index}>
