@@ -18,8 +18,6 @@ app.get('*', (req, res) =>
     res.sendFile(path.join(FRONTEND_STATIC, 'index.html'))
 );
 
-app.use(require('body-parser').json());
-
 let _lobbies = {};
 let counter = 0;
 
