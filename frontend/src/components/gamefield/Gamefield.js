@@ -26,6 +26,8 @@ function GameField() {
     const chatWindow = document.getElementById('chat-window');
     const [isGameEnded, setIsGameEnded] = useState(false);
     const [guessSet, setGuessSet] = useState(true);
+    const [showCorrectGuessAnimation, setShowCorrectGuessAnimation] = useState(false);
+    const [correctGuessInfo, setCorrectGuessInfo] = useState(null);
     const navigate = useNavigate();
 
 
@@ -48,9 +50,26 @@ function GameField() {
     useEffect(() => {
         if (socket) {
 
-            socket.on('chat message', (message) => {
+            socket.on('chat message', ({ message, guessedCorrectly, username}) => {
+
                 const messageElement = document.createElement('div');
-                messageElement.textContent = message;
+                if(username === localUsername && guessedCorrectly){
+                    messageElement.textContent = "Kitaláltad!";
+                } else {
+                    messageElement.textContent = message;
+                }
+
+                if (guessedCorrectly) {
+                    handleCorrectGuess(username);
+                    if (username === localUsername) {
+                        messageElement.classList.add('current-player');
+                    } else if (username !== localUsername) {
+                        messageElement.classList.add('other-player');
+                    }
+                }
+
+
+
                 if (chatWindow !== null) {
                     chatWindow.appendChild(messageElement);
                     chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -124,6 +143,14 @@ function GameField() {
             socket.emit('reset canvas', localLobby);
             setSolution("");
         }
+    };
+
+    const handleCorrectGuess = (username) => {
+        setCorrectGuessInfo(username);
+        setShowCorrectGuessAnimation(true);
+        setTimeout(() => {
+            setShowCorrectGuessAnimation(false);
+        }, 3000); // Hide the animation after 3 seconds
     };
 
 
@@ -239,9 +266,12 @@ function GameField() {
                                 <Board id="board" canDraw={false} localLobby={localLobby} socket={socket} />
                             )}
                         </div>
-                        <div id="chat-container">
+                        <div id="chat-container" className={(correctGuessInfo && localUsername === correctGuessInfo && showCorrectGuessAnimation) ? 'flash-chat' : ''}>
                             <div id="chat-window"></div>
                             <label htmlFor="chat-input"></label>
+                            {correctGuessInfo && localUsername === correctGuessInfo && showCorrectGuessAnimation && (
+                                <div className="guessed-message">Sikeresen kitaláltad!</div>
+                            )}
                             {canChat && <input
                                 id="chat-input"
                                 type="text"
