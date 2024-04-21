@@ -19,7 +19,6 @@ app.get('*', (req, res) =>
 );
 
 let _lobbies = {};
-let counter = 0;
 
 function getLobby(lobbyId) {
     console.debug('getLobby', { id: lobbyId });
@@ -51,7 +50,6 @@ function checkUsername(name) {
 }
 
 //let correctGuesses = 0;
-let intervalId = null;
 const solutions = JSON.parse(
     fs.readFileSync(COMMON_STATIC + '/solutions.json', 'utf-8')
 );
@@ -108,6 +106,8 @@ io.on('connection', (socket) => {
                 currentRound: 1,
                 pointMap: pointMap,
                 gameStarted: false,
+                counter: 0,
+                intervalId: null,
             };
             logger('log', getLobby(lobbyId), 'New lobby created');
         } else {
@@ -294,13 +294,13 @@ io.on('connection', (socket) => {
         }
         io.to(lobbyId).emit('reset canvas', lobbyId);
 
-        counter++;
-        console.log('counter' + counter);
+        lobby.counter += 1;
+        console.log('counter' + lobby.counter);
         console.log('userids' + userIds.length);
-        if (counter == userIds.length) {
+        if (lobby.counter == userIds.length) {
             io.to(lobbyId).emit('new round', lobby.currentRound + 1);
             lobby.currentRound++;
-            counter = 0;
+            lobby.counter = 0;
         }
 
         userIds.forEach((id) => {
@@ -327,11 +327,10 @@ io.on('connection', (socket) => {
             'points',
             Array.from(lobby.pointMap.entries())
         );
-        intervalId = setInterval(() => {
+        lobby.intervalId = setInterval(() => {
             if (lobby.timer > 0) {
                 lobby.timer--;
                 console.log(lobby.timer);
-                lobby.intervalId = intervalId;
                 io.to(lobbyId).emit('timer', lobby.timer);
                 io.to(lobbyId).emit('solution', pickedSolution);
                 lobby.solution = pickedSolution;
