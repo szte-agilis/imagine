@@ -29,6 +29,7 @@ export default function App() {
 
         newSocket.on('list-lobbies', (lobbies) => {
             setLobbies(lobbies);
+            console.log(lobbies);
         });
 
         return () => newSocket.close();
@@ -95,9 +96,13 @@ export default function App() {
                     {lobbies.map((lobby) => (
                         <div className="lobby bg-gray-700" key={lobby.id}>
                             <p className="lobby-id">ID: {lobby.id}</p>
+                            <p className="lobby-id">Lobby név: {lobby.name}</p>
                             <p className="lobby-users">Játékosszám: {lobby.users}</p>
                             <p className="lobby-status">Státusz: {lobby.gameStarted ? 'Játék folyamatban' : 'Várakozás'}</p>
-                            <button className="btn btn-success join-button" onClick={() => {joinLobby(lobby.id)}} disabled={lobby.gameStarted}>Csatlakozás</button>
+                            <button className="btn btn-success join-button" onClick={() => {
+                                joinLobby(lobby.id);
+                            }} disabled={lobby.gameStarted}>Csatlakozás
+                            </button>
                         </div>
                     ))}
                 </div>
