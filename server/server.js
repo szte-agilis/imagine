@@ -191,7 +191,11 @@ io.on('connection', (socket) => {
         const lobby = getLobby(lobbyId);
         const username = lobby?.users[socket.id] || 'Anonymous';
         if (guess(msg, lobby.solution)) {
-            io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
+            io.to(lobbyId).emit('chat message', {
+                message: `${username} kitalalta!`,
+                guessedCorrectly: true,
+                username: username,
+            });
             if (lobby.correctGuesses == 0) {
                 lobby.pointMap.set(
                     username,
@@ -233,7 +237,11 @@ io.on('connection', (socket) => {
                 lobby.correctGuesses = 0;
             }
         } else {
-            io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
+            io.to(lobbyId).emit('chat message', {
+                message: `${username}: ${msg}`,
+                guessedCorrectly: false,
+                username: username,
+            });
         }
     });
 
