@@ -154,7 +154,7 @@ function GameField() {
     };
 
     const leaveGamePressed = () => {
-        navigate('/');
+        setIsGameEnded(true);
     };
 
     return (
