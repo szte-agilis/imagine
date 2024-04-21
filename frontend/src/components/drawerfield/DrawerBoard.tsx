@@ -17,6 +17,8 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
     // the array storing the transforms of the currently placed cards
     const [cards, setCards] = useState([] as CardTransform[]);
 
+   
+
     // the time of the last card movement update
     const [lastUpdate, setLastUpdate] = useState(Date.now());
 
@@ -78,7 +80,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         setCards(cards.filter((_, index) => !indexesToRemove.includes(index)));
 
         // TODO emit socket message to remove cards
-
+        if (socket) {
+            socket.emit('card-remove', cards.filter((_,index)=>index));
+        }
         if (!isCtrlDown) {
             setSelectedIndexes([]);
         }
@@ -145,9 +149,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             setLastUpdate(now);
 
             // TODO emit socket message to update cards
-            /*if(socket){
-                socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
-            }*/
+            if(socket){
+                socket.emit('card-modify', lobbyId, cards);
+            }
         }
     }
 
@@ -251,9 +255,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         setCards([...cards]);
 
         // TODO emit socket message to update cards
-        // if(socket){
-        //     socket.emit('card-modify', lobbyId, selectedIndex, cards[selectedIndex]);
-        // }
+         if(socket){
+             socket.emit('card-modify', lobbyId, cards);
+         }
     }
 
     // resize the selected cards
@@ -304,7 +308,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
             // TODO 1 socket emit outside the for loop
             if (socket) {
-                socket.emit('card-modify', lobbyId, index, cards[index]);
+                socket.emit('card-modify', lobbyId, cards);
             }
         });
 

@@ -13,9 +13,9 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
                 setCards([...cards]);
             })
 
-            socket.on('card-modify', function(i: number, card: CardTransform) {
-                cards[i] = card;
-                setCards([...cards]);
+            socket.on('card-modify', function( _cards: CardTransform[]) {
+            console.log(_cards);
+                setCards(_cards);
             });
 
             socket.on('card-remove', function(i: number) {
