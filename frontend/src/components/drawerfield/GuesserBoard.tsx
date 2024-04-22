@@ -1,9 +1,12 @@
 import CardViewer from './CardViewer';
 import {useEffect, useState} from 'react';
 import { CardTransform } from '../../data/CardTransform';
-import {Socket} from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
-export default function GuesserBoard({socket}: {socket: Socket | null}) {
+const socket: Socket = io('http://localhost:3000');
+
+export default function GuesserBoard() {
+    
     let [cards, setCards] = useState([] as CardTransform[]);
 
     useEffect(() => {
@@ -14,8 +17,8 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
             })
 
             socket.on('card-modify', function( _cards: CardTransform[]) {
-            console.log(_cards);
-                setCards(_cards);
+           
+            setCards(_cards);
             });
 
             socket.on('card-remove', function(i: number) {

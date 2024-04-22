@@ -4,7 +4,10 @@ import Deck from './Deck';
 import {CardTransform} from '../../data/CardTransform';
 import {Vector2} from '../../data/Vector2';
 import {transparentCards} from './imageImports';
-import {Socket} from 'socket.io-client';
+
+import { io, Socket } from 'socket.io-client';
+
+const socket: Socket = io('http://localhost:3000');
 
 // the number of milliseconds to wait between card position updates
 // lower number -> faster updates, smoother movement, more network and CPU used
@@ -13,11 +16,11 @@ const updateFrequencyMs: number = 100;
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const cardRemoveMargin: number = 1;
 
-export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null, socket: Socket | null }) {
+export default function DrawerBoard({lobbyId}: { lobbyId: string | null }) {
     // the array storing the transforms of the currently placed cards
-    const [cards, setCards] = useState([] as CardTransform[]);
+    let [cards, setCards] = useState([] as CardTransform[]);
 
-   
+
 
     // the time of the last card movement update
     const [lastUpdate, setLastUpdate] = useState(Date.now());
@@ -80,9 +83,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         setCards(cards.filter((_, index) => !indexesToRemove.includes(index)));
 
         // TODO emit socket message to remove cards
-        if (socket) {
-            socket.emit('card-remove', cards.filter((_,index)=>index));
-        }
+
         if (!isCtrlDown) {
             setSelectedIndexes([]);
         }
@@ -149,10 +150,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             setLastUpdate(now);
 
             // TODO emit socket message to update cards
-            if(socket){
-                socket.emit('card-modify', lobbyId, cards);
-            }
-        }
+            
+             
+            socket.emit('card-modify',cards, lobbyId);
+            
+       }
     }
 
     // select a card
@@ -202,6 +204,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         setIsDeckOpen(false);
 
         if (socket) {
+           
             socket.emit('card-add', lobbyId, card);
         }
     }
@@ -255,9 +258,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         setCards([...cards]);
 
         // TODO emit socket message to update cards
-         if(socket){
-             socket.emit('card-modify', lobbyId, cards);
-         }
+       
+            
+        socket.emit('card-modify',cards, lobbyId);
+        
+   
     }
 
     // resize the selected cards
@@ -307,12 +312,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             cards[index].position = Vector2.add(pivotPos, cardPivotDifference);
 
             // TODO 1 socket emit outside the for loop
-            if (socket) {
-                socket.emit('card-modify', lobbyId, cards);
-            }
+           
         });
 
         setCards([...cards]);
+        socket.emit('card-modify',cards, lobbyId);
     }
 
     // template
