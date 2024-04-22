@@ -3,7 +3,7 @@ import CardViewer, { ASPECT_RATIO } from './CardViewer';
 import Deck from './Deck';
 import {CardTransform} from '../../data/CardTransform';
 import {Vector2} from '../../data/Vector2';
-import {images} from './imageImports';
+import {transparentCards} from './imageImports';
 import {Socket} from 'socket.io-client';
 
 // the number of milliseconds to wait between card position updates
@@ -38,7 +38,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
 
     // the array of cards in the deck (all the cards currently not placed on the board)
-    const cardsInDeck: number[] = images.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
+    const cardsInDeck: number[] = transparentCards.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
 
     // add event listeners to the window
     // wrap it in useEffect ensuring it is added only once
