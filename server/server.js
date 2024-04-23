@@ -420,8 +420,8 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('card-add', card);
     });
 
-    socket.on('card-modify', (_cards, lobbyId) => {
-        console.log(_cards);
+    socket.on('card-modify', ( lobbyId,_cards) => {
+        
         io.to(lobbyId).emit('card-modify', _cards);
         
     });
