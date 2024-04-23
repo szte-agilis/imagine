@@ -3,25 +3,27 @@ import {useEffect, useState} from 'react';
 import { CardTransform } from '../../data/CardTransform';
 import { io, Socket } from 'socket.io-client';
 
-const socket: Socket = io('http://localhost:3000');
 
-export default function GuesserBoard() {
+
+export default function GuesserBoard({socket}: {socket: Socket | null}) {
     
     let [cards, setCards] = useState([] as CardTransform[]);
 
     useEffect(() => {
         if(socket){
             socket.on('card-add', function(card: CardTransform){
+               
                 cards.push(card);
                 setCards([...cards]);
             })
 
             socket.on('card-modify', function( _cards: CardTransform[]) {
-           
+               
             setCards(_cards);
             });
 
             socket.on('card-remove', function(i: number) {
+
                 cards.splice(i, 1);
                 setCards([...cards]);
             });
