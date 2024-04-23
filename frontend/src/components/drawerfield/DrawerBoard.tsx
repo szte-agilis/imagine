@@ -1,5 +1,5 @@
 import {useState, useEffect, WheelEvent} from 'react';
-import CardViewer, { ASPECT_RATIO } from './CardViewer';
+import CardViewer, {ASPECT_RATIO} from './CardViewer';
 import Deck from './Deck';
 import {CardTransform} from '../../data/CardTransform';
 import {Vector2} from '../../data/Vector2';
@@ -15,9 +15,7 @@ const cardRemoveMargin: number = 1;
 
 export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null, socket: Socket | null }) {
     // the array storing the transforms of the currently placed cards
-    var [cards, setCards] = useState([] as CardTransform[]);
-
-   
+    const [cards, setCards] = useState([] as CardTransform[]);
 
     // the time of the last card movement update
     const [lastUpdate, setLastUpdate] = useState(Date.now());
@@ -77,15 +75,15 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             return position.x < cardRemoveMargin || position.x > 100 - cardRemoveMargin || position.y < cardRemoveMargin || position.y > 100 - cardRemoveMargin;
         })
 
-        setCards(cards.filter((_, index) => !indexesToRemove.includes(index)));
-
-        // TODO emit socket message to remove cards
         if (socket) {
-            socket.emit('card-remove', cards.filter((_,index)=>index));
+            socket.emit('card-remove', lobbyId, indexesToRemove);
         }
+
         if (!isCtrlDown) {
             setSelectedIndexes([]);
         }
+
+        setCards(cards.filter((_, index) => !indexesToRemove.includes(index)));
     }
 
     // handle key down events
@@ -139,20 +137,19 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             position.y += (e.movementY * 100) / board.offsetHeight;
         })
 
-        // update cards
-        setCards([...cards]);
-
         const now: number = Date.now();
         const elapsed: number = now - lastUpdate;
 
         if (elapsed >= updateFrequencyMs) {
             setLastUpdate(now);
 
-            // TODO emit socket message to update cards
-            if(socket){
+            if (socket) {
                 socket.emit('card-modify', lobbyId, cards);
             }
         }
+
+        // update cards
+        setCards([...cards]);
     }
 
     // select a card
@@ -162,7 +159,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             const matchIndex: number = selectedIndexes.indexOf(index);
 
             // not selected -> add to selection
-            if(matchIndex < 0) {
+            if (matchIndex < 0) {
                 selectedIndexes.push(index);
                 setSelectedIndexes([...selectedIndexes]);
             }
@@ -252,12 +249,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             card.rotation = (cards[value].rotation + angleDeg + 360) % 360;
         })
 
-        setCards([...cards]);
+        if (socket) {
+            socket.emit('card-modify', lobbyId, cards);
+        }
 
-        // TODO emit socket message to update cards
-         if(socket){
-             socket.emit('card-modify', lobbyId, cards);
-         }
+        setCards([...cards]);
     }
 
     // resize the selected cards
@@ -306,11 +302,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             // set card new shifted position
             cards[index].position = Vector2.add(pivotPos, cardPivotDifference);
 
-            // TODO 1 socket emit outside the for loop
-            if (socket) {
-                socket.emit('card-modify', lobbyId, cards);
-            }
         });
+
+        if (socket) {
+            socket.emit('card-modify', lobbyId, cards);
+        }
 
         setCards([...cards]);
     }

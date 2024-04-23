@@ -416,19 +416,15 @@ io.on('connection', (socket) => {
     });
 
     socket.on('card-add', (lobbyId, card) => {
-        
         io.to(lobbyId).emit('card-add', card);
     });
 
-    socket.on('card-modify', ( lobbyId,_cards) => {
-        
-        io.to(lobbyId).emit('card-modify', _cards);
-        
+    socket.on('card-modify', (lobbyId, cards) => {
+        io.to(lobbyId).emit('card-modify', cards);
     });
-    
 
-    socket.on('card-remove', (lobbyId, index) => {
-        io.to(lobbyId).emit('card-remove', index);
+    socket.on('card-remove', (lobbyId, indexes) => {
+        io.to(lobbyId).emit('card-remove', indexes);
     });
 });
 

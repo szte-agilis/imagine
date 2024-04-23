@@ -1,30 +1,25 @@
 import CardViewer from './CardViewer';
 import {useEffect, useState} from 'react';
 import { CardTransform } from '../../data/CardTransform';
-import { io, Socket } from 'socket.io-client';
-
-
+import { Socket } from 'socket.io-client';
 
 export default function GuesserBoard({socket}: {socket: Socket | null}) {
-    
     let [cards, setCards] = useState([] as CardTransform[]);
 
     useEffect(() => {
         if(socket){
             socket.on('card-add', function(card: CardTransform){
-               
                 cards.push(card);
                 setCards([...cards]);
             })
 
-            socket.on('card-modify', function( _cards: CardTransform[]) {
-               
-            setCards(_cards);
+            socket.on('card-modify', function(transforms: CardTransform[]) {
+                cards = transforms;
+                setCards([...cards]);
             });
 
-            socket.on('card-remove', function(i: number) {
-
-                cards.splice(i, 1);
+            socket.on('card-remove', function(indexes: number[]) {
+                cards = cards.filter(((_, index) => !indexes.includes(index)));
                 setCards([...cards]);
             });
 
