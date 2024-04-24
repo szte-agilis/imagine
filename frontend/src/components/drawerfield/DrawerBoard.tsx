@@ -63,26 +63,39 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
     // handle mouse up event
     function onMouseUp(_: MouseEvent) {
+        // mouse button is no longer pressed
         setIsMouseDown(false);
 
-        // only reset selection when ctrl is not pressed and we have cards selected
-        if (selectedIndexes.length === 0 || isCtrlDown) {
+        // nothing to do when no cards are selected
+        if(selectedIndexes.length === 0){
             return;
         }
 
-        const indexesToRemove: number[] = selectedIndexes.filter(index => {
-            const position: Vector2 = cards[index].position;
+        // do not reset selection when ctrl is pressed
+        if (isCtrlDown) {
+            // still stream updates so the board looks the same for everyone
+            if(socket){
+                socket.emit('card-modify', lobbyId, cards);
+            }
 
-            return position.x < cardRemoveMargin || position.x > 100 - cardRemoveMargin || position.y < cardRemoveMargin || position.y > 100 - cardRemoveMargin;
-        })
-
-        if (socket) {
-            socket.emit('card-remove', lobbyId, indexesToRemove);
+            return;
         }
+
+        // get the cards that will stay on the board
+        const remainingCards: CardTransform[] = cards.filter(card => {
+            const position: Vector2 = card.position;
+
+            return position.x > cardRemoveMargin && position.x < 100 - cardRemoveMargin && position.y > cardRemoveMargin && position.y < 100 - cardRemoveMargin;
+        });
 
         // reset selection and delete the cards moved outside
         setSelectedIndexes([]);
-        setCards(cards.filter((_, index) => !indexesToRemove.includes(index)));
+        setCards(remainingCards);
+
+        // stream changes
+        if (socket) {
+            socket.emit('card-modify', lobbyId, remainingCards);
+        }
     }
 
     // handle key down events

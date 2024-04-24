@@ -18,11 +18,6 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
                 setCards([...cards]);
             });
 
-            socket.on('card-remove', function(indexes: number[]) {
-                cards = cards.filter(((_, index) => !indexes.includes(index)));
-                setCards([...cards]);
-            });
-
             socket.on('reset', function() {
                 cards = [];
                 setCards([...cards]);
@@ -33,7 +28,6 @@ export default function GuesserBoard({socket}: {socket: Socket | null}) {
             if(socket){
                 socket.off('card-add');
                 socket.off('card-modify');
-                socket.off('card-remove');
                 socket.off('reset');
             }
         }
