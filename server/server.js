@@ -18,10 +18,7 @@ app.get('*', (req, res) =>
     res.sendFile(path.join(FRONTEND_STATIC, 'index.html'))
 );
 
-app.use(require('body-parser').json());
-
 let _lobbies = {};
-let counter = 0;
 
 function getLobby(lobbyId) {
     console.debug('getLobby', { id: lobbyId });
@@ -34,14 +31,25 @@ function getLobby(lobbyId) {
 
 function lobbiesStats() {
     return Object.entries(_lobbies).map(([id, lobby]) => ({
-        id,
+        id: lobby.id,
+        name: lobby.name,
         users: Object.values(lobby.users).length,
         gameStarted: lobby.gameStarted,
     }));
 }
 
+function checkUsername(name) {
+    for (const l of Object.keys(_lobbies)) {
+        for (const n of Object.values(_lobbies[l]['users'])) {
+            if (n === name) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 //let correctGuesses = 0;
-let intervalId = null;
 const solutions = JSON.parse(
     fs.readFileSync(COMMON_STATIC + '/solutions.json', 'utf-8')
 );
@@ -87,16 +95,19 @@ io.on('connection', (socket) => {
         if (!_lobbies[lobbyId]) {
             _lobbies[lobbyId] = {
                 id: lobbyId,
+                name: '',
                 users: {},
                 drawerSocketId: null,
                 drawerAssigned: false,
-                timer: 15,
+                timer: 150,
                 buttonState: 'Click me!',
                 solution: 'biztosnemtalaljakisenki',
                 correctGuesses: 0,
                 currentRound: 1,
                 pointMap: pointMap,
                 gameStarted: false,
+                counter: 0,
+                intervalId: null,
             };
             logger('log', getLobby(lobbyId), 'New lobby created');
         } else {
@@ -178,11 +189,15 @@ io.on('connection', (socket) => {
         const lobby = getLobby(lobbyId);
         const username = lobby?.users[socket.id] || 'Anonymous';
         if (guess(msg, lobby.solution)) {
-            io.to(lobbyId).emit('chat message', `${username} kitalalta!`);
+            io.to(lobbyId).emit('chat message', {
+                message: `${username} kitalalta!`,
+                guessedCorrectly: true,
+                username: username,
+            });
             if (lobby.correctGuesses == 0) {
                 lobby.pointMap.set(
                     username,
-                    lobby.pointMap.get(username) + 1000 + lobby.timer
+                    lobby.pointMap.get(username) + 1000 + lobby.timer * 5
                 );
                 io.to(lobbyId).emit(
                     'points',
@@ -193,8 +208,8 @@ io.on('connection', (socket) => {
                     username,
                     lobby.pointMap.get(username) +
                         1000 -
-                        lobby.correctGuesses * 20 +
-                        lobby.timer
+                        lobby.correctGuesses * 50 +
+                        lobby.timer * 5
                 );
                 io.to(lobbyId).emit(
                     'points',
@@ -209,23 +224,27 @@ io.on('connection', (socket) => {
                 clearInterval(lobby.intervalId);
                 lobby.pointMap.set(
                     lobby.users[lobby.drawerSocketId],
-                    lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
-                        lobby.correctGuesses * 50
+                    lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) + 1000 //mindenki kitalalta -> drawer 1000 pontot kap
                 );
                 io.to(lobby.drawerSocketId).emit(
                     'points',
                     Array.from(lobby.pointMap.entries())
                 );
-                console.log(
-                    'drawer awarded(everyone got it): ' +
-                        lobby.correctGuesses * 50
-                );
+                console.log('drawer awarded(everyone got it): ' + 1000);
                 passDrawer(lobbyId);
                 lobby.correctGuesses = 0;
             }
         } else {
-            io.to(lobbyId).emit('chat message', `${username}: ${msg}`);
+            io.to(lobbyId).emit('chat message', {
+                message: `${username}: ${msg}`,
+                guessedCorrectly: false,
+                username: username,
+            });
         }
+    });
+
+    socket.on('check username', (name) => {
+        io.to(socket.id).emit('username taken', checkUsername(name));
     });
 
     socket.on('list-lobbies', () => {
@@ -233,7 +252,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('lobby data changed', (lobbyId, lobbyData) => {
+        const lobby = getLobby(lobbyId);
+        lobby.name = lobbyData.name;
+        lobby.id = lobbyData.lobbyId;
         socket.to(lobbyId).emit('change lobby data', lobbyData);
+        io.emit('list-lobbies', lobbiesStats());
     });
 
     socket.on('button clicked', (lobbyId, username) => {
@@ -243,7 +266,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on('pass drawer button', (lobbyId) => {
-        passDrawer(lobbyId);
+        const lobby = getLobby(lobbyId);
+
+        lobby.timer = 0;
     });
 
     socket.on('get solutions', () => {
@@ -271,13 +296,13 @@ io.on('connection', (socket) => {
         }
         io.to(lobbyId).emit('reset canvas', lobbyId);
 
-        counter++;
-        console.log('counter' + counter);
+        lobby.counter += 1;
+        console.log('counter' + lobby.counter);
         console.log('userids' + userIds.length);
-        if (counter == userIds.length) {
+        if (lobby.counter == userIds.length) {
             io.to(lobbyId).emit('new round', lobby.currentRound + 1);
             lobby.currentRound++;
-            counter = 0;
+            lobby.counter = 0;
         }
 
         userIds.forEach((id) => {
@@ -300,15 +325,18 @@ io.on('connection', (socket) => {
 
     socket.on('startGame', ({ lobbyId, pickedSolution }) => {
         const lobby = getLobby(lobbyId);
+
+        io.to(lobbyId).emit('reset');
+
         io.to(lobby.drawerSocketId).emit(
             'points',
             Array.from(lobby.pointMap.entries())
         );
-        intervalId = setInterval(() => {
+
+        lobby.intervalId = setInterval(() => {
             if (lobby.timer > 0) {
                 lobby.timer--;
                 console.log(lobby.timer);
-                lobby.intervalId = intervalId;
                 io.to(lobbyId).emit('timer', lobby.timer);
                 io.to(lobbyId).emit('solution', pickedSolution);
                 lobby.solution = pickedSolution;
@@ -321,16 +349,13 @@ io.on('connection', (socket) => {
                     lobby.pointMap.set(
                         lobby.users[lobby.drawerSocketId],
                         lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
-                            lobby.correctGuesses * 35
+                            750
                     );
                     io.to(lobby.drawerSocketId).emit(
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
-                    console.log(
-                        'drawer awarded(more correct): ' +
-                            lobby.correctGuesses * 35
-                    );
+                    console.log('drawer awarded(more correct): ' + 750);
                 } else if (
                     lobby.correctGuesses <
                     numberOfPlayers - 1 - lobby.correctGuesses
@@ -338,15 +363,14 @@ io.on('connection', (socket) => {
                     lobby.pointMap.set(
                         lobby.users[lobby.drawerSocketId],
                         lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
-                            lobby.correctGuesses * 15
+                            250
                     );
                     io.to(lobby.drawerSocketId).emit(
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
                     console.log(
-                        'drawer awarded(less correct): ' +
-                            lobby.correctGuesses * 15
+                        'drawer awarded(less correct): ' + 250 //kevesebb a jó tipp -> 250 pont
                     );
                 } else if (
                     lobby.correctGuesses ==
@@ -355,14 +379,14 @@ io.on('connection', (socket) => {
                     lobby.pointMap.set(
                         lobby.users[lobby.drawerSocketId],
                         lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
-                            lobby.correctGuesses * 25
+                            500
                     );
                     io.to(lobby.drawerSocketId).emit(
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
                     console.log(
-                        'drawer awarded(equal): ' + lobby.correctGuesses * 25
+                        'drawer awarded(equal): ' + 500 // Egyenlő rossz tipp mint jó -> 500 pont
                     );
                 }
                 clearInterval(lobby.intervalId);
@@ -370,15 +394,11 @@ io.on('connection', (socket) => {
                 passDrawer(lobbyId);
             }
         }, 1000);
-        lobby.timer = 15;
+        lobby.timer = 150;
     });
 
     socket.on('clearChat', (lobbyId) => {
         io.to(lobbyId).emit('clearChat');
-    });
-
-    socket.on('reset canvas', (lobbyId) => {
-        //todo: implement (tabla csapat)
     });
 
     socket.on('window closed', (lobbyId, username) => {
@@ -407,12 +427,22 @@ io.on('connection', (socket) => {
             });
             return;
         }
+
+        if (lobby.drawerSocketId === socket.id) {
+            lobby.timer = 0;
+            io.to(lobbyId).emit('timer', lobby.timer);
+        }
+        io.to(lobbyId).emit(
+            'chat message',
+            `${lobby.users[socket.id]} left the game.`
+        );
         if (lobby.drawerSocketId === socket.id) {
             passDrawer(lobbyId);
         }
-
+        lobby.pointMap.delete(lobby.users[socket.id]);
         delete lobby.users[socket.id];
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
+        io.to(lobbyId).emit('points', Array.from(lobby.pointMap.entries()));
 
         if (Object.keys(lobby.users).length === 0) {
             logger('log', lobby, 'Deleting empty lobby');
@@ -426,12 +456,12 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('card-add', card);
     });
 
-    socket.on('card-modify', (lobbyId, index, card) => {
-        io.to(lobbyId).emit('card-modify', index, card);
+    socket.on('card-modify', (lobbyId, cards) => {
+        io.to(lobbyId).emit('card-modify', cards);
     });
 
-    socket.on('card-remove', (lobbyId, index) => {
-        io.to(lobbyId).emit('card-remove', index);
+    socket.on('card-remove', (lobbyId, indexes) => {
+        io.to(lobbyId).emit('card-remove', indexes);
     });
 });
 
