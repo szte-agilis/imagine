@@ -65,7 +65,8 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
     function onMouseUp(_: MouseEvent) {
         setIsMouseDown(false);
 
-        if (selectedIndexes.length === 0) {
+        // only reset selection when ctrl is not pressed and we have cards selected
+        if (selectedIndexes.length === 0 || isCtrlDown) {
             return;
         }
 
@@ -80,10 +81,8 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         }
 
         // reset selection and delete the cards moved outside
-        if (!isCtrlDown) {
-            setSelectedIndexes([]);
-            setCards(cards.filter((_, index) => !indexesToRemove.includes(index)));
-        }
+        setSelectedIndexes([]);
+        setCards(cards.filter((_, index) => !indexesToRemove.includes(index)));
     }
 
     // handle key down events

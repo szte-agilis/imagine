@@ -325,10 +325,14 @@ io.on('connection', (socket) => {
 
     socket.on('startGame', ({ lobbyId, pickedSolution }) => {
         const lobby = getLobby(lobbyId);
+
+        io.to(lobbyId).emit('reset');
+
         io.to(lobby.drawerSocketId).emit(
             'points',
             Array.from(lobby.pointMap.entries())
         );
+
         lobby.intervalId = setInterval(() => {
             if (lobby.timer > 0) {
                 lobby.timer--;
