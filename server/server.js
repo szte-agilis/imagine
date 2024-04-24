@@ -99,7 +99,7 @@ io.on('connection', (socket) => {
                 users: {},
                 drawerSocketId: null,
                 drawerAssigned: false,
-                timer: 15,
+                timer: 150,
                 buttonState: 'Click me!',
                 solution: 'biztosnemtalaljakisenki',
                 correctGuesses: 0,
@@ -266,7 +266,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on('pass drawer button', (lobbyId) => {
-        passDrawer(lobbyId);
+        const lobby = getLobby(lobbyId);
+
+        lobby.timer = 0;
     });
 
     socket.on('get solutions', () => {
@@ -323,10 +325,14 @@ io.on('connection', (socket) => {
 
     socket.on('startGame', ({ lobbyId, pickedSolution }) => {
         const lobby = getLobby(lobbyId);
+
+        io.to(lobbyId).emit('reset');
+
         io.to(lobby.drawerSocketId).emit(
             'points',
             Array.from(lobby.pointMap.entries())
         );
+
         lobby.intervalId = setInterval(() => {
             if (lobby.timer > 0) {
                 lobby.timer--;
@@ -388,15 +394,11 @@ io.on('connection', (socket) => {
                 passDrawer(lobbyId);
             }
         }, 1000);
-        lobby.timer = 15;
+        lobby.timer = 150;
     });
 
     socket.on('clearChat', (lobbyId) => {
         io.to(lobbyId).emit('clearChat');
-    });
-
-    socket.on('reset canvas', (lobbyId) => {
-        //todo: implement (tabla csapat)
     });
 
     socket.on('window closed', (lobbyId, username) => {
@@ -454,12 +456,12 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('card-add', card);
     });
 
-    socket.on('card-modify', (lobbyId, index, card) => {
-        io.to(lobbyId).emit('card-modify', index, card);
+    socket.on('card-modify', (lobbyId, cards) => {
+        io.to(lobbyId).emit('card-modify', cards);
     });
 
-    socket.on('card-remove', (lobbyId, index) => {
-        io.to(lobbyId).emit('card-remove', index);
+    socket.on('card-remove', (lobbyId, indexes) => {
+        io.to(lobbyId).emit('card-remove', indexes);
     });
 });
 

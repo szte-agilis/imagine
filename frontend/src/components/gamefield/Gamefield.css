@@ -9,7 +9,7 @@
 .div_style {
     margin-top: 20px;
 }
-#container{
+#container {
     height: 80%;
 }
 
@@ -25,7 +25,7 @@
     top: 0;
     background-color: #252729;
     z-index: 500;
-    margin-bottom: .75rem;
+    margin-bottom: 0.75rem;
 }
 .first-three {
     margin-left: 2rem;
@@ -87,41 +87,37 @@
     height: 100%;
 }
 
-#board{
+#board {
     height: 90% !important;
 }
 
-#left-container{
+#left-container {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-#leave-button{
+#leave-button {
     margin-top: 10%;
     margin-bottom: 10%;
     background-color: rgb(153, 11, 11);
 }
 
-#leave-popup
-{
+#leave-popup {
     margin: auto;
     background: grey;
 }
 
-.modal-buttons-container
-{
+.modal-buttons-container {
     display: grid;
     align-items: center;
     justify-content: center;
 }
 
-#modal-cancel-button
-{
+#modal-cancel-button {
 }
 
-#modal-leave-button
-{
+#modal-leave-button {
 }
 
 .guessed-message {
@@ -141,9 +137,15 @@
 }
 
 @keyframes fadeInOut {
-    0% { opacity: 0; }
-    50% { opacity: 1; }
-    100% { opacity: 0; }
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 .flash-chat {
@@ -163,6 +165,11 @@
 }
 
 @keyframes flashGreen {
-    0%, 100% { background-color: inherit; }
-    50% { background-color: yellowgreen; }
+    0%,
+    100% {
+        background-color: inherit;
+    }
+    50% {
+        background-color: yellowgreen;
+    }
 }

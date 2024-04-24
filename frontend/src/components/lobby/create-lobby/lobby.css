@@ -18,30 +18,31 @@
     display: flex;
     flex-direction: column;
 }
-#settings{
+#settings {
     height: 100%;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
 }
-#settings, #player-list{
+#settings,
+#player-list {
     width: 40vw;
 }
-#center-column{
+#center-column {
     width: 20vw;
 }
 
-#settings-column{
+#settings-column {
     height: 100%;
     padding: 3vh 1vw;
     row-gap: 4vh;
 }
 
-#category-p{
+#category-p {
     margin-bottom: 1.6vh;
 }
-#category{
+#category {
     font-size: 2.5vmin;
 }
 
@@ -49,11 +50,13 @@
     margin-bottom: 30vmin;
 }
 
-#player-list, #settings{
+#player-list,
+#settings {
     padding: 0;
 }
 
-#player-count-div, #form-header{
+#player-count-div,
+#form-header {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -71,9 +74,9 @@
     flex-direction: column;
     height: 100%;
     margin: 0;
-    padding: 1vh .5vw;
+    padding: 1vh 0.5vw;
     row-gap: 1.5vh;
-    column-gap: .5vw;
+    column-gap: 0.5vw;
     flex-wrap: wrap;
     overflow: hidden;
 }
@@ -83,12 +86,12 @@
     opacity: 0.8;
 }
 
-#settings-column label{
+#settings-column label {
     font-size: 3.5vmin;
     color: white;
     font-weight: bold;
 }
-#settings-column input{
+#settings-column input {
     font-size: 2.5vmin;
     color: white;
 }
@@ -98,7 +101,8 @@
     justify-content: space-evenly;
 }
 
-#exit-button, #start-button {
+#exit-button,
+#start-button {
     font-size: 5vmin;
     height: 8vmin;
     max-width: 200%;

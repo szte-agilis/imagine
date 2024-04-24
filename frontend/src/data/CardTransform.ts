@@ -6,11 +6,10 @@ export class CardTransform {
     rotation: number;
     scale: number;
 
-    constructor(id: number, position: Vector2, rotation: number = 0, scale: number = 1) {
+    constructor(id: number, position: Vector2, rotation: number = 0, scale: number = 0.33) {
         this.id = id;
         this.position = position;
         this.rotation = rotation;
         this.scale = scale;
     }
 }
-

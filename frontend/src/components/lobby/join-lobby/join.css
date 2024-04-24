@@ -14,7 +14,7 @@
     position: relative;
 }
 
-.join-button{
+.join-button {
     height: 6vmin;
     min-width: 0;
     min-height: 0;
@@ -24,7 +24,7 @@
 #header-text-join {
     font-size: 2.5vmin;
     margin: 2vmin;
-    color:white;
+    color: white;
 }
 
 #username-join {
@@ -48,7 +48,13 @@
     left: 0;
     right: 0;
     pointer-events: none;
-    background: linear-gradient(0deg, rgba(25,24,46,0.35) 0%, rgba(9,9,121,0) 12%, rgba(9,9,121,0) 88%, rgba(25,24,46,0.35) 100%);
+    background: linear-gradient(
+        0deg,
+        rgba(25, 24, 46, 0.35) 0%,
+        rgba(9, 9, 121, 0) 12%,
+        rgba(9, 9, 121, 0) 88%,
+        rgba(25, 24, 46, 0.35) 100%
+    );
 }
 
 #lobby-list-join {
@@ -61,7 +67,7 @@
     overflow-y: scroll;
     border-radius: 10px;
     padding: 1.5vmin;
-    opacity: .8;
+    opacity: 0.8;
     color: white;
     border-radius: 0 0 10px 10px;
 }

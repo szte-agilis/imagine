@@ -1,7 +1,7 @@
 #container-lbd {
     display: flex;
-    height: 5%; 
-    width: 220px; 
+    height: 5%;
+    width: 220px;
     background-color: #464646;
     align-items: center;
     border-radius: 10px;
@@ -10,7 +10,7 @@
 }
 
 #left-square-lbd {
-    height: 30%; 
+    height: 30%;
     width: 30%;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -30,7 +30,7 @@
     padding: 10px;
 }
 
-.top-rectangle-lbd{
+.top-rectangle-lbd {
     flex: 1;
     background-color: #666666;
     margin-bottom: 10px;
@@ -53,10 +53,10 @@
     font-weight: bold;
 }
 
-#leaderborad-container{
+#leaderborad-container {
     justify-content: center;
 }
 
-.localPlayer{
+.localPlayer {
     background-color: rgb(3 105 161) !important;
 }
