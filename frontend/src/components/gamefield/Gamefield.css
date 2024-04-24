@@ -9,6 +9,9 @@
 .div_style {
     margin-top: 20px;
 }
+#container {
+    height: 80%;
+}
 
 .header-bar {
     display: flex;
@@ -21,8 +24,8 @@
     font-weight: bold;
     top: 0;
     background-color: #252729;
-    z-index: 10000;
-    margin-bottom: .75rem;
+    z-index: 500;
+    margin-bottom: 0.75rem;
 }
 .first-three {
     margin-left: 2rem;
@@ -84,6 +87,89 @@
     height: 100%;
 }
 
-#board{
+#board {
     height: 90% !important;
+}
+
+#left-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#leave-button {
+    margin-top: 10%;
+    margin-bottom: 10%;
+    background-color: rgb(153, 11, 11);
+}
+
+#leave-popup {
+    margin: auto;
+    background: grey;
+}
+
+.modal-buttons-container {
+    display: grid;
+    align-items: center;
+    justify-content: center;
+}
+
+#modal-cancel-button {
+}
+
+#modal-leave-button {
+}
+
+.guessed-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    background-color: #1f2937;
+    padding: 20px 40px;
+    border-radius: 10px;
+    border: 2px solid #00cfbd;
+    font-size: 24px;
+    font-weight: bold;
+    color: #00cfbd;
+    animation: fadeInOut 1.5s forwards;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.flash-chat {
+    animation: flashGreen 0.5s;
+}
+
+.current-player {
+    border-radius: 3px;
+    background-color: yellowgreen;
+    padding: 5px 10px;
+}
+
+.other-player {
+    border-radius: 3px;
+    background-color: lightsalmon;
+    padding: 5px 10px;
+}
+
+@keyframes flashGreen {
+    0%,
+    100% {
+        background-color: inherit;
+    }
+    50% {
+        background-color: yellowgreen;
+    }
 }

@@ -17,8 +17,10 @@ export default function App() {
 
     useEffect(() => {
         if (!sessionStorage.getItem("username") || !sessionStorage.getItem("lobby")) {
-            console.error("Nincsen beállítva username vagy lobby", sessionStorage)
-            navigate('/');
+            startTransition(() => {
+                console.error("Nincsen beállítva username vagy lobby", sessionStorage)
+                navigate('/');
+            })
         }
     }, [navigate]);
 
@@ -40,8 +42,10 @@ export default function App() {
             socket.on('redirect', () => {
                 console.log('redirect called via socket.io')
                 console.log('lobbyData', JSON.stringify(lobbyData))
-                sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
-                navigate('/gamefield');
+                startTransition(() => {
+                    sessionStorage.setItem("lobbyData", JSON.stringify(lobbyData));
+                    navigate('/gamefield');
+                })
             });
 
             socket.on('change lobby data', (lobbyData) => {
@@ -60,7 +64,9 @@ export default function App() {
     }, [socket]);
 
     useEffect(() => {
-        if (socket && IsOwner(localUsername)) {
+        let lobbyDataValid = lobbyDataOnlyValidate();
+
+        if(lobbyDataValid && socket && IsOwner(localUsername)){
             socket.emit('lobby data changed', localLobby, lobbyData);
         }
     });
@@ -74,6 +80,7 @@ export default function App() {
 
     let categories = ["Gyerek", "Felnőtt", "Vicces", "Mém", "Programozó", "Politika"];
 
+    const [LOBBYID_MIN, LOBBYID_MAX] = [5, 10];
     const [LOBBYNAME_MIN, LOBBYNAME_MAX] = [5, 30];
     const [PASSWORD_MIN, PASSWORD_MAX] = [0, 30];
     const [ROUNDS_MIN, ROUNDS_MAX] = [1, 100];
@@ -83,13 +90,86 @@ export default function App() {
     const [showWarning, setShowWarning] = useState(false);
     const [warningMessage, setWarningMessage] = useState("");
     const [lobbyData, setLobbyData] = useState({
-        name: localLobby,
+        lobbyId: localLobby,
+        name: '',
         password: '',
         maxPlayers: 10,
         roundTime: 240,
         rounds: 3,
         category: 'Mém',
     });
+
+    function lobbyDataOnlyValidate() {
+        if (lobbyData.lobbyId.length < LOBBYID_MIN || lobbyData.name.length > LOBBYID_MAX) {
+            return false;
+        }
+        if (lobbyData.name.length < LOBBYNAME_MIN || lobbyData.name.length > LOBBYNAME_MAX) {
+            return false;
+        }
+        if (lobbyData.password.length < PASSWORD_MIN || lobbyData.password.length > PASSWORD_MAX) {
+            return false;
+        }
+        if (lobbyData.rounds < ROUNDS_MIN || lobbyData.rounds > ROUNDS_MAX) {
+            return false;
+        }
+        if (lobbyData.roundTime < ROUNDTIME_MIN || lobbyData.roundTime > ROUNDTIME_MAX) {
+            return false;
+        }
+        if (lobbyData.maxPlayers < MAXPLAYERS_MIN || lobbyData.maxPlayers > MAXPLAYERS_MAX) {
+            return false;
+        }
+        if (!categories.includes(lobbyData.category)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function lobbyDataValid() {
+        if (lobbyData.lobbyId.length < LOBBYID_MIN || lobbyData.name.length > LOBBYID_MAX) {
+            setWarningMessage("Nem megfelelő hosszú lobby kód! [" + LOBBYID_MIN + "," + LOBBYID_MAX + "] ");
+            setShowWarning(true);
+            return false;
+        }
+
+        if (lobbyData.name.length < LOBBYNAME_MIN || lobbyData.name.length > LOBBYNAME_MAX) {
+            setWarningMessage("Nem megfelelő szoba név hossz! [" + LOBBYNAME_MIN + "," + LOBBYNAME_MAX + "] ");
+            setShowWarning(true);
+            return false;
+        }
+
+        if (lobbyData.password.length < PASSWORD_MIN || lobbyData.password.length > PASSWORD_MAX) {
+            setWarningMessage("Nem megfelelő jelszó hossz! [" + PASSWORD_MIN + "," + PASSWORD_MAX + "] ");
+            setShowWarning(true);
+            return false;
+        }
+
+        if (lobbyData.rounds < ROUNDS_MIN || lobbyData.rounds > ROUNDS_MAX) {
+            setWarningMessage("Nem megfelelő a körök száma! [" + ROUNDS_MIN + "," + ROUNDS_MAX + "] ");
+            setShowWarning(true);
+            return false;
+        }
+
+        if (lobbyData.roundTime < ROUNDTIME_MIN || lobbyData.roundTime > ROUNDTIME_MAX) {
+            setWarningMessage("Nem megfelelő a köridő hossza! [" + ROUNDTIME_MIN + "," + ROUNDTIME_MAX + "] ");
+            setShowWarning(true);
+            return false;
+        }
+
+        if (lobbyData.maxPlayers < MAXPLAYERS_MIN || lobbyData.maxPlayers > MAXPLAYERS_MAX) {
+            setWarningMessage("Nem megfelelő a maximális játékosok száma! [" + MAXPLAYERS_MIN + "," + MAXPLAYERS_MAX + "] ");
+            setShowWarning(true);
+            return false;
+        }
+
+        if (!categories.includes(lobbyData.category)) {
+            setWarningMessage("Nem megfelelő kategória!");
+            setShowWarning(true);
+            return false;
+        }
+
+        return true;
+    }
 
     const handleFormChange = async (e) => {
         const { name, value } = e.target;
@@ -99,8 +179,16 @@ export default function App() {
         }));
     };
 
+    const handleFormChangeOnBlur = async (e) => {
+        lobbyDataValid();
+    };
+
     function IsOwner(testedUser) {
         return lobbyAdmin === testedUser;
+    }
+
+    function EnoughPlayers() {
+        return users && users.length > 1
     }
 
     function BackgroundImage() {
@@ -208,39 +296,13 @@ export default function App() {
 
         if (!IsOwner(localUsername)) return;
 
-        if (lobbyData.name.length < LOBBYNAME_MIN || lobbyData.name.length > LOBBYNAME_MAX) {
-            setWarningMessage("Nem megfelelő szoba név hossz! [" + LOBBYNAME_MIN + "," + LOBBYNAME_MAX + "] ");
+        if (!EnoughPlayers()) {
+            setWarningMessage("Nincs elegendő játékos! Minimum: 2");
             setShowWarning(true);
             return;
         }
 
-        if (lobbyData.password.length < PASSWORD_MIN || lobbyData.password.length > PASSWORD_MAX) {
-            setWarningMessage("Nem megfelelő jelszó hossz! [" + PASSWORD_MIN + "," + PASSWORD_MAX + "] ");
-            setShowWarning(true);
-            return;
-        }
-
-        if (lobbyData.rounds < ROUNDS_MIN || lobbyData.rounds > ROUNDS_MAX) {
-            setWarningMessage("Nem megfelelő a körök száma! [" + ROUNDS_MIN + "," + ROUNDS_MAX + "] ");
-            setShowWarning(true);
-            return;
-        }
-
-        if (lobbyData.roundTime < ROUNDTIME_MIN || lobbyData.roundTime > ROUNDTIME_MAX) {
-            setWarningMessage("Nem megfelelő a köridő hossza! [" + ROUNDTIME_MIN + "," + ROUNDTIME_MAX + "] ");
-            setShowWarning(true);
-            return;
-        }
-
-        if (lobbyData.maxPlayers < MAXPLAYERS_MIN || lobbyData.maxPlayers > MAXPLAYERS_MAX) {
-            setWarningMessage("Nem megfelelő a maximális játékosok száma! [" + MAXPLAYERS_MIN + "," + MAXPLAYERS_MAX + "] ");
-            setShowWarning(true);
-            return;
-        }
-
-        if (!categories.includes(lobbyData.category)) {
-            setWarningMessage("Nem megfelelő kategória!");
-            setShowWarning(true);
+        if(!lobbyDataValid()){
             return;
         }
 
@@ -249,7 +311,9 @@ export default function App() {
     }
 
     const exit = async () => {
-        navigate("/");
+        startTransition(() => {
+            navigate("/");
+        })
     }
 
     return (
@@ -267,65 +331,103 @@ export default function App() {
                 <PlayerList />
                 <div id="center-column">
                     <LogoImage />
-                    <button id="start-button" className={"btn btn-success disabled:bg-emerald-900" + (IsOwner(localUsername)?'':' opacity-60')} onClick={start} disabled={!IsOwner(localUsername)}>Start</button>
+                    <button id="start-button" className={"btn btn-success disabled:bg-emerald-900" + (IsOwner(localUsername)?'':' opacity-60')} onClick={start} disabled={!IsOwner(localUsername) || !EnoughPlayers()}>Start</button>
                     <button id="exit-button" className="btn btn-error" onClick={exit}>Kilépés</button>
                 </div>
                 <div id="settings">
                     <div id="form-header" className="bg-gray-700">
                         <p>Beállítások</p>
                     </div>
-                    <div class="mx-auto bg-gray-800" id="settings-column">
-                        <div class="relative z-0 w-full mb-5 group">
-                            <input type="text" name="name" id="name" disabled={!IsOwner(localUsername)} className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" required
-                                value={lobbyData.name}
-                                onChange={handleFormChange}
-                                minLength={LOBBYNAME_MIN}
-                                maxLength={LOBBYNAME_MAX}
+                    <div className="mx-auto bg-gray-800" id="settings-column">
+                        <div className="relative z-0 w-full mb-5 group">
+                            <input type="text" name="lobbyId" id="lobbyId" disabled={!IsOwner(localUsername)}
+                                   className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                   required
+                                   value={lobbyData.lobbyId}
+                                   onChange={handleFormChange}
+                                   onBlur={handleFormChangeOnBlur}
+                                   minLength={LOBBYID_MIN}
+                                   maxLength={LOBBYID_MAX}
                             />
-                            <label for="name" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Szobanév</label>
+                            <label htmlFor="lobbyId"
+                                   className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Lobby ID</label>
                         </div>
-                        <div class="relative z-0 w-full mb-5 group">
-                            <input type="password" name="password" id="password" disabled={!IsOwner(localUsername)} class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" "
-                                value={lobbyData.password}
-                                onChange={handleFormChange}
-                                minLength={PASSWORD_MIN}
-                                maxLength={PASSWORD_MAX}
+                        <div className="relative z-0 w-full mb-5 group">
+                            <input type="text" name="name" id="name" disabled={!IsOwner(localUsername)}
+                                   className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                   required
+                                   value={lobbyData.name}
+                                   onChange={handleFormChange}
+                                   onBlur={handleFormChangeOnBlur}
+                                   minLength={LOBBYNAME_MIN}
+                                   maxLength={LOBBYNAME_MAX}
                             />
-                            <label for="password" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Jelszó</label>
+                            <label htmlFor="name"
+                                   className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Szobanév</label>
                         </div>
-                        <div class="grid md:grid-cols-3 md:gap-6">
-                            <div class="relative z-0 w-full mb-5 group">
-                                <input type="number" name="rounds" id="rounds" disabled={!IsOwner(localUsername)} class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required
-                                    value={lobbyData.rounds}
-                                    onChange={handleFormChange}
-                                    min={ROUNDS_MIN}
-                                    max={ROUNDS_MAX}
+                        <div className="relative z-0 w-full mb-5 group">
+                            <input type="password" name="password" id="password" disabled={!IsOwner(localUsername)}
+                                   class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                   placeholder=" "
+                                   value={lobbyData.password}
+                                   onChange={handleFormChange}
+                                   onBlur={handleFormChangeOnBlur}
+                                   minLength={PASSWORD_MIN}
+                                   maxLength={PASSWORD_MAX}
+                            />
+                            <label htmlFor="password"
+                                   className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Jelszó</label>
+                        </div>
+                        <div className="grid md:grid-cols-3 md:gap-6">
+                            <div className="relative z-0 w-full mb-5 group">
+                                <input type="number" name="rounds" id="rounds" disabled={!IsOwner(localUsername)}
+                                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                       placeholder=" " required
+                                       value={lobbyData.rounds}
+                                       onChange={handleFormChange}
+                                       onBlur={handleFormChangeOnBlur}
+                                       min={ROUNDS_MIN}
+                                       max={ROUNDS_MAX}
                                 />
-                                <label for="rounds" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Körszám</label>
+                                <label htmlFor="rounds"
+                                       className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Körszám</label>
                             </div>
-                            <div class="relative z-0 w-full mb-5 group">
-                                <input type="number" name="roundTime" id="roundTime" disabled={!IsOwner(localUsername)} class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required
-                                    value={lobbyData.roundTime}
-                                    onChange={handleFormChange}
-                                    min={ROUNDTIME_MIN}
-                                    max={ROUNDTIME_MAX}
+                            <div className="relative z-0 w-full mb-5 group">
+                                <input type="number" name="roundTime" id="roundTime" disabled={!IsOwner(localUsername)}
+                                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                       placeholder=" " required
+                                       value={lobbyData.roundTime}
+                                       onChange={handleFormChange}
+                                       onBlur={handleFormChangeOnBlur}
+                                       min={ROUNDTIME_MIN}
+                                       max={ROUNDTIME_MAX}
                                 />
-                                <label for="roundTime" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Köridő</label>
+                                <label htmlFor="roundTime"
+                                       className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Köridő</label>
                             </div>
-                            <div class="relative z-0 w-full mb-5 group">
-                                <input type="number" name="maxPlayers" id="maxPlayers" disabled={!IsOwner(localUsername)} class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required
-                                    value={lobbyData.maxPlayers}
-                                    onChange={handleFormChange}
-                                    min={MAXPLAYERS_MIN}
-                                    max={MAXPLAYERS_MAX}
+                            <div className="relative z-0 w-full mb-5 group">
+                                <input type="number" name="maxPlayers" id="maxPlayers"
+                                       disabled={!IsOwner(localUsername)}
+                                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                       placeholder=" " required
+                                       value={lobbyData.maxPlayers}
+                                       onChange={handleFormChange}
+                                       onBlur={handleFormChangeOnBlur}
+                                       min={MAXPLAYERS_MIN}
+                                       max={MAXPLAYERS_MAX}
                                 />
-                                <label for="maxPlayers" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Játékosszám</label>
+                                <label htmlFor="maxPlayers"
+                                       className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Játékosszám</label>
                             </div>
                         </div>
-                        <label for="category" class="block mb-2 text-sm font-medium text-gray-500 dark:text-white"><p id="category-p">Kategória</p>
-                            <select id="category" name="category" disabled={!IsOwner(localUsername)} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                value={lobbyData.category}
-                                onChange={handleFormChange}
+                        <label htmlFor="category"
+                               className="block mb-2 text-sm font-medium text-gray-500 dark:text-white"><p
+                            id="category-p">Kategória</p>
+                            <select id="category" name="category" disabled={!IsOwner(localUsername)}
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    value={lobbyData.category}
+                                    onChange={handleFormChange}
+                                    onBlur={handleFormChangeOnBlur}
                             >
                                 {categories.map((categ, index) => (
                                     <option key={index} value={categ}>{categ}</option>

@@ -5,14 +5,17 @@ import { useNavigate } from 'react-router-dom';
 import bgImg from '../../assets/background.jpg';
 import logoImg from '../../assets/imagine-logo.png';
 import { useImage } from 'react-image';
+import io from 'socket.io-client';
 
 export default function App() {
+    const [socket, setSocket] = useState(null);
     const [showWarning, setShowWarning] = useState(false);
     const [warningMessage, setWarningMessage] = useState("");
     const MAX_NAME_LENGTH = 15;
     const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
+    const [usernameTaken, setUsernameTaken] = useState(false);
 
     useEffect(() => {
         const storedUsername = sessionStorage.getItem("username");
@@ -20,6 +23,16 @@ export default function App() {
             setUsername(storedUsername);
         }
     }, []);
+
+    useEffect(() => {
+        const newSocket = io();
+        setSocket(newSocket);
+        newSocket.emit('check username', username);
+        newSocket.on('username taken', (taken) => {
+            setUsernameTaken(taken);
+        });
+        return () => newSocket.close();
+    }, [username]);
 
     function BackgroundImage() {
         const { src } = useImage({
@@ -114,6 +127,12 @@ export default function App() {
             return;
         }
 
+        if (usernameTaken) {
+            setWarningMessage("Ezzel a névvel már valaki játszik.");
+            setShowWarning(true);
+            return;
+        }
+
         setShowWarning(false);
         startTransition(() => {
             sessionStorage.setItem("username", username);
@@ -132,6 +151,12 @@ export default function App() {
 
         if (username.trim().length > MAX_NAME_LENGTH) {
             setWarningMessage("Túl hosszú nevet adtál meg! Max: 15 karakter.");
+            setShowWarning(true);
+            return;
+        }
+
+        if (usernameTaken) {
+            setWarningMessage("Ezzel a névvel már valaki játszik.");
             setShowWarning(true);
             return;
         }
