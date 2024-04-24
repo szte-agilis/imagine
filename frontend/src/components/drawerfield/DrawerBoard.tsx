@@ -1,4 +1,4 @@
-import {useState, useEffect, WheelEvent} from 'react';
+import {useState, useEffect} from 'react';
 import CardViewer, {ASPECT_RATIO} from './CardViewer';
 import Deck from './Deck';
 import {CardTransform} from '../../data/CardTransform';
@@ -79,11 +79,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             socket.emit('card-remove', lobbyId, indexesToRemove);
         }
 
+        // reset selection and delete the cards moved outside
         if (!isCtrlDown) {
             setSelectedIndexes([]);
+            setCards(cards.filter((_, index) => !indexesToRemove.includes(index)));
         }
-
-        setCards(cards.filter((_, index) => !indexesToRemove.includes(index)));
     }
 
     // handle key down events
