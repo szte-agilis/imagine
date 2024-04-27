@@ -258,7 +258,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             card.position.x = newX;
             card.position.y = newY;
 
-            card.rotation = (cards[value].rotation + angleDeg + 360) % 360;
+            card.rotation = cards[value].rotation + angleDeg;
         })
 
         if (socket) {

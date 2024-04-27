@@ -66,9 +66,5 @@ export default function Interpolator<T>(
         setFromState(currentState);
     }, [targetState]);
 
-    return <div className="border-2 rounded-md border-blue-400 flex flex-col items-start py-1 px-2">
-        <pre>Progress: {currentStep > stepCount ? `DONE` : `${(currentStep / stepCount * 100).toFixed(0)}%`}</pre>
-        <pre>Step count: {stepCount}</pre>
-        <pre>Step duration: {stepDurationMs}ms</pre>
-    </div>;
+    return <></>;
 }

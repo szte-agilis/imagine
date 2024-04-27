@@ -41,27 +41,24 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
         setDisplayedCards(cards);
     }
 
-    // TODO: funny rotation, handle different card counts
+    // TODO: funny rotation
     function interpolateCardArray(from: CardTransform[], to: CardTransform[], progress: number): CardTransform[] {
-        let result: CardTransform[] = [];
+        return to.map(toCard => {
+            const index = from.findIndex(card => card.id === toCard.id);
 
-        if (from.length != to.length) {
-            return [...to];
-        }
+            if(index === -1) {
+                return toCard;
+            }
 
-        for (let i = 0; i < from.length; i++) {
-            const fromCard = from[i];
-            const toCard = to[i];
+            const fromCard = from[index];
 
             const x = fromCard.position.x + (toCard.position.x - fromCard.position.x) * progress;
             const y = fromCard.position.y + (toCard.position.y - fromCard.position.y) * progress;
             const rotation = fromCard.rotation + (toCard.rotation - fromCard.rotation) * progress;
             const scale = fromCard.scale + (toCard.scale - fromCard.scale) * progress;
 
-            result.push(new CardTransform(fromCard.id, new Vector2(x, y), rotation, scale));
-        }
-
-        return result;
+            return new CardTransform(fromCard.id, new Vector2(x, y), rotation, scale);
+        });
     }
 
     return (
