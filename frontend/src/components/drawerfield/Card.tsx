@@ -1,6 +1,6 @@
 import { CardTransform } from '../../data/CardTransform';
 import { MouseEventHandler, CSSProperties } from 'react';
-import { transparentCards } from './imageImports';
+import { cardImages } from './ImageImports';
 
 export default function Card({ transform, isSelected = false, selectCallback }: { transform: CardTransform, isSelected?: boolean, selectCallback: MouseEventHandler }) {
     const style: CSSProperties = {
@@ -18,7 +18,7 @@ export default function Card({ transform, isSelected = false, selectCallback }: 
             className="z-10 absolute select-none"
             style={style}
             onMouseDown={selectCallback}
-            src={transparentCards.at(transform.id)}
+            src={cardImages.at(transform.id)}
             alt="card"
         />
     );
