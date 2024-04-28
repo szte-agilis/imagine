@@ -333,25 +333,32 @@ function GameField() {
 
                                 {canDraw && randomSolutions.length > 0 && (
                                     <div>
-                                        <h2>Choose a solution:</h2>
-                                        {randomSolutions.map(
-                                            (solution, index) => (
-                                                <button
-                                                    id={index.toString()}
-                                                    className="button_class"
-                                                    key={index}
-                                                    onClick={() => {
-                                                        startGameTimer(
-                                                            solution
-                                                        );
-                                                        clearChat();
-                                                        setSolution(solution);
-                                                    }}
-                                                >
-                                                    {solution.solution}
-                                                </button>
-                                            )
-                                        )}
+                                        <div className="modal-background">
+                                            <div className="modal-content">
+                                                <h2>Choose a solution:</h2>
+                                                <br />
+                                                {randomSolutions.map(
+                                                    (solution, index) => (
+                                                        <button
+                                                            id={index.toString()}
+                                                            className="solution-button"
+                                                            key={index}
+                                                            onClick={() => {
+                                                                startGameTimer(
+                                                                    solution
+                                                                );
+                                                                clearChat();
+                                                                setSolution(
+                                                                    solution
+                                                                );
+                                                            }}
+                                                        >
+                                                            {solution.solution}
+                                                        </button>
+                                                    )
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                                 {canDraw && solution && (
