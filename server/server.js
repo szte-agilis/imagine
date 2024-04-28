@@ -373,6 +373,10 @@ io.on('connection', (socket) => {
                         'drawer awarded(less correct): ' + 250 //kevesebb a jó tipp -> 250 pont
                     );
                 } else if (
+                    lobby.correctGuesses === 0 // Senki sem talált helyesen
+                ) {
+                    console.log('Nincs helyes tipp, nem kap pontot a rajzoló.');
+                } else if (
                     lobby.correctGuesses ==
                     numberOfPlayers - 1 - lobby.correctGuesses
                 ) {
