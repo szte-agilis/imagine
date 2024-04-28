@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import Board from '../drawerfield/Board';
-import Leaderboard from './Leaderboard';
+import Leaderboard from './components/Leaderboard';
 import './Gamefield.css';
-import './GameEnd.js';
-import GameEnd from './GameEnd.js';
+import GameEnd from './components/GameEnd.js';
 import { useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
+import TopicLengthContainer from './components/topicLengthContainer.js';
 
 function GameField() {
     const lobbyData = JSON.parse(sessionStorage.getItem('lobbyData'));
@@ -35,7 +35,7 @@ function GameField() {
     const [correctGuessInfo, setCorrectGuessInfo] = useState(null);
     const navigate = useNavigate();
 
-    const [solution, setSolution] = useState('');
+    const [solution, setSolution] = useState(null);
     const [randomSolutions, setRandomSolutions] = useState([]);
 
     useEffect(() => {
@@ -348,7 +348,7 @@ function GameField() {
                                                         setSolution(solution);
                                                     }}
                                                 >
-                                                    {solution}
+                                                    {solution.solution}
                                                 </button>
                                             )
                                         )}
@@ -356,7 +356,7 @@ function GameField() {
                                 )}
                                 {canDraw && solution && (
                                     <div id="solution" className="div_style">
-                                        Megfejtés: {solution}
+                                        Megfejtés: {solution.solution}
                                     </div>
                                 )}
                             </div>
@@ -366,6 +366,7 @@ function GameField() {
                                     localLobby={localLobby}
                                     socket={socket}
                                 />
+                                <TopicLengthContainer solution={solution} />
                             </div>
                             <div
                                 id="chat-container"

@@ -339,7 +339,7 @@ io.on('connection', (socket) => {
                 console.log(lobby.timer);
                 io.to(lobbyId).emit('timer', lobby.timer);
                 io.to(lobbyId).emit('solution', pickedSolution);
-                lobby.solution = pickedSolution;
+                lobby.solution = pickedSolution.solution;
             } else {
                 const numberOfPlayers = Object.keys(lobby.users).length;
                 if (
