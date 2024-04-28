@@ -1,3 +1,5 @@
+import './styles/TopicLenghtContainer.css';
+
 const TopicLengthContainer = (props) => {
     const solution = props.solution;
 
@@ -5,9 +7,14 @@ const TopicLengthContainer = (props) => {
         return <div></div>;
     } else {
         return (
-            <div>
-                <div>{'Téma: ' + solution.topic}</div>
-                <div>{'Megfejtés hossza: ' + solution.solution.length}</div>
+            <div className="topic-container">
+                <div>
+                    {'Téma: ' +
+                        solution.topic +
+                        ', ' +
+                        'Megfejtés hossza: ' +
+                        solution.solution.length}
+                </div>
             </div>
         );
     }
