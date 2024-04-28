@@ -19,6 +19,13 @@ app.get('*', (req, res) =>
 );
 
 let _lobbies = {};
+let takenNames = [];
+function removeTakenName(name) {
+    let index = takenNames.indexOf(name);
+    if (index !== -1) {
+        takenNames.splice(index, 1);
+    }
+}
 
 function getLobby(lobbyId) {
     console.debug('getLobby', { id: lobbyId });
@@ -36,17 +43,6 @@ function lobbiesStats() {
         users: Object.values(lobby.users).length,
         gameStarted: lobby.gameStarted,
     }));
-}
-
-function checkUsername(name) {
-    for (const l of Object.keys(_lobbies)) {
-        for (const n of Object.values(_lobbies[l]['users'])) {
-            if (n === name) {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 //let correctGuesses = 0;
@@ -117,6 +113,7 @@ io.on('connection', (socket) => {
                 );
                 delete _lobbies[lobbyId].users[socketId];
             }
+            removeTakenName(username);
         }
 
         socket.join(lobbyId);
@@ -244,7 +241,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('check username', (name) => {
-        io.to(socket.id).emit('username taken', checkUsername(name));
+        let taken = takenNames.indexOf(name) === -1 ? false : true;
+        if (!taken) {
+            takenNames.push(name);
+        }
+        io.to(socket.id).emit('username checked', taken);
     });
 
     socket.on('list-lobbies', () => {
