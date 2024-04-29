@@ -7,6 +7,7 @@ import GameEnd from './components/GameEnd.js';
 import { useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
 import TopicLengthContainer from './components/topicLengthContainer.js';
+import imagineLogo from '../../assets/imagine-logo.png';
 
 function GameField() {
     const lobbyData = JSON.parse(sessionStorage.getItem('lobbyData'));
@@ -278,7 +279,13 @@ function GameField() {
                             <div className="first-three " id="lobby-id">
                                 Lobby kód: {localLobby}
                             </div>
-                            <div className="fourth">Imagine</div>
+                            <div className="fourth">
+                                <img
+                                    src={imagineLogo}
+                                    alt="Imagine"
+                                    className="ilogo"
+                                />
+                            </div>
                         </div>
                         <div id="gamefield-container">
                             <div id="left-container">
