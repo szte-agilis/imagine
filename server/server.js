@@ -254,7 +254,6 @@ io.on('connection', (socket) => {
     socket.on('lobby data changed', (lobbyId, lobbyData) => {
         const lobby = getLobby(lobbyId);
         lobby.name = lobbyData.name;
-        lobby.id = lobbyData.lobbyId;
         socket.to(lobbyId).emit('change lobby data', lobbyData);
         io.emit('list-lobbies', lobbiesStats());
     });
