@@ -113,7 +113,7 @@ function GameField() {
                             points > localUserPointsSum
                     );
                     if (overtaken) {
-                        setShowWarning(true);
+                        showWarningFunction();
                     }
                 }
             });
@@ -223,7 +223,16 @@ function GameField() {
                 easing: 'ease-in',
                 fill: 'forwards',
             }
-        ).onfinish = () => setShowWarning(false);
+        ).onfinish = () => {
+            warning.style.display = 'none';
+            setShowWarning(false);
+        };
+    }
+
+    function showWarningFunction() {
+        setShowWarning(true);
+
+        setTimeout(hideWarning, 3000);
     }
 
     const leaveGamePressed = () => {
