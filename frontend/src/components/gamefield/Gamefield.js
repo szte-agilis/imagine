@@ -300,32 +300,29 @@ function GameField() {
                                     nested
                                 >
                                     {(close) => (
-                                        <div
-                                            style={{
-                                                overlay: { zIndex: 1000 },
-                                            }}
-                                            id="leave-popup"
-                                        >
-                                            <div className="content">
-                                                {' '}
-                                                Biztosan feladod a játékot?
-                                            </div>
-
-                                            <div className="modal-button-container">
-                                                <button
-                                                    id="modal-leave-button"
-                                                    onClick={leaveGamePressed}
-                                                >
-                                                    Kilépés
-                                                </button>
-                                                <button
-                                                    className="modal-cancel-button"
-                                                    onClick={() => {
-                                                        close();
-                                                    }}
-                                                >
-                                                    Mégse
-                                                </button>
+                                        <div className="fixed inset-0 z-50 flex justify-center items-center">
+                                            <div className="absolute inset-0 bg-gray-900 bg-opacity-50 blur-lg"></div>
+                                            <div className="bg-white rounded-lg shadow-lg p-6 max-w-md relative">
+                                                <div className="text-lg font-semibold mb-4">
+                                                    Biztosan feladod a játékot?
+                                                </div>
+                                                <div className="flex justify-end space-x-4">
+                                                    <button
+                                                        id="modal-leave-button"
+                                                        onClick={
+                                                            leaveGamePressed
+                                                        }
+                                                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200"
+                                                    >
+                                                        Kilépés
+                                                    </button>
+                                                    <button
+                                                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-200"
+                                                        onClick={close}
+                                                    >
+                                                        Mégse
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     )}
