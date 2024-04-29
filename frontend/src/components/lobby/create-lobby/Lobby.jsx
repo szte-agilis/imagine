@@ -307,7 +307,7 @@ export default function App() {
         }
 
         window.removeEventListener('beforeunload', handleBeforeUnload);
-        socket.emit('start game clicked', localLobby);
+        socket.emit('start game clicked', localLobby, lobbyData);
     }
 
     const exit = async () => {
