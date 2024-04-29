@@ -25,7 +25,9 @@
 }
 #container {
     background-image: url('../../assets/background.jpg') !important;
-    font-family: 'Brush Script MT', cursive;
+    font-family:
+        Comic Sans,
+        cursive;
     height: 100%;
 }
 
@@ -111,6 +113,7 @@
 
 #left-container {
     display: flex;
+    padding-left: 10px;
     flex-direction: column;
     height: 100%;
 }
