@@ -10,8 +10,7 @@ import TopicLengthContainer from './components/topicLengthContainer.js';
 import imagineLogo from '../../assets/imagine-logo.png';
 
 function GameField() {
-    const lobbyData = JSON.parse(sessionStorage.getItem('lobbyData'));
-    const rounds = lobbyData.rounds;
+    const [rounds, setRounds] = useState(0);
     const [points, setPoints] = useState([]);
 
     const [socket, setSocket] = useState(null);
@@ -22,12 +21,12 @@ function GameField() {
         sessionStorage.getItem('lobby')
     );
     const [chatInput, setChatInput] = useState('');
-    const [currentRound, setCurrentRound] = useState(1);
+    const [currentRound, setCurrentRound] = useState(0);
     const [messages, setMessages] = useState([]);
     const [showWarning, setShowWarning] = useState(false);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
-    const [localTimer, setlocalTimer] = useState(lobbyData.roundTime);
+    const [localTimer, setlocalTimer] = useState(0);
     const chatWindow = document.getElementById('chat-window');
     const [isGameEnded, setIsGameEnded] = useState(false);
     const [guessSet, setGuessSet] = useState(true);
@@ -88,9 +87,12 @@ function GameField() {
                 setSolution();
             });
 
-            socket.on('new round', (currentRound) => {
-                setCurrentRound(currentRound);
-                if (rounds + 1 === currentRound) {
+            socket.on('game-data-sent', (lobby) => {
+                setRounds(lobby.rounds);
+                setlocalTimer(lobby.timer);
+                setCurrentRound(lobby.currentRound);
+                console.log(lobby.currentRound, ' és ', lobby.rounds);
+                if (lobby.currentRound - 1 === lobby.rounds) {
                     setIsGameEnded(true);
                 }
             });
