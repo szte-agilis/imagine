@@ -1,6 +1,6 @@
-import { CardTransform } from '../../data/CardTransform';
+import CardTransform from '../../data/CardTransform';
 import { MouseEventHandler, CSSProperties } from 'react';
-import { cardImages } from './ImageImports';
+import {cardImages} from '../../data/ImageImports';
 
 export default function Card({ transform, isSelected = false, selectCallback }: { transform: CardTransform, isSelected?: boolean, selectCallback: MouseEventHandler }) {
     const style: CSSProperties = {

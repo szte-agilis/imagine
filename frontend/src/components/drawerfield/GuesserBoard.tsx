@@ -1,14 +1,13 @@
-import CardViewer from './CardViewer';
+import CardViewer, { interpolateCardArray } from './CardViewer';
 import {useEffect, useState} from 'react';
-import {CardTransform} from '../../data/CardTransform';
+import CardTransform from '../../data/CardTransform';
 import {Socket} from 'socket.io-client';
-import {Vector2} from "../../data/Vector2";
 import Interpolator from "./Interpolator";
 
 export default function GuesserBoard({socket}: { socket: Socket | null }) {
     // the state of the cards
     let [actualCards, setActualCards] = useState([] as CardTransform[]);
-    let [displayedCards, setDisplayedCards] = useState([] as CardTransform[]);
+    const [displayedCards, setDisplayedCards] = useState([] as CardTransform[]);
 
     useEffect(() => {
         if(socket){
@@ -37,30 +36,6 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
         }
     }, [socket]);
 
-    function updateDisplayState(cards: CardTransform[]){
-        setDisplayedCards(cards);
-    }
-
-    // TODO: funny rotation
-    function interpolateCardArray(from: CardTransform[], to: CardTransform[], progress: number): CardTransform[] {
-        return to.map(toCard => {
-            const index = from.findIndex(card => card.id === toCard.id);
-
-            if(index === -1) {
-                return toCard;
-            }
-
-            const fromCard = from[index];
-
-            const x = fromCard.position.x + (toCard.position.x - fromCard.position.x) * progress;
-            const y = fromCard.position.y + (toCard.position.y - fromCard.position.y) * progress;
-            const rotation = fromCard.rotation + (toCard.rotation - fromCard.rotation) * progress;
-            const scale = fromCard.scale + (toCard.scale - fromCard.scale) * progress;
-
-            return new CardTransform(fromCard.id, new Vector2(x, y), rotation, scale);
-        });
-    }
-
     return (
         <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700">
             <div className="flex justify-center w-full h-8 bg-sky-700 min-h-8"></div>
@@ -70,12 +45,11 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
             />
 
             <Interpolator
-                initialState={[]}
                 targetState={actualCards}
                 stepCount={20}
                 stepDurationMs={10}
-                interpolatorFunction={interpolateCardArray}
-                updateFunction={updateDisplayState}
+                onInterpolate={interpolateCardArray}
+                onUpdate={setDisplayedCards}
             />
         </div>
     );

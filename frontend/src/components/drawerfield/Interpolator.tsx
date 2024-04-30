@@ -2,27 +2,25 @@ import {useEffect, useState} from "react";
 
 export default function Interpolator<T>(
     {
-        initialState,
         targetState,
         stepCount,
         stepDurationMs,
-        interpolatorFunction,
-        updateFunction
+        onInterpolate,
+        onUpdate
     }:
     {
-        initialState: T,
         targetState: T,
         stepCount: number,
         stepDurationMs: number,
-        interpolatorFunction: (from: T, to: T, progress: number) => T
-        updateFunction: (newState: T) => void
+        onInterpolate: (from: T, to: T, progress: number) => T
+        onUpdate: (newState: T) => void
     }) {
 
     // the current state of the interpolation
-    const [currentState, setCurrentState] = useState(initialState);
+    const [currentState, setCurrentState] = useState(targetState);
 
     // the starting state of the interpolation
-    const [fromState, setFromState] = useState(initialState);
+    const [fromState, setFromState] = useState(targetState);
 
     // the current interpolation step
     const [currentStep, setCurrentStep] = useState(-10);
@@ -39,14 +37,14 @@ export default function Interpolator<T>(
             const progress: number = currentStep / stepCount;
 
             // calculate the new state
-            const interpolatedState: T = interpolatorFunction(fromState, targetState, progress);
+            const interpolatedState: T = onInterpolate(fromState, targetState, progress);
 
             // update the state and the step counter
             setCurrentState(interpolatedState);
             setCurrentStep(currentStep + 1);
 
             // call the update function that will update the state of the parent component
-            updateFunction(interpolatedState);
+            onUpdate(interpolatedState);
         }, stepDurationMs);
 
         // clear the timer when the component is unmounted

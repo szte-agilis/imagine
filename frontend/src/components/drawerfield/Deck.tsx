@@ -1,4 +1,4 @@
-import { cardImages } from './ImageImports';
+import {cardImages} from '../../data/ImageImports';
 import {CSSProperties} from "react";
 
 export default function Deck({ onCardSelect, cardIds }: { onCardSelect: (index: number) => void, cardIds: number[] }) {
