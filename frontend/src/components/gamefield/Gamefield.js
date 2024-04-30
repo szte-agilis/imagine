@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import Board from '../drawerfield/Board';
-import Leaderboard from './Leaderboard';
+import Leaderboard from './components/Leaderboard';
 import './Gamefield.css';
-import './GameEnd.js';
-import GameEnd from './GameEnd.js';
+import GameEnd from './components/GameEnd.js';
 import { useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
+import TopicLengthContainer from './components/topicLengthContainer.js';
+import imagineLogo from '../../assets/imagine-logo.png';
 
 function GameField() {
-    const lobbyData = JSON.parse(sessionStorage.getItem('lobbyData'));
-    const rounds = lobbyData.rounds;
+    const [rounds, setRounds] = useState(0);
     const [points, setPoints] = useState([]);
 
     const [socket, setSocket] = useState(null);
@@ -21,12 +21,12 @@ function GameField() {
         sessionStorage.getItem('lobby')
     );
     const [chatInput, setChatInput] = useState('');
-    const [currentRound, setCurrentRound] = useState(1);
+    const [currentRound, setCurrentRound] = useState(0);
     const [messages, setMessages] = useState([]);
     const [showWarning, setShowWarning] = useState(false);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
-    const [localTimer, setlocalTimer] = useState(lobbyData.roundTime);
+    const [localTimer, setlocalTimer] = useState(0);
     const chatWindow = document.getElementById('chat-window');
     const [isGameEnded, setIsGameEnded] = useState(false);
     const [guessSet, setGuessSet] = useState(true);
@@ -35,7 +35,7 @@ function GameField() {
     const [correctGuessInfo, setCorrectGuessInfo] = useState(null);
     const navigate = useNavigate();
 
-    const [solution, setSolution] = useState('');
+    const [solution, setSolution] = useState(null);
     const [randomSolutions, setRandomSolutions] = useState([]);
 
     useEffect(() => {
@@ -87,9 +87,12 @@ function GameField() {
                 setSolution();
             });
 
-            socket.on('new round', (currentRound) => {
-                setCurrentRound(currentRound);
-                if (rounds + 1 === currentRound) {
+            socket.on('game-data-sent', (lobby) => {
+                setRounds(lobby.rounds);
+                setlocalTimer(lobby.timer);
+                setCurrentRound(lobby.currentRound);
+                console.log(lobby.currentRound, ' és ', lobby.rounds);
+                if (lobby.currentRound - 1 === lobby.rounds) {
                     setIsGameEnded(true);
                 }
             });
@@ -113,7 +116,7 @@ function GameField() {
                             points > localUserPointsSum
                     );
                     if (overtaken) {
-                        setShowWarning(true);
+                        showWarningFunction();
                     }
                 }
             });
@@ -223,7 +226,16 @@ function GameField() {
                 easing: 'ease-in',
                 fill: 'forwards',
             }
-        ).onfinish = () => setShowWarning(false);
+        ).onfinish = () => {
+            warning.style.display = 'none';
+            setShowWarning(false);
+        };
+    }
+
+    function showWarningFunction() {
+        setShowWarning(true);
+
+        setTimeout(hideWarning, 3000);
     }
 
     const leaveGamePressed = () => {
@@ -278,7 +290,13 @@ function GameField() {
                             <div className="first-three " id="lobby-id">
                                 Lobby kód: {localLobby}
                             </div>
-                            <div className="fourth">Imagine</div>
+                            <div className="fourth">
+                                <img
+                                    src={imagineLogo}
+                                    alt="Imagine"
+                                    className="ilogo"
+                                />
+                            </div>
                         </div>
                         <div id="gamefield-container">
                             <div id="left-container">
@@ -300,32 +318,29 @@ function GameField() {
                                     nested
                                 >
                                     {(close) => (
-                                        <div
-                                            style={{
-                                                overlay: { zIndex: 1000 },
-                                            }}
-                                            id="leave-popup"
-                                        >
-                                            <div className="content">
-                                                {' '}
-                                                Biztosan feladod a játékot?
-                                            </div>
-
-                                            <div className="modal-button-container">
-                                                <button
-                                                    id="modal-leave-button"
-                                                    onClick={leaveGamePressed}
-                                                >
-                                                    Kilépés
-                                                </button>
-                                                <button
-                                                    className="modal-cancel-button"
-                                                    onClick={() => {
-                                                        close();
-                                                    }}
-                                                >
-                                                    Mégse
-                                                </button>
+                                        <div className="fixed inset-0 z-50 flex justify-center items-center">
+                                            <div className="absolute inset-0 bg-gray-900 bg-opacity-50 blur-lg"></div>
+                                            <div className="bg-white rounded-lg shadow-lg p-6 max-w-md relative">
+                                                <div className="text-lg font-semibold mb-4">
+                                                    Biztosan feladod a játékot?
+                                                </div>
+                                                <div className="flex justify-end space-x-4">
+                                                    <button
+                                                        id="modal-leave-button"
+                                                        onClick={
+                                                            leaveGamePressed
+                                                        }
+                                                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200"
+                                                    >
+                                                        Kilépés
+                                                    </button>
+                                                    <button
+                                                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-200"
+                                                        onClick={close}
+                                                    >
+                                                        Mégse
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -333,30 +348,37 @@ function GameField() {
 
                                 {canDraw && randomSolutions.length > 0 && (
                                     <div>
-                                        <h2>Choose a solution:</h2>
-                                        {randomSolutions.map(
-                                            (solution, index) => (
-                                                <button
-                                                    id={index.toString()}
-                                                    className="button_class"
-                                                    key={index}
-                                                    onClick={() => {
-                                                        startGameTimer(
-                                                            solution
-                                                        );
-                                                        clearChat();
-                                                        setSolution(solution);
-                                                    }}
-                                                >
-                                                    {solution}
-                                                </button>
-                                            )
-                                        )}
+                                        <div className="modal-background">
+                                            <div className="modal-content">
+                                                <h2>Choose a solution:</h2>
+                                                <br />
+                                                {randomSolutions.map(
+                                                    (solution, index) => (
+                                                        <button
+                                                            id={index.toString()}
+                                                            className="solution-button"
+                                                            key={index}
+                                                            onClick={() => {
+                                                                startGameTimer(
+                                                                    solution
+                                                                );
+                                                                clearChat();
+                                                                setSolution(
+                                                                    solution
+                                                                );
+                                                            }}
+                                                        >
+                                                            {solution.solution}
+                                                        </button>
+                                                    )
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                                 {canDraw && solution && (
                                     <div id="solution" className="div_style">
-                                        Megfejtés: {solution}
+                                        Megfejtés: {solution.solution}
                                     </div>
                                 )}
                             </div>
@@ -366,6 +388,7 @@ function GameField() {
                                     localLobby={localLobby}
                                     socket={socket}
                                 />
+                                <TopicLengthContainer solution={solution} />
                             </div>
                             <div
                                 id="chat-container"
