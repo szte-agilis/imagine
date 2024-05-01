@@ -1,7 +1,8 @@
-import CardViewer, {interpolateCardArray} from './CardViewer';
 import {useEffect, useState} from 'react';
-import CardTransform from '../../data/CardTransform';
 import {Socket} from 'socket.io-client';
+import CardViewer, {addToBoard, interpolateCardArray, moveSelection, removeFromBoard, rotateSelection, scaleSelection} from './CardViewer';
+import CardTransform from '../../data/CardTransform';
+import Vector2 from "../../data/Vector2";
 import Interpolator from "./Interpolator";
 
 export default function GuesserBoard({socket}: { socket: Socket | null }) {
@@ -19,25 +20,62 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
         }
 
         // add a single card to the board
-        socket.on('card-add', function (card: CardTransform) {
-            setActualCards([...actualCards, card]);
+        socket.on('board-add', function (id: number) {
+            // add the card to the board
+            const result: CardTransform[] = addToBoard(actualCards, id);
+
+            // update the component state
+            setActualCards(result);
         })
 
-        // refresh the board with the new card array
-        socket.on('card-modify', function (transforms: CardTransform[]) {
-            setActualCards(transforms);
+        // rotate the selection
+        socket.on('board-rotate', function (selection: number[], angle: number) {
+            // rotate the selection
+            const result: CardTransform[] = rotateSelection(actualCards, selection, angle);
+
+            // update the component state
+            setActualCards(result);
+        });
+
+        // scale the selection
+        socket.on('board-scale', function (selection: number[], scale: number) {
+            // scale the selection
+            const result: CardTransform[] = scaleSelection(actualCards, selection, scale);
+
+            // update the component state
+            setActualCards(result);
+        });
+
+        // move the selection
+        socket.on('board-move', function (selection: number[], vector: Vector2) {
+            // move the selection
+            const result: CardTransform[] = moveSelection(actualCards, selection, vector);
+
+            // update the component state
+            setActualCards(result);
         });
 
         // clear the board
-        socket.on('reset', function () {
+        socket.on('board-remove', function (ids: number[]) {
+            // move the selection
+            const result: CardTransform[] = removeFromBoard(actualCards, ids);
+
+            // update the component state
+            setActualCards(result);
+        });
+
+        // clear the board
+        socket.on('board-reset', function () {
             setActualCards([]);
         });
 
         // must remove event listeners so they are not added multiple times
         return () => {
-            socket.off('card-add');
-            socket.off('card-modify');
-            socket.off('reset');
+            socket.off('board-add');
+            socket.off('board-rotate');
+            socket.off('board-scale');
+            socket.off('board-move');
+            socket.off('board-reset');
         }
     }, [socket, setActualCards, actualCards]);
 

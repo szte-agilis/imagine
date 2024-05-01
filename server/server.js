@@ -294,7 +294,6 @@ io.on('connection', (socket) => {
                 break;
             }
         }
-        io.to(lobbyId).emit('reset canvas', lobbyId);
 
         lobby.counter += 1;
         console.log('counter' + lobby.counter);
@@ -326,7 +325,7 @@ io.on('connection', (socket) => {
     socket.on('startGame', ({ lobbyId, pickedSolution }) => {
         const lobby = getLobby(lobbyId);
 
-        io.to(lobbyId).emit('reset');
+        io.to(lobbyId).emit('board-reset');
 
         io.to(lobby.drawerSocketId).emit(
             'points',
@@ -452,16 +451,24 @@ io.on('connection', (socket) => {
         io.emit('list-lobbies', lobbiesStats());
     });
 
-    socket.on('card-add', (lobbyId, card) => {
-        io.to(lobbyId).emit('card-add', card);
+    socket.on('board-add', (lobbyId, id) => {
+        io.to(lobbyId).emit('board-add', id);
     });
 
-    socket.on('card-modify', (lobbyId, cards) => {
-        io.to(lobbyId).emit('card-modify', cards);
+    socket.on('board-remove', (lobbyId, ids) => {
+        io.to(lobbyId).emit('board-remove', ids);
     });
 
-    socket.on('card-remove', (lobbyId, indexes) => {
-        io.to(lobbyId).emit('card-remove', indexes);
+    socket.on('board-rotate', (lobbyId, selection, angle) => {
+        io.to(lobbyId).emit('board-rotate', selection, angle);
+    });
+
+    socket.on('board-scale', (lobbyId, selection, scale) => {
+        io.to(lobbyId).emit('board-scale', selection, scale);
+    });
+
+    socket.on('board-move', (lobbyId, selection, vector) => {
+        io.to(lobbyId).emit('board-move', selection, vector);
     });
 });
 
