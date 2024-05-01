@@ -20,12 +20,6 @@ app.get('*', (req, res) =>
 
 let _lobbies = {};
 let takenNames = [];
-function removeTakenName(name) {
-    let index = takenNames.indexOf(name);
-    if (index !== -1) {
-        takenNames.splice(index, 1);
-    }
-}
 
 function getLobby(lobbyId) {
     console.debug('getLobby', { id: lobbyId });
@@ -113,7 +107,6 @@ io.on('connection', (socket) => {
                 );
                 delete _lobbies[lobbyId].users[socketId];
             }
-            removeTakenName(username);
         }
 
         socket.join(lobbyId);
@@ -241,11 +234,20 @@ io.on('connection', (socket) => {
     });
 
     socket.on('check username', (name) => {
-        let taken = takenNames.indexOf(name) === -1 ? false : true;
+        let taken = Object.values(takenNames).includes(name);
         if (!taken) {
-            takenNames.push(name);
+            taken = Object.values(_lobbies)
+                .map((l) => {
+                    return Object.values(l.users);
+                })
+                .flat()
+                .includes(name);
         }
         io.to(socket.id).emit('username checked', taken);
+    });
+
+    socket.on('take username', (name) => {
+        takenNames[socket.id] = name;
     });
 
     socket.on('list-lobbies', () => {
@@ -408,6 +410,10 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
+        if (Object.keys(takenNames).includes(socket.id)) {
+            delete takenNames[socket.id];
+        }
+
         const lobbyId = Object.keys(_lobbies).find(
             (id) => _lobbies[id].users[socket.id]
         );

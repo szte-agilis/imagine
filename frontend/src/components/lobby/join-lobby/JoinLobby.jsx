@@ -27,6 +27,8 @@ export default function App() {
         setSocket(newSocket);
         newSocket.emit('list-lobbies');
 
+        newSocket.emit('take username', sessionStorage.getItem("username"));
+
         newSocket.on('list-lobbies', (lobbies) => {
             setLobbies(lobbies);
             console.log(lobbies);
