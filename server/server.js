@@ -89,6 +89,7 @@ io.on('connection', (socket) => {
                 users: {},
                 drawerSocketId: null,
                 drawerAssigned: false,
+                roundLength: 150,
                 timer: 150,
                 buttonState: 'Click me!',
                 solution: 'biztosnemtalaljakisenki',
@@ -154,11 +155,15 @@ io.on('connection', (socket) => {
         }
 
         io.to(lobbyId).emit('user list', Object.values(lobby.users));
+        io.to(lobbyId).emit('game-data-sent', lobby);
         io.emit('list-lobbies', lobbiesStats());
     });
 
-    socket.on('start game clicked', (lobbyId) => {
+    socket.on('start game clicked', (lobbyId, lobbyData) => {
         const lobby = getLobby(lobbyId);
+        lobby.timer = lobbyData.roundTime;
+        lobby.roundLength = lobbyData.roundTime;
+        lobby.rounds = Number(lobbyData.rounds);
         lobby.users = {};
         lobby.gameStarted = true;
         io.emit('list-lobbies', lobbiesStats());
@@ -257,7 +262,6 @@ io.on('connection', (socket) => {
     socket.on('lobby data changed', (lobbyId, lobbyData) => {
         const lobby = getLobby(lobbyId);
         lobby.name = lobbyData.name;
-        lobby.id = lobbyData.lobbyId;
         socket.to(lobbyId).emit('change lobby data', lobbyData);
         io.emit('list-lobbies', lobbiesStats());
     });
@@ -285,6 +289,7 @@ io.on('connection', (socket) => {
 
     function passDrawer(lobbyId) {
         const lobby = getLobby(lobbyId);
+        lobby.timer = lobby.roundLength;
         const userIds = Object.keys(lobby.users);
         const currentDrawerIndex = userIds.indexOf(lobby.drawerSocketId);
         let nextDrawerIndex;
@@ -303,9 +308,9 @@ io.on('connection', (socket) => {
         console.log('counter' + lobby.counter);
         console.log('userids' + userIds.length);
         if (lobby.counter == userIds.length) {
-            io.to(lobbyId).emit('new round', lobby.currentRound + 1);
             lobby.currentRound++;
             lobby.counter = 0;
+            io.to(lobbyId).emit('game-data-sent', lobby);
         }
 
         userIds.forEach((id) => {
@@ -342,7 +347,7 @@ io.on('connection', (socket) => {
                 console.log(lobby.timer);
                 io.to(lobbyId).emit('timer', lobby.timer);
                 io.to(lobbyId).emit('solution', pickedSolution);
-                lobby.solution = pickedSolution;
+                lobby.solution = pickedSolution.solution;
             } else {
                 const numberOfPlayers = Object.keys(lobby.users).length;
                 if (
@@ -359,6 +364,10 @@ io.on('connection', (socket) => {
                         Array.from(lobby.pointMap.entries())
                     );
                     console.log('drawer awarded(more correct): ' + 750);
+                } else if (
+                    lobby.correctGuesses === 0 // Senki sem talált helyesen
+                ) {
+                    console.log('Nincs helyes tipp, nem kap pontot a rajzoló.');
                 } else if (
                     lobby.correctGuesses <
                     numberOfPlayers - 1 - lobby.correctGuesses
@@ -397,7 +406,6 @@ io.on('connection', (socket) => {
                 passDrawer(lobbyId);
             }
         }, 1000);
-        lobby.timer = 150;
     });
 
     socket.on('clearChat', (lobbyId) => {
