@@ -10,7 +10,7 @@
     align-items: center;
     height: 70vmin;
     min-height: 70vh;
-    width: 100vmin;
+    width: 70%;
     position: relative;
 }
 
@@ -88,6 +88,32 @@
     margin-bottom: 1vmin;
     padding: 1vmin 0 1vmin 2vmin;
     border-radius: 10px;
+}
+
+@media screen and (max-width: 1300px) {
+    .lobby {
+        flex-direction: column;
+        height: unset;
+    }
+    .join-button {
+        border-radius: 10px;
+    }
+    .lobby p {
+        margin-bottom: 0.5vmin;
+    }
+}
+
+.popup-body {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.button-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3vmin;
+    gap: 2vmin;
 }
 
 #root-join {

@@ -34,6 +34,7 @@ function lobbiesStats() {
     return Object.entries(_lobbies).map(([id, lobby]) => ({
         id: lobby.id,
         name: lobby.name,
+        password: lobby.password,
         users: Object.values(lobby.users).length,
         gameStarted: lobby.gameStarted,
     }));
@@ -87,6 +88,7 @@ io.on('connection', (socket) => {
                 id: lobbyId,
                 name: '',
                 users: {},
+                password: '',
                 drawerSocketId: null,
                 drawerAssigned: false,
                 roundLength: 150,
@@ -262,6 +264,7 @@ io.on('connection', (socket) => {
     socket.on('lobby data changed', (lobbyId, lobbyData) => {
         const lobby = getLobby(lobbyId);
         lobby.name = lobbyData.name;
+        lobby.password = lobbyData.password;
         socket.to(lobbyId).emit('change lobby data', lobbyData);
         io.emit('list-lobbies', lobbiesStats());
     });
