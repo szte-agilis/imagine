@@ -1,16 +1,13 @@
 import {useEffect, useState} from 'react';
 import {Socket} from 'socket.io-client';
-import CardViewer, {addToBoard, interpolateCardArray, moveSelection, removeFromBoard, rotateSelection, scaleSelection} from './CardViewer';
+import {addToBoard, interpolateCardArray, moveSelection, removeFromBoard, rotateSelection, scaleSelection} from '../../data/TransformFunctions';
 import CardTransform from '../../data/CardTransform';
 import Vector2 from "../../data/Vector2";
-import Interpolator from "./Interpolator";
+import CardViewer from "./CardViewer";
 
 export default function GuesserBoard({socket}: { socket: Socket | null }) {
     // the state of the card array
     const [actualCards, setActualCards] = useState([] as CardTransform[]);
-
-    // the displayed state of the card array
-    const [displayedCards, setDisplayedCards] = useState([] as CardTransform[]);
 
     // handle socket events
     useEffect(() => {
@@ -84,15 +81,10 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
             <div className="flex justify-center w-full h-8 bg-sky-700 min-h-8"></div>
 
             <CardViewer
-                cards={displayedCards}
-            />
-
-            <Interpolator
                 targetState={actualCards}
                 stepCount={20}
                 stepDurationMs={10}
                 onInterpolate={interpolateCardArray}
-                onUpdate={setDisplayedCards}
             />
         </div>
     );

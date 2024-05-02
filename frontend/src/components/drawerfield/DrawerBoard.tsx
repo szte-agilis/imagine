@@ -1,11 +1,11 @@
 import {useState, useEffect} from 'react';
-import CardViewer, {scaleSelection, rotateSelection, moveSelection, interpolateCardArray, removeFromBoard, addToBoard} from './CardViewer';
+import {scaleSelection, rotateSelection, moveSelection, interpolateCardArray, removeFromBoard, addToBoard} from '../../data/TransformFunctions';
 import Deck from './Deck';
 import CardTransform from '../../data/CardTransform';
 import Vector2 from '../../data/Vector2';
 import {cardImages} from '../../data/ImageImports';
 import {Socket} from 'socket.io-client';
-import Interpolator from './Interpolator';
+import CardViewer from './CardViewer';
 
 // the number of milliseconds to wait between card position updates
 // lower number -> faster updates, smoother movement, more network and CPU used
@@ -17,9 +17,6 @@ const cardRemoveMargin: number = 1;
 export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null, socket: Socket | null }) {
     // the state of the card array
     const [actualCards, setActualCards] = useState([] as CardTransform[]);
-
-    // the displayed state of the card array
-    const [displayedCards, setDisplayedCards] = useState([] as CardTransform[]);
 
     // the indexes of the cards in the current selection
     const [selection, setSelection] = useState([] as number[]);
@@ -92,6 +89,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             return pos.x < cardRemoveMargin || pos.x > 100 - cardRemoveMargin || pos.y < cardRemoveMargin || pos.y > 100 - cardRemoveMargin;
         }).map((card: CardTransform) => card.id);
 
+        // reset the selection
+        setSelection([]);
+
         // remove the cards moved outside
         handleRemove(idsToRemove);
     }
@@ -158,6 +158,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
     // remove cards from the board
     function handleRemove(ids: number[]): void {
+        // no cards to remove, do nothing
+        if(ids.length === 0) {
+            return;
+        }
+
         // remove the cards
         const cards: CardTransform[] = removeFromBoard(actualCards, ids);
 
@@ -168,15 +173,24 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
         // update cards and reset the selection
         setActualCards(cards);
-        setSelection([]);
     }
 
     // move the selected cards
     function handleMove(x: number, y: number): void {
+        // no movement, do nothing
+        if(x === 0 && y === 0){
+            return;
+        }
+
+        // no cards are selected, do nothing
+        if(selection.length === 0){
+            return;
+        }
+
         const vector: Vector2 = new Vector2(x / board.offsetWidth * 100, y / board.offsetHeight * 100);
 
         // move the selected cards
-        moveSelection(actualCards, selection, vector);
+        const cards: CardTransform[] = moveSelection(actualCards, selection, vector);
 
         // stream updates
         if (socket) {
@@ -184,16 +198,16 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         }
 
         // update cards
-        setActualCards([...actualCards]);
+        setActualCards(cards);
     }
 
     // rotate the selected cards
     function handleRotate(direction: number): void {
         // rotation amount in degrees
-        const amountDeg = 15 * direction;
+        const amountDeg: number = 15 * direction;
 
         // rotate the selection
-        rotateSelection(actualCards, selection, amountDeg);
+        const cards: CardTransform[] = rotateSelection(actualCards, selection, amountDeg);
 
         // stream updates
         if (socket) {
@@ -201,20 +215,20 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         }
 
         // update cards
-        setActualCards([...actualCards]);
+        setActualCards(cards);
     }
 
     // scale the selected cards
     function handleScale(amount: number): void {
         // scale the selection
-        scaleSelection(actualCards, selection, amount);
+        const cards: CardTransform[] = scaleSelection(actualCards, selection, amount);
 
         // stream updates
         if (socket) {
             socket.emit('board-scale', lobbyId, selection, amount);
         }
 
-        setActualCards([...actualCards]);
+        setActualCards(cards);
     }
 
     // select a card
@@ -273,17 +287,12 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             />}
 
             <CardViewer
-                cards={displayedCards}
-                selection={selection}
-                onCardSelect={selectCard}
-            />
-
-            <Interpolator
                 targetState={actualCards}
                 stepCount={5}
                 stepDurationMs={5}
                 onInterpolate={interpolateCardArray}
-                onUpdate={setDisplayedCards}
+                selection={selection}
+                onCardSelect={selectCard}
             />
         </div>
     );
