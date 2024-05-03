@@ -154,9 +154,7 @@ export default function App() {
                                                     value={password}
                                                     onChange={(e) => {
                                                         setPassword(e.target.value);
-                                                        if(e.target.value === '') {
-                                                            setWarningMessage('');
-                                                        }
+                                                        setWarningMessage('');
                                                     }}
                                                     placeholder="Jelszó">
                                                 </input>
