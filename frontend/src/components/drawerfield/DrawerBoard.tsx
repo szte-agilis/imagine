@@ -1,28 +1,21 @@
 import {useState, useEffect} from 'react';
-import {scaleSelection, rotateSelection, moveSelection, interpolateCardArray, removeFromBoard, addToBoard} from '../../data/TransformFunctions';
 import Deck from './Deck';
 import CardTransform from '../../data/CardTransform';
 import Vector2 from '../../data/Vector2';
 import {cardImages} from '../../data/ImageImports';
 import {Socket} from 'socket.io-client';
 import CardViewer from './CardViewer';
-
-// the number of milliseconds to wait between card position updates
-// lower number -> faster updates, smoother movement, more network and CPU used
-const updateFrequencyMs: number = 100;
+import {AddMessage, MoveMessage, RemoveMessage, RotateMessage, ScaleMessage} from "../../data/UpdateMessages";
 
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const cardRemoveMargin: number = 1;
 
 export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null, socket: Socket | null }) {
     // the state of the card array
-    const [actualCards, setActualCards] = useState([] as CardTransform[]);
+    const [cards, setCards] = useState([] as CardTransform[]);
 
     // the indexes of the cards in the current selection
     const [selection, setSelection] = useState([] as number[]);
-
-    // the time of the last card movement update
-    const [lastUpdate, setLastUpdate] = useState(Date.now());
 
     // is the deck currently open
     const [isDeckOpen, setIsDeckOpen] = useState(false);
@@ -37,7 +30,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
 
     // the array of cards in the deck (all the cards currently not placed on the board)
-    const cardsInDeck: number[] = cardImages.map((_, index) => index).filter(id => !actualCards.some(transform => transform.id === id));
+    const cardsInDeck: number[] = cardImages.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
 
     // handle keyboard and mouse events
     useEffect(() => {
@@ -47,7 +40,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         window.addEventListener('keydown', onKeyDown);
         window.addEventListener('mousemove', onMouseMove);
 
-        // must remove event listeners so they are not added multiple times
+        // must remove event listeners, so they are not added multiple times
         return () => {
             window.removeEventListener('mousedown', onMouseDown);
             window.removeEventListener('mouseup', onMouseUp);
@@ -83,7 +76,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         }
 
         // get the ids of the cards that are moved outside the board
-        const idsToRemove = actualCards.filter((card: CardTransform) => {
+        const idsToRemove = cards.filter((card: CardTransform) => {
             const pos: Vector2 = card.position;
 
             return pos.x < cardRemoveMargin || pos.x > 100 - cardRemoveMargin || pos.y < cardRemoveMargin || pos.y > 100 - cardRemoveMargin;
@@ -146,14 +139,15 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
     // add a card to the board
     function handleAdd(id: number): void {
-        const cards: CardTransform[] = addToBoard(actualCards, id);
-
-        setActualCards(cards);
-        setIsDeckOpen(false);
+        const message: AddMessage = new AddMessage(Date.now(), id);
 
         if (socket) {
-            socket.emit('board-add', lobbyId, id);
+            socket.emit('board-add', lobbyId, message.timestamp, message.id);
+            console.log(message);
         }
+
+        setCards(message.apply(cards));
+        setIsDeckOpen(false);
     }
 
     // remove cards from the board
@@ -163,16 +157,15 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             return;
         }
 
-        // remove the cards
-        const cards: CardTransform[] = removeFromBoard(actualCards, ids);
+        const message: RemoveMessage = new RemoveMessage(Date.now(), ids);
 
         // stream updates
         if (socket) {
-            socket.emit('board-remove', lobbyId, ids);
+            socket.emit('board-remove', lobbyId, message.timestamp, message.selection);
         }
 
         // update cards and reset the selection
-        setActualCards(cards);
+        setCards(message.apply(cards));
     }
 
     // move the selected cards
@@ -189,16 +182,15 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
         const vector: Vector2 = new Vector2(x / board.offsetWidth * 100, y / board.offsetHeight * 100);
 
-        // move the selected cards
-        const cards: CardTransform[] = moveSelection(actualCards, selection, vector);
+        const message: MoveMessage = new MoveMessage(Date.now(), selection, vector);
 
         // stream updates
         if (socket) {
-            socket.emit('board-move', lobbyId, selection, vector);
+            socket.emit('board-move', lobbyId, message.timestamp, message.selection, message.vector);
         }
 
         // update cards
-        setActualCards(cards);
+        setCards(message.apply(cards));
     }
 
     // rotate the selected cards
@@ -206,29 +198,28 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         // rotation amount in degrees
         const amountDeg: number = 15 * direction;
 
-        // rotate the selection
-        const cards: CardTransform[] = rotateSelection(actualCards, selection, amountDeg);
+        const message: RotateMessage = new RotateMessage(Date.now(), selection, amountDeg);
 
         // stream updates
         if (socket) {
-            socket.emit('board-rotate', lobbyId, selection, amountDeg);
+            socket.emit('board-rotate', lobbyId, message.timestamp, message.selection, message.angle);
         }
 
         // update cards
-        setActualCards(cards);
+        setCards(message.apply(cards));
     }
 
     // scale the selected cards
     function handleScale(amount: number): void {
         // scale the selection
-        const cards: CardTransform[] = scaleSelection(actualCards, selection, amount);
+        const message: ScaleMessage = new ScaleMessage(Date.now(), selection, amount);
 
         // stream updates
         if (socket) {
-            socket.emit('board-scale', lobbyId, selection, amount);
+            socket.emit('board-scale', lobbyId, message.timestamp, message.selection, message.scale);
         }
 
-        setActualCards(cards);
+        setCards(message.apply(cards));
     }
 
     // select a card
@@ -254,22 +245,6 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         }
     }
 
-    // send updates to the lobby
-    /*function sendUpdates(force: boolean = false): void {
-        // calculate elapsed time since last update
-        const now: number = Date.now();
-        const elapsed: number = now - lastUpdate;
-
-        // update the cards if enough time has passed
-        if (force || elapsed >= updateFrequencyMs) {
-            setLastUpdate(now);
-
-            if (socket) {
-                socket.emit('card-modify', lobbyId, actualCards);
-            }
-        }
-    }*/
-
     // template
     return (
         <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700" onWheel={e => handleRotate(e.deltaY > 0 ? 1 : -1)}>
@@ -287,10 +262,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             />}
 
             <CardViewer
-                targetState={actualCards}
+                targetState={cards}
                 stepCount={5}
                 stepDurationMs={5}
-                onInterpolate={interpolateCardArray}
                 selection={selection}
                 onCardSelect={selectCard}
             />

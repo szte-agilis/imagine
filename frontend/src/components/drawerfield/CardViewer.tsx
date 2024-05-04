@@ -1,14 +1,15 @@
 import {useEffect, useState} from "react";
 import CardTransform from "../../data/CardTransform";
 import Card from "./Card";
-import {BOARD_ASPECT_RATIO} from "../../data/TransformFunctions";
+import Vector2 from "../../data/Vector2";
+
+export const BOARD_ASPECT_RATIO: number = 16.0 / 9.0;
 
 export default function CardViewer(
     {
         targetState,
         stepCount,
         stepDurationMs,
-        onInterpolate,
         selection = [],
         onCardSelect
     }:
@@ -16,7 +17,6 @@ export default function CardViewer(
         targetState: CardTransform[],
         stepCount: number,
         stepDurationMs: number,
-        onInterpolate: (from: CardTransform[], to: CardTransform[], progress: number) => CardTransform[]
         selection?: number[],
         onCardSelect?: (i: number) => void
     }) {
@@ -42,7 +42,7 @@ export default function CardViewer(
             const progress: number = currentStep / stepCount;
 
             // calculate the new state
-            const interpolatedState: CardTransform[] = onInterpolate(fromState, targetState, progress);
+            const interpolatedState: CardTransform[] = interpolateCardArray(fromState, targetState, progress);
 
             // update the state and the step counter
             setCurrentState(interpolatedState);
@@ -75,4 +75,24 @@ export default function CardViewer(
             })}
         </div>
     );
+}
+
+// interpolate an array of cards
+function interpolateCardArray(from: CardTransform[], to: CardTransform[], progress: number): CardTransform[] {
+    return to.map(toCard => {
+        const index = from.findIndex(card => card.id === toCard.id);
+
+        if(index === -1) {
+            return toCard;
+        }
+
+        const fromCard = from[index];
+
+        const x = fromCard.position.x + (toCard.position.x - fromCard.position.x) * progress;
+        const y = fromCard.position.y + (toCard.position.y - fromCard.position.y) * progress;
+        const rotation = fromCard.rotation + (toCard.rotation - fromCard.rotation) * progress;
+        const scale = fromCard.scale + (toCard.scale - fromCard.scale) * progress;
+
+        return new CardTransform(fromCard.id, new Vector2(x, y), rotation, scale);
+    });
 }
