@@ -96,6 +96,12 @@ export default function App() {
         }
     }
 
+    const exit = async () => {
+        startTransition(() => {
+            navigate("/");
+        })
+    }
+
     return (
         <main id="root-join">
             <div id="container-join">
@@ -186,6 +192,7 @@ export default function App() {
                 </div>
                 <div id="shadow-join"></div>
             </div>
+            <button id="exit-button" className="btn btn-error" onClick={exit}>Vissza</button>
             <BackgroundImage />
         </main>
     );
