@@ -1,202 +1,52 @@
 [
-  {
-    "solution": "Karácsony",
-    "topic": "Ünnep"
-  },
-  {
-    "solution": "Valentin nap",
-    "topic": "Ünnep"
-  },
-  {
-    "solution": "Trónok Harca",
-    "topic": "Film vagy sorozat"
-  },
-  {
-    "solution": "Rómeó és Júlia",
-    "topic": "Film vagy sorozat"
-  },
-  {
-    "solution": "Titanic",
-    "topic": "Film vagy sorozat"
-  },
-  {
-    "solution": "A Gyűrűk Ura",
-    "topic": "Film vagy sorozat"
-  },
-  {
-    "solution": "Szépség és a szörnyeteg",
-    "topic": "Film vagy sorozat"
-  },
-  {
-    "solution": "Tengerpart",
-    "topic": "Helyszín"
-  },
-  {
-    "solution": "Börtön",
-    "topic": "Helyszín"
-  },
-  {
-    "solution": "Szabadság szobor",
-    "topic": "Helyszín"
-  },
-  {
-    "solution": "Iskola",
-    "topic": "Helyszín"
-  },
-  {
-    "solution": "Koncert",
-    "topic": "Helyszín"
-  },
-  {
-    "solution": "Kutyasétáltatás",
-    "topic": "Tevékenység"
-  },
-  {
-    "solution": "Reggeli",
-    "topic": "Mindennapok"
-  },
-  {
-    "solution": "Napozás",
-    "topic": "Tevékenység"
-  },
-  {
-    "solution": "Autóversenyzés",
-    "topic": "Sport"
-  },
-  {
-    "solution": "Kerékpározás",
-    "topic": "Sport"
-  },
-  {
-    "solution": "Falmászás",
-    "topic": "Sport"
-  },
-  {
-    "solution": "Futás",
-    "topic": "Sport"
-  },
-  {
-    "solution": "Táncolás",
-    "topic": "Sport"
-  },
-  {
-    "solution": "Horgászat",
-    "topic": "Tevékenység"
-  },
-  {
-    "solution": "Tenisz",
-    "topic": "Sport"
-  },
-  {
-    "solution": "Túrázás",
-    "topic": "Tevékenység"
-  },
-  {
-    "solution": "Vívás",
-    "topic": "Sport"
-  },
-  {
-    "solution": "Napfogyatkozás",
-    "topic": "Természet"
-  },
-  {
-    "solution": "Naplemente",
-    "topic": "Természet"
-  },
-  {
-    "solution": "Bátorság",
-    "topic": "Fogalom"
-  },
-  {
-    "solution": "Boldogság",
-    "topic": "Fogalom"
-  },
-  {
-    "solution": "Barátság",
-    "topic": "Fogalom"
-  },
-  {
-    "solution": "Veszély",
-    "topic": "Fogalom"
-  },
-  {
-    "solution": "Szeretet",
-    "topic": "Fogalom"
-  },
-  {
-    "solution": "Autómentesség",
-    "topic": "Fogalom"
-  },
-  {
-    "solution": "Baleset",
-    "topic": "Fogalom"
-  },
-  {
-    "solution": "Varázspálca",
-    "topic": "Objektum"
-  },
-  {
-    "solution": "Zseblámpa",
-    "topic": "Objektum"
-  },
-  {
-    "solution": "Kulcstartó",
-    "topic": "Objektum"
-  },
-  {
-    "solution": "Tengeralattjáró",
-    "topic": "Objektum"
-  },
-  {
-    "solution": "Nyalóka",
-    "topic": "Objektum"
-  },
-  {
-    "solution": "Radír",
-    "topic": "Objektum"
-  },
-  {
-    "solution": "Talicska",
-    "topic": "Objektum"
-  },
-  {
-    "solution": "Fagylalt",
-    "topic": "Objektum"
-  },
-  {
-    "solution": "Darabokra törted a szívem",
-    "topic": "Kifejezés"
-  },
-  {
-    "solution": "Rohan az idő",
-    "topic": "Kifejezés"
-  },
-  {
-    "solution": "Az idő pénz",
-    "topic": "Kifejezés"
-  },
-  {
-    "solution": "Honfoglalás",
-    "topic": "Történelem"
-  },
-  {
-    "solution": "Superman",
-    "topic": "Filmkarakter"
-  },
-  {
-    "solution": "Neil Armstrong",
-    "topic": "Híres ember"
-  },
-  {
-    "solution": "Jobbról előzés",
-    "topic": "Rossz ötlet"
-  },
-  {
-    "solution": "Sivatag",
-    "topic": "Földrajz"
-  },
-  {
-    "solution": "Óceán",
-    "topic": "Földrajz"
-  }
+  "Karácsony",
+  "Valentin nap",
+  "Trónok Harca",
+  "Rómeó és Júlia",
+  "Titanic",
+  "A Gyűrűk Ura",
+  "Szépség és a Szörnyeteg",
+  "Tengerpart",
+  "Börtön",
+  "Szabadság szobor",
+  "Iskola",
+  "Koncert",
+  "Kutyasétáltatás",
+  "Reggeli",
+  "Napozás",
+  "Autóversenyzés",
+  "Kerékpározás",
+  "Falmászás",
+  "Futás",
+  "Táncolás",
+  "Horgászat",
+  "Tenisz",
+  "Túrázás",
+  "Vívás",
+  "Napfogyatkozás",
+  "Naplemente",
+  "Bátorság",
+  "Boldogság",
+  "Barátság",
+  "Veszély",
+  "Szeretet",
+  "Autómentesség",
+  "Baleset",
+  "Varázspálca",
+  "Zseblámpa",
+  "Kulcstartó",
+  "Tengeralattjáró",
+  "Nyalóka",
+  "Radír",
+  "Talicska",
+  "Fagylalt",
+  "Darabokra törted a szívem",
+  "Rohan az idő",
+  "Az idő pénz",
+  "Honfoglalás",
+  "Superman",
+  "Neil Armstrong",
+  "Jobbról előzés",
+  "Sivatag",
+  "Óceán"
 ]

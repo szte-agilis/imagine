@@ -1,8 +1,10 @@
 import Leaderboard from './Leaderboard';
-import './styles/GameEnd.css';
+import './GameEnd.css';
 import { useImage } from 'react-image';
-import bgImg from '../../../assets/background.jpg';
+import React from 'react';
+import bgImg from '../../assets/background.jpg';
 import { useNavigate } from 'react-router-dom';
+
 function BackgroundImage() {
     const { src } = useImage({
         srcList: [bgImg, 'https://cdn.wallpapersafari.com/69/10/CEokAi.jpg'],

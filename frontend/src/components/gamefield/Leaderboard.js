@@ -1,4 +1,4 @@
-import './styles/Leaderboard.css';
+import './Leaderboard.css';
 
 const Leaderboard = (props) => {
     const { leaderboardArray, localPlayer } = props;

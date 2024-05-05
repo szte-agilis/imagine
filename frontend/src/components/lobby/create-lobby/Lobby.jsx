@@ -80,6 +80,7 @@ export default function App() {
 
     let categories = ["Gyerek", "Felnőtt", "Vicces", "Mém", "Programozó", "Politika"];
 
+    const [LOBBYID_MIN, LOBBYID_MAX] = [5, 10];
     const [LOBBYNAME_MIN, LOBBYNAME_MAX] = [5, 30];
     const [PASSWORD_MIN, PASSWORD_MAX] = [0, 30];
     const [ROUNDS_MIN, ROUNDS_MAX] = [1, 100];
@@ -99,10 +100,13 @@ export default function App() {
     });
 
     function lobbyDataOnlyValidate() {
+        if (lobbyData.lobbyId.length < LOBBYID_MIN || lobbyData.name.length > LOBBYID_MAX) {
+            return false;
+        }
         if (lobbyData.name.length < LOBBYNAME_MIN || lobbyData.name.length > LOBBYNAME_MAX) {
             return false;
         }
-        if (lobbyData.password.length > PASSWORD_MAX) {
+        if (lobbyData.password.length < PASSWORD_MIN || lobbyData.password.length > PASSWORD_MAX) {
             return false;
         }
         if (lobbyData.rounds < ROUNDS_MIN || lobbyData.rounds > ROUNDS_MAX) {
@@ -122,13 +126,19 @@ export default function App() {
     }
 
     function lobbyDataValid() {
+        if (lobbyData.lobbyId.length < LOBBYID_MIN || lobbyData.name.length > LOBBYID_MAX) {
+            setWarningMessage("Nem megfelelő hosszú lobby kód! [" + LOBBYID_MIN + "," + LOBBYID_MAX + "] ");
+            setShowWarning(true);
+            return false;
+        }
+
         if (lobbyData.name.length < LOBBYNAME_MIN || lobbyData.name.length > LOBBYNAME_MAX) {
             setWarningMessage("Nem megfelelő szoba név hossz! [" + LOBBYNAME_MIN + "," + LOBBYNAME_MAX + "] ");
             setShowWarning(true);
             return false;
         }
 
-        if (lobbyData.password.length > PASSWORD_MAX) {
+        if (lobbyData.password.length < PASSWORD_MIN || lobbyData.password.length > PASSWORD_MAX) {
             setWarningMessage("Nem megfelelő jelszó hossz! [" + PASSWORD_MIN + "," + PASSWORD_MAX + "] ");
             setShowWarning(true);
             return false;
@@ -297,7 +307,7 @@ export default function App() {
         }
 
         window.removeEventListener('beforeunload', handleBeforeUnload);
-        socket.emit('start game clicked', localLobby, lobbyData);
+        socket.emit('start game clicked', localLobby);
     }
 
     const exit = async () => {
@@ -330,13 +340,14 @@ export default function App() {
                     </div>
                     <div className="mx-auto bg-gray-800" id="settings-column">
                         <div className="relative z-0 w-full mb-5 group">
-                            <input type="text" name="lobbyId" id="lobbyId"
+                            <input type="text" name="lobbyId" id="lobbyId" disabled={!IsOwner(localUsername)}
                                    className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                                    required
-                                    disabled
+                                   required
                                    value={lobbyData.lobbyId}
                                    onChange={handleFormChange}
                                    onBlur={handleFormChangeOnBlur}
+                                   minLength={LOBBYID_MIN}
+                                   maxLength={LOBBYID_MAX}
                             />
                             <label htmlFor="lobbyId"
                                    className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Lobby ID</label>
@@ -352,7 +363,7 @@ export default function App() {
                                    maxLength={LOBBYNAME_MAX}
                             />
                             <label htmlFor="name"
-                                   className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Szobanév*</label>
+                                   className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Szobanév</label>
                         </div>
                         <div className="relative z-0 w-full mb-5 group">
                             <input type="password" name="password" id="password" disabled={!IsOwner(localUsername)}

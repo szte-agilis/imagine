@@ -15,6 +15,7 @@ export default function App() {
     const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
+    const [usernameTaken, setUsernameTaken] = useState(false);
 
     useEffect(() => {
         const storedUsername = sessionStorage.getItem("username");
@@ -26,17 +27,12 @@ export default function App() {
     useEffect(() => {
         const newSocket = io();
         setSocket(newSocket);
-    }, []);
-
-    function checkUsername(name) {
-        return new Promise((resolve, reject) => {
-            socket.emit('check username', username.trim());
-
-            socket.once('username checked', (taken) => {
-                resolve(taken);
-            });
+        newSocket.emit('check username', username);
+        newSocket.on('username taken', (taken) => {
+            setUsernameTaken(taken);
         });
-    }
+        return () => newSocket.close();
+    }, [username]);
 
     function BackgroundImage() {
         const { src } = useImage({
@@ -131,7 +127,7 @@ export default function App() {
             return;
         }
 
-        if (await checkUsername(username.trim())) {
+        if (usernameTaken) {
             setWarningMessage("Ezzel a névvel már valaki játszik.");
             setShowWarning(true);
             return;
@@ -159,7 +155,7 @@ export default function App() {
             return;
         }
 
-        if (await checkUsername(username.trim())) {
+        if (usernameTaken) {
             setWarningMessage("Ezzel a névvel már valaki játszik.");
             setShowWarning(true);
             return;

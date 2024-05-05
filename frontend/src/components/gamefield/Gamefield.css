@@ -6,29 +6,11 @@
     color: white;
     cursor: pointer;
 }
-.solution-button {
-    border: 1px solid #00cfbd;
-    padding: 5px;
-    font-size: 20px;
-    margin-right: 10px;
-    margin-left: 10px;
-    border-radius: 5px; /* Changed to hyphenated form */
-    background-color: transparent; /* Changed to hyphenated form */
-    color: #00cfbd;
-    cursor: pointer;
-}
-.solution-button:hover {
-    background-color: darkslategrey;
-}
 .div_style {
     margin-top: 20px;
 }
 #container {
-    background-image: url('../../assets/background.jpg') !important;
-    font-family:
-        Comic Sans,
-        cursive;
-    height: 100%;
+    height: 80%;
 }
 
 .header-bar {
@@ -54,9 +36,7 @@
     margin-left: auto;
     margin-right: 2rem;
 }
-.ilogo {
-    height: 50px;
-}
+
 #chat-container {
     float: right;
     height: 100%;
@@ -113,7 +93,6 @@
 
 #left-container {
     display: flex;
-    padding-left: 10px;
     flex-direction: column;
     height: 100%;
 }
@@ -146,7 +125,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 10000000000000;
+    z-index: 1;
     background-color: #1f2937;
     padding: 20px 40px;
     border-radius: 10px;
@@ -183,41 +162,6 @@
     border-radius: 3px;
     background-color: lightsalmon;
     padding: 5px 10px;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-.modal-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    font-size: 20px;
-    font-weight: bold;
-    animation: fadeIn 1s;
-}
-
-.modal-content {
-    background-color: #252729;
-    border: 1px solid #00cfbd;
-    color: #00cfbd;
-    padding: 20px;
-    text-align: center;
-    border-radius: 10px;
-    animation: fadeIn 1s;
 }
 
 @keyframes flashGreen {
