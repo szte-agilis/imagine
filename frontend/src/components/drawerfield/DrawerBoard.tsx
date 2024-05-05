@@ -142,11 +142,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         const message: AddMessage = new AddMessage(Date.now(), id);
 
         if (socket) {
-            socket.emit('board-add', lobbyId, message.timestamp, message.id);
+            socket.emit('board-add', lobbyId, message.duration, message.id);
             console.log(message);
         }
 
-        setCards(message.apply(cards));
+        setCards(message.apply(cards, 1));
         setIsDeckOpen(false);
     }
 
@@ -161,11 +161,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
         // stream updates
         if (socket) {
-            socket.emit('board-remove', lobbyId, message.timestamp, message.selection);
+            socket.emit('board-remove', lobbyId, message.duration, message.selection);
         }
 
         // update cards and reset the selection
-        setCards(message.apply(cards));
+        setCards(message.apply(cards, 1));
     }
 
     // move the selected cards
@@ -186,11 +186,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
         // stream updates
         if (socket) {
-            socket.emit('board-move', lobbyId, message.timestamp, message.selection, message.vector);
+            socket.emit('board-move', lobbyId, message.duration, message.selection, message.vector);
         }
 
         // update cards
-        setCards(message.apply(cards));
+        setCards(message.apply(cards, 1));
     }
 
     // rotate the selected cards
@@ -202,11 +202,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
         // stream updates
         if (socket) {
-            socket.emit('board-rotate', lobbyId, message.timestamp, message.selection, message.angle);
+            socket.emit('board-rotate', lobbyId, message.duration, message.selection, message.angle);
         }
 
         // update cards
-        setCards(message.apply(cards));
+        setCards(message.apply(cards, 1));
     }
 
     // scale the selected cards
@@ -216,10 +216,10 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
         // stream updates
         if (socket) {
-            socket.emit('board-scale', lobbyId, message.timestamp, message.selection, message.scale);
+            socket.emit('board-scale', lobbyId, message.duration, message.selection, message.scale);
         }
 
-        setCards(message.apply(cards));
+        setCards(message.apply(cards, 1));
     }
 
     // select a card
@@ -262,9 +262,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
             />}
 
             <CardViewer
-                targetState={cards}
-                stepCount={5}
-                stepDurationMs={5}
+                cards={cards}
                 selection={selection}
                 onCardSelect={selectCard}
             />

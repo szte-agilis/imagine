@@ -3,11 +3,14 @@ import {Socket} from 'socket.io-client';
 import CardTransform from '../../data/CardTransform';
 import Vector2 from "../../data/Vector2";
 import CardViewer from "./CardViewer";
+import Interpolator from "./Interpolator";
 import {AddMessage, MoveMessage, RemoveMessage, ResetMessage, RotateMessage, ScaleMessage, UpdateMessage} from "../../data/UpdateMessages";
 
 export default function GuesserBoard({socket}: { socket: Socket | null }) {
     // the state of the card array
     const [cards, setCards] = useState([] as CardTransform[]);
+
+    const [queue, setQueue] = useState([] as UpdateMessage[]);
 
     // handle socket events
     useEffect(() => {
@@ -18,42 +21,42 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
 
         // add a single card to the board
         socket.on('board-add', (timestamp: number, id: number) => {
-            const message: AddMessage = new AddMessage(timestamp, id);
+            const message: AddMessage = new AddMessage(0, id);
 
             queueMessage(message);
         });
 
         // clear the board
         socket.on('board-remove', (timestamp: number, selection: number[]) => {
-            const message: RemoveMessage = new RemoveMessage(timestamp, selection);
+            const message: RemoveMessage = new RemoveMessage(0, selection);
 
             queueMessage(message);
         });
 
         // rotate the selection
         socket.on('board-rotate', (timestamp: number, selection: number[], angle: number) => {
-            const message: RotateMessage = new RotateMessage(timestamp, selection, angle);
+            const message: RotateMessage = new RotateMessage(50, selection, angle);
 
             queueMessage(message);
         });
 
         // scale the selection
         socket.on('board-scale', (timestamp: number, selection: number[], scale: number) => {
-            const message: ScaleMessage = new ScaleMessage(timestamp, selection, scale);
+            const message: ScaleMessage = new ScaleMessage(50, selection, scale);
 
             queueMessage(message);
         });
 
         // move the selection
         socket.on('board-move', (timestamp: number, selection: number[], vector: Vector2) => {
-            const message: MoveMessage = new MoveMessage(timestamp, selection, vector);
+            const message: MoveMessage = new MoveMessage(3, selection, vector);
 
             queueMessage(message);
         });
 
         // clear the board
         socket.on('board-reset', (timestamp: number) => {
-            const message: ResetMessage = new ResetMessage(timestamp);
+            const message: ResetMessage = new ResetMessage(0);
 
             queueMessage(message);
         });
@@ -67,10 +70,10 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
             socket.off('board-move');
             socket.off('board-reset');
         }
-    }, [socket, setCards, cards]);
+    }, [socket, queue, setQueue]);
 
     function queueMessage(message: UpdateMessage): void {
-        setCards(message.apply(cards));
+        setQueue(queue => [...queue, message]);
     }
 
     return (
@@ -78,9 +81,15 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
             <div className="flex justify-center w-full h-8 bg-sky-700 min-h-8"></div>
 
             <CardViewer
-                targetState={cards}
-                stepCount={20}
-                stepDurationMs={10}
+                cards={cards}
+            />
+
+            <Interpolator
+                state={cards}
+                setState={setCards}
+                queue={queue}
+                setQueue={setQueue}
+                updateFrequencyMs={20}
             />
         </div>
     );

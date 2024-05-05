@@ -3,24 +3,26 @@ import CardTransform from "./CardTransform";
 import {BOARD_ASPECT_RATIO} from "../components/drawerfield/CardViewer";
 
 export abstract class UpdateMessage {
-    readonly timestamp: number;
+    duration: number;
 
-    protected constructor(timestamp: number){
-        this.timestamp = timestamp;
+    protected constructor(duration: number){
+        this.duration = duration;
     }
 
-    abstract apply(cards: CardTransform[]): CardTransform[];
+    abstract apply(cards: CardTransform[], progress: number): CardTransform[];
 }
 
 export class AddMessage extends UpdateMessage {
-    readonly id: number;
+    id: number;
 
-    constructor(timestamp: number, id: number){
-        super(timestamp);
+    constructor(duration: number, id: number){
+        super(duration);
         this.id = id;
     }
 
-    apply(cards: CardTransform[]): CardTransform[] {
+    apply(cards: CardTransform[], _: number): CardTransform[] {
+        this.duration = 0;
+
         const card: CardTransform = new CardTransform(this.id, new Vector2(50, 50));
 
         return cards.concat(card);
@@ -28,44 +30,50 @@ export class AddMessage extends UpdateMessage {
 }
 
 export class RemoveMessage extends UpdateMessage {
-    readonly selection: number[];
+    selection: number[];
 
-    constructor(timestamp: number, selection: number[]){
-        super(timestamp);
+    constructor(duration: number, selection: number[]){
+        super(duration);
         this.selection = selection;
     }
 
-    apply(cards: CardTransform[]): CardTransform[] {
+    apply(cards: CardTransform[], _: number): CardTransform[] {
+        this.duration = 0;
+
         return cards.filter(card => !this.selection.includes(card.id));
     }
 }
 
 export class RotateMessage extends UpdateMessage {
-    readonly selection: number[];
-    readonly angle: number;
+    selection: number[];
+    angle: number;
 
-    constructor(timestamp: number, selection: number[], angle: number){
-        super(timestamp);
+    constructor(duration: number, selection: number[], angle: number){
+        super(duration);
         this.selection = selection;
         this.angle = angle;
     }
 
-    apply(cards: CardTransform[]): CardTransform[] {
+    apply(cards: CardTransform[], progress: number): CardTransform[] {
         // copy the array
         const results: CardTransform[] = cards.slice();
 
         if (this.selection.length === 0) {
+            this.progress(progress);
             return results;
         }
 
+        const angle = this.angle * progress;
+
         const center: Vector2 = getSelectionCenter(results, this.selection);
 
-        const angleRad: number = this.angle * Math.PI / 180.0;
+        const angleRad: number = angle * Math.PI / 180.0;
         const cosTheta: number = Math.cos(angleRad);
         const sinTheta: number = Math.sin(angleRad);
 
         this.selection.forEach(i => {
             const card: CardTransform = results[i];
+
             const posX: number = card.position.x
             const posY: number = card.position.y
 
@@ -92,54 +100,43 @@ export class RotateMessage extends UpdateMessage {
             card.position.x = newX;
             card.position.y = newY;
 
-            card.rotation = results[i].rotation + this.angle;
+            card.rotation += angle;
         })
 
+        this.progress(progress);
         return results;
+    }
+
+    private progress(progress: number) {
+        this.duration *= 1 - progress;
+        this.angle *= 1 - progress;
     }
 }
 
 export class ScaleMessage extends UpdateMessage {
-    readonly selection: number[];
-    readonly scale: number;
+    selection: number[];
+    scale: number;
 
-    constructor(timestamp: number, selection: number[], scale: number){
-        super(timestamp);
+    constructor(duration: number, selection: number[], scale: number){
+        super(duration);
         this.selection = selection;
         this.scale = scale;
     }
 
-    apply(cards: CardTransform[]): CardTransform[] {
+    apply(cards: CardTransform[], progress: number): CardTransform[] {
         // copy the array
         const results: CardTransform[] = cards.slice();
 
         if (this.selection.length === 0) {
+            this.duration *= 1 - progress;
             return results;
         }
 
-        let scalingFactor: number = this.scale;
+        const scalingFactor: number = this.getScalingFactor(progress, results);
+        const center: Vector2 = getSelectionCenter(results, this.selection);
 
-        this.selection.forEach(i => {
-            if (i < 0 || i >= results.length) {
-                return;
-            }
-
-            let scale = results[i].scale * this.scale;
-
-            scale = Math.min(0.9, Math.max(0.1, scale));
-
-
-            let actualSize = scale / results[i].scale;
-
-            if (this.scale < 1) {
-                scalingFactor = Math.max(scalingFactor, actualSize);
-            }
-            else {
-                scalingFactor = Math.min(scalingFactor, actualSize);
-            }
-        })
-
-        const pivotPos: Vector2 = getSelectionCenter(results, this.selection);
+        this.duration *= 1 - progress;
+        this.scale /= scalingFactor;
 
         this.selection.forEach(index => {
             if (index < 0 || index >= results.length) {
@@ -149,36 +146,67 @@ export class ScaleMessage extends UpdateMessage {
             results[index].scale *= scalingFactor;
 
             // subtraction of card position and center
-            let cardPivotDifference: Vector2 = Vector2.sub(results[index].position, pivotPos);
+            let cardPivotDifference: Vector2 = Vector2.sub(results[index].position, center);
 
             // card and center difference change
             cardPivotDifference = Vector2.mul(cardPivotDifference, scalingFactor);
 
             // set card new shifted position
-            results[index].position = Vector2.add(pivotPos, cardPivotDifference);
+            results[index].position = Vector2.add(center, cardPivotDifference);
 
         });
 
         return results;
     }
+
+    private getScalingFactor(progress: number, cards: CardTransform[]): number {
+        let scalingFactor: number = this.scale;
+
+        this.selection.forEach(i => {
+            if (i < 0 || i >= cards.length) {
+                return;
+            }
+
+            let scale = cards[i].scale * this.scale;
+
+            scale = Math.min(0.9, Math.max(0.1, scale));
+
+            let actualSize = scale / cards[i].scale;
+
+            if (this.scale < 1) {
+                scalingFactor = Math.max(scalingFactor, actualSize);
+            }
+            else {
+                scalingFactor = Math.min(scalingFactor, actualSize);
+            }
+        })
+
+        scalingFactor = 1 + (scalingFactor - 1) * progress
+
+        return scalingFactor;
+    }
 }
 
 export class MoveMessage extends UpdateMessage {
-    readonly selection: number[];
-    readonly vector: Vector2;
+    selection: number[];
+    vector: Vector2;
 
-    constructor(timestamp: number, selection: number[], vector: Vector2){
-        super(timestamp);
+    constructor(duration: number, selection: number[], vector: Vector2){
+        super(duration);
         this.selection = selection;
         this.vector = vector;
     }
 
-    apply(cards: CardTransform[]): CardTransform[] {
+    apply(cards: CardTransform[], progress: number): CardTransform[] {
+        // calculate the vector of the movement
+        const vector = Vector2.mul(this.vector, progress);
+
         // copy the array
         const results: CardTransform[] = cards.slice();
 
         // no cards to move
         if (this.selection.length === 0) {
+            this.progress(progress);
             return results;
         }
 
@@ -186,20 +214,27 @@ export class MoveMessage extends UpdateMessage {
         this.selection.forEach(i => {
             const position: Vector2 = results[i].position;
 
-            position.x += this.vector.x;
-            position.y += this.vector.y;
+            position.x += vector.x;
+            position.y += vector.y;
         })
 
+        this.progress(progress);
         return results;
+    }
+
+    progress(progress: number) {
+        this.duration *= 1 - progress;
+        this.vector = Vector2.mul(this.vector, 1 - progress);
     }
 }
 
 export class ResetMessage extends UpdateMessage {
-    constructor(timestamp: number, ){
-        super(timestamp);
+    constructor(duration: number){
+        super(duration);
     }
 
-    apply(_: CardTransform[]): CardTransform[] {
+    apply(_: CardTransform[], __: number): CardTransform[] {
+        this.duration = 0;
         return [];
     }
 }
