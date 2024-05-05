@@ -2,20 +2,23 @@ import Vector2 from "./Vector2";
 import CardTransform from "./CardTransform";
 import {BOARD_ASPECT_RATIO} from "../components/drawerfield/CardViewer";
 
+// represents an intent to update the board
+// common base class for all update messages
 export abstract class UpdateMessage {
     duration: number;
 
-    protected constructor(duration: number){
+    protected constructor(duration: number) {
         this.duration = duration;
     }
 
     abstract apply(cards: CardTransform[], progress: number): CardTransform[];
 }
 
+// represents an intent to add a card to the board
 export class AddMessage extends UpdateMessage {
     id: number;
 
-    constructor(duration: number, id: number){
+    constructor(duration: number, id: number) {
         super(duration);
         this.id = id;
     }
@@ -29,10 +32,11 @@ export class AddMessage extends UpdateMessage {
     }
 }
 
+// represents an intent to remove a selection of cards
 export class RemoveMessage extends UpdateMessage {
     selection: number[];
 
-    constructor(duration: number, selection: number[]){
+    constructor(duration: number, selection: number[]) {
         super(duration);
         this.selection = selection;
     }
@@ -44,11 +48,12 @@ export class RemoveMessage extends UpdateMessage {
     }
 }
 
+// represents an intent to rotate a selection of cards
 export class RotateMessage extends UpdateMessage {
     selection: number[];
     angle: number;
 
-    constructor(duration: number, selection: number[], angle: number){
+    constructor(duration: number, selection: number[], angle: number) {
         super(duration);
         this.selection = selection;
         this.angle = angle;
@@ -113,11 +118,12 @@ export class RotateMessage extends UpdateMessage {
     }
 }
 
+// represents an intent to scale a selection of cards
 export class ScaleMessage extends UpdateMessage {
     selection: number[];
     scale: number;
 
-    constructor(duration: number, selection: number[], scale: number){
+    constructor(duration: number, selection: number[], scale: number) {
         super(duration);
         this.selection = selection;
         this.scale = scale;
@@ -175,8 +181,7 @@ export class ScaleMessage extends UpdateMessage {
 
             if (this.scale < 1) {
                 scalingFactor = Math.max(scalingFactor, actualSize);
-            }
-            else {
+            } else {
                 scalingFactor = Math.min(scalingFactor, actualSize);
             }
         })
@@ -187,11 +192,12 @@ export class ScaleMessage extends UpdateMessage {
     }
 }
 
+// represents an intent to move a selection of cards
 export class MoveMessage extends UpdateMessage {
     selection: number[];
     vector: Vector2;
 
-    constructor(duration: number, selection: number[], vector: Vector2){
+    constructor(duration: number, selection: number[], vector: Vector2) {
         super(duration);
         this.selection = selection;
         this.vector = vector;
@@ -228,8 +234,9 @@ export class MoveMessage extends UpdateMessage {
     }
 }
 
+// represents an intent to reset the board
 export class ResetMessage extends UpdateMessage {
-    constructor(duration: number){
+    constructor(duration: number) {
         super(duration);
     }
 

@@ -10,6 +10,7 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
     // the state of the card array
     const [cards, setCards] = useState([] as CardTransform[]);
 
+    // the queue of update messages to be processed
     const [queue, setQueue] = useState([] as UpdateMessage[]);
 
     // handle socket events
@@ -20,43 +21,43 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
         }
 
         // add a single card to the board
-        socket.on('board-add', (timestamp: number, id: number) => {
-            const message: AddMessage = new AddMessage(0, id);
+        socket.on('board-add', (duration: number, id: number) => {
+            const message: AddMessage = new AddMessage(duration, id);
 
             queueMessage(message);
         });
 
         // clear the board
-        socket.on('board-remove', (timestamp: number, selection: number[]) => {
-            const message: RemoveMessage = new RemoveMessage(0, selection);
+        socket.on('board-remove', (duration: number, selection: number[]) => {
+            const message: RemoveMessage = new RemoveMessage(duration, selection);
 
             queueMessage(message);
         });
 
         // rotate the selection
-        socket.on('board-rotate', (timestamp: number, selection: number[], angle: number) => {
-            const message: RotateMessage = new RotateMessage(50, selection, angle);
+        socket.on('board-rotate', (duration: number, selection: number[], angle: number) => {
+            const message: RotateMessage = new RotateMessage(duration, selection, angle);
 
             queueMessage(message);
         });
 
         // scale the selection
-        socket.on('board-scale', (timestamp: number, selection: number[], scale: number) => {
-            const message: ScaleMessage = new ScaleMessage(50, selection, scale);
+        socket.on('board-scale', (duration: number, selection: number[], scale: number) => {
+            const message: ScaleMessage = new ScaleMessage(duration, selection, scale);
 
             queueMessage(message);
         });
 
         // move the selection
-        socket.on('board-move', (timestamp: number, selection: number[], vector: Vector2) => {
-            const message: MoveMessage = new MoveMessage(3, selection, vector);
+        socket.on('board-move', (duration: number, selection: number[], vector: Vector2) => {
+            const message: MoveMessage = new MoveMessage(duration, selection, vector);
 
             queueMessage(message);
         });
 
         // clear the board
-        socket.on('board-reset', (timestamp: number) => {
-            const message: ResetMessage = new ResetMessage(0);
+        socket.on('board-reset', (duration: number) => {
+            const message: ResetMessage = new ResetMessage(duration);
 
             queueMessage(message);
         });
@@ -72,6 +73,7 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
         }
     }, [socket, queue, setQueue]);
 
+    // add a message to the queue
     function queueMessage(message: UpdateMessage): void {
         setQueue(queue => [...queue, message]);
     }

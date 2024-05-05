@@ -325,7 +325,7 @@ io.on('connection', (socket) => {
     socket.on('startGame', ({ lobbyId, pickedSolution }) => {
         const lobby = getLobby(lobbyId);
 
-        io.to(lobbyId).emit('board-reset', Date.now());
+        io.to(lobbyId).emit('board-reset', 0);
 
         io.to(lobby.drawerSocketId).emit(
             'points',
@@ -451,24 +451,24 @@ io.on('connection', (socket) => {
         io.emit('list-lobbies', lobbiesStats());
     });
 
-    socket.on('board-add', (lobbyId, timestamp, id) => {
-        io.to(lobbyId).emit('board-add', timestamp, id);
+    socket.on('board-add', (lobbyId, duration, id) => {
+        io.to(lobbyId).emit('board-add', duration, id);
     });
 
-    socket.on('board-remove', (lobbyId, timestamp, selection) => {
-        io.to(lobbyId).emit('board-remove', timestamp, selection);
+    socket.on('board-remove', (lobbyId, duration, selection) => {
+        io.to(lobbyId).emit('board-remove', duration, selection);
     });
 
-    socket.on('board-rotate', (lobbyId, timestamp, selection, angle) => {
-        io.to(lobbyId).emit('board-rotate', timestamp, selection, angle);
+    socket.on('board-rotate', (lobbyId, duration, selection, angle) => {
+        io.to(lobbyId).emit('board-rotate', duration, selection, angle);
     });
 
-    socket.on('board-scale', (lobbyId, timestamp, selection, scale) => {
-        io.to(lobbyId).emit('board-scale', timestamp, selection, scale);
+    socket.on('board-scale', (lobbyId, duration, selection, scale) => {
+        io.to(lobbyId).emit('board-scale', duration, selection, scale);
     });
 
-    socket.on('board-move', (lobbyId, timestamp, selection, vector) => {
-        io.to(lobbyId).emit('board-move', timestamp, selection, vector);
+    socket.on('board-move', (lobbyId, duration, selection, vector) => {
+        io.to(lobbyId).emit('board-move', duration, selection, vector);
     });
 });
 

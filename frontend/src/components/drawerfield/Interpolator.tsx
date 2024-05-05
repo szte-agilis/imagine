@@ -20,7 +20,7 @@ export default function Interpolator(
     useEffect(() => {
         const id = setInterval(() => {
             // if the queue is empty, do nothing
-            if(queue.length === 0) {
+            if (queue.length === 0) {
                 return;
             }
 
@@ -33,7 +33,7 @@ export default function Interpolator(
 
             // iterate through the queue and apply the updates
             // while there are items in the queue and there is time remaining
-            while(localQueue.length > 0 && remainingTime > 0) {
+            while (localQueue.length > 0 && remainingTime > 0) {
                 // get the first update in the queue
                 const update = localQueue[0];
 
@@ -48,7 +48,7 @@ export default function Interpolator(
                 localState = update.apply(localState, progress);
 
                 // if the update is complete, remove it from the queue
-                if(update.duration < 0.001){
+                if (update.duration < 0.001) {
                     localQueue.shift();
                 }
 
@@ -61,10 +61,12 @@ export default function Interpolator(
             setQueue(localQueue);
         }, updateFrequencyMs);
 
+        // cleanup function
         return () => {
             clearInterval(id);
         }
     }, [queue, setQueue, updateFrequencyMs]);
 
+    // render nothing
     return <></>
 }

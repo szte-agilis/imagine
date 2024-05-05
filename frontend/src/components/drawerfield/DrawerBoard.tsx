@@ -26,6 +26,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
     // is the left mouse button is pressed
     const [isMouseDown, setIsMouseDown] = useState(false);
 
+    // the time of the last card update
+    const [lastUpdate, setLastUpdate] = useState(0);
+
     // the board as an HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
 
@@ -139,86 +142,110 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
 
     // add a card to the board
     function handleAdd(id: number): void {
-        const message: AddMessage = new AddMessage(Date.now(), id);
+        // calculate the duration of the update animation
+        const duration: number = calculateDuration(50);
 
+        // create an update message
+        const message: AddMessage = new AddMessage(duration, id);
+
+        // stream message to guessers
         if (socket) {
             socket.emit('board-add', lobbyId, message.duration, message.id);
-            console.log(message);
         }
 
+        // apply the updates instantly on drawer side
         setCards(message.apply(cards, 1));
+
+        // close the deck after adding a card
         setIsDeckOpen(false);
     }
 
     // remove cards from the board
     function handleRemove(ids: number[]): void {
         // no cards to remove, do nothing
-        if(ids.length === 0) {
+        if (ids.length === 0) {
             return;
         }
 
-        const message: RemoveMessage = new RemoveMessage(Date.now(), ids);
+        // calculate the duration of the update animation
+        const duration: number = calculateDuration(50);
 
-        // stream updates
+        // create an update message
+        const message: RemoveMessage = new RemoveMessage(duration, ids);
+
+        // stream message to guessers
         if (socket) {
             socket.emit('board-remove', lobbyId, message.duration, message.selection);
         }
 
-        // update cards and reset the selection
+        // apply the updates instantly on drawer side
         setCards(message.apply(cards, 1));
     }
 
     // move the selected cards
     function handleMove(x: number, y: number): void {
         // no movement, do nothing
-        if(x === 0 && y === 0){
+        if (x === 0 && y === 0) {
             return;
         }
 
         // no cards are selected, do nothing
-        if(selection.length === 0){
+        if (selection.length === 0) {
             return;
         }
 
+        // calculate the vector of the movement
         const vector: Vector2 = new Vector2(x / board.offsetWidth * 100, y / board.offsetHeight * 100);
 
-        const message: MoveMessage = new MoveMessage(Date.now(), selection, vector);
+        // calculate the duration of the update animation
+        const duration: number = calculateDuration(50);
 
-        // stream updates
+        // create an update message
+        const message: MoveMessage = new MoveMessage(duration, selection, vector);
+
+        // stream message to guessers
         if (socket) {
             socket.emit('board-move', lobbyId, message.duration, message.selection, message.vector);
         }
 
-        // update cards
+        // apply the updates instantly on drawer side
         setCards(message.apply(cards, 1));
     }
 
     // rotate the selected cards
     function handleRotate(direction: number): void {
-        // rotation amount in degrees
-        const amountDeg: number = 15 * direction;
+        // calculate the angle of the rotation
+        const angle: number = 15 * direction;
 
-        const message: RotateMessage = new RotateMessage(Date.now(), selection, amountDeg);
+        // calculate the duration of the update animation
+        const duration: number = calculateDuration(50);
 
-        // stream updates
+        // create an update message
+        const message: RotateMessage = new RotateMessage(duration, selection, angle);
+
+        // stream message to guessers
         if (socket) {
             socket.emit('board-rotate', lobbyId, message.duration, message.selection, message.angle);
         }
 
-        // update cards
+        // apply update instantly on drawer side
         setCards(message.apply(cards, 1));
     }
 
     // scale the selected cards
     function handleScale(amount: number): void {
-        // scale the selection
-        const message: ScaleMessage = new ScaleMessage(Date.now(), selection, amount);
+        // calculate the duration of the update animation
+        const duration: number = calculateDuration(50);
 
-        // stream updates
+        // create an update message
+        const message: ScaleMessage = new ScaleMessage(duration, selection, amount);
+
+        // stream message to guessers
         if (socket) {
             socket.emit('board-scale', lobbyId, message.duration, message.selection, message.scale);
         }
 
+        // apply the updates instantly on drawer side
         setCards(message.apply(cards, 1));
     }
 
@@ -243,6 +270,16 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         else {
             setSelection([index]);
         }
+    }
+
+    // calculate the duration of the update animation and set the last update time
+    function calculateDuration(maxDuration: number): number {
+        const now: number = Date.now();
+        const elapsed: number = now - lastUpdate;
+
+        setLastUpdate(now);
+
+        return Math.min(elapsed, maxDuration);
     }
 
     // template
