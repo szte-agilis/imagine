@@ -6,7 +6,7 @@ import CardViewer from "./CardViewer";
 import Interpolator from "./Interpolator";
 import {AddMessage, MoveMessage, RemoveMessage, ResetMessage, RotateMessage, ScaleMessage, UpdateMessage} from "../../data/UpdateMessages";
 
-export default function GuesserBoard({socket}: { socket: Socket | null }) {
+export default function GuesserBoard({socket}: { socket: Socket }) {
     // the state of the card array
     const [cards, setCards] = useState([] as CardTransform[]);
 
@@ -15,11 +15,6 @@ export default function GuesserBoard({socket}: { socket: Socket | null }) {
 
     // handle socket events
     useEffect(() => {
-        // if the socket is not connected, do nothing
-        if (!socket) {
-            return;
-        }
-
         // add a single card to the board
         socket.on('board-add', (duration: number, id: number) => {
             const message: AddMessage = new AddMessage(duration, id);

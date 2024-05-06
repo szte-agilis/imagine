@@ -363,7 +363,7 @@ function GameField() {
                             <div id="middle-div">
                                 <Board
                                     canDraw={guessSet && canDraw}
-                                    localLobby={localLobby}
+                                    lobbyId={localLobby}
                                     socket={socket}
                                 />
                             </div>

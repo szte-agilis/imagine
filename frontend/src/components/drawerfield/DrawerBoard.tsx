@@ -5,12 +5,12 @@ import Vector2 from '../../data/Vector2';
 import {cardImages} from '../../data/ImageImports';
 import {Socket} from 'socket.io-client';
 import CardViewer from './CardViewer';
-import {AddMessage, MoveMessage, RemoveMessage, RotateMessage, ScaleMessage} from "../../data/UpdateMessages";
+import {AddMessage, MoveMessage, RemoveMessage, RotateMessage, ScaleMessage, UpdateMessage} from "../../data/UpdateMessages";
 
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const cardRemoveMargin: number = 1;
 
-export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null, socket: Socket | null }) {
+export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket: Socket }) {
     // the state of the card array
     const [cards, setCards] = useState([] as CardTransform[]);
 
@@ -149,12 +149,10 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         const message: AddMessage = new AddMessage(duration, id);
 
         // stream message to guessers
-        if (socket) {
-            socket.emit('board-add', lobbyId, message.duration, message.id);
-        }
+        socket.emit('board-add', lobbyId, message.duration, message.id);
 
-        // apply the updates instantly on drawer side
-        setCards(message.apply(cards, 1));
+        // apply the updates on drawer side
+        applyMessage(message);
 
         // close the deck after adding a card
         setIsDeckOpen(false);
@@ -174,12 +172,10 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         const message: RemoveMessage = new RemoveMessage(duration, ids);
 
         // stream message to guessers
-        if (socket) {
-            socket.emit('board-remove', lobbyId, message.duration, message.selection);
-        }
+        socket.emit('board-remove', lobbyId, message.duration, message.selection);
 
-        // apply the updates instantly on drawer side
-        setCards(message.apply(cards, 1));
+        // apply the updates on drawer side
+        applyMessage(message);
     }
 
     // move the selected cards
@@ -204,12 +200,10 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         const message: MoveMessage = new MoveMessage(duration, selection, vector);
 
         // stream message to guessers
-        if (socket) {
-            socket.emit('board-move', lobbyId, message.duration, message.selection, message.vector);
-        }
+        socket.emit('board-move', lobbyId, message.duration, message.selection, message.vector);
 
-        // apply the updates instantly on drawer side
-        setCards(message.apply(cards, 1));
+        // apply the updates on drawer side
+        applyMessage(message);
     }
 
     // rotate the selected cards
@@ -224,12 +218,10 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         const message: RotateMessage = new RotateMessage(duration, selection, angle);
 
         // stream message to guessers
-        if (socket) {
-            socket.emit('board-rotate', lobbyId, message.duration, message.selection, message.angle);
-        }
+        socket.emit('board-rotate', lobbyId, message.duration, message.selection, message.angle);
 
-        // apply update instantly on drawer side
-        setCards(message.apply(cards, 1));
+        // apply updates on drawer side
+        applyMessage(message);
     }
 
     // scale the selected cards
@@ -241,12 +233,10 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         const message: ScaleMessage = new ScaleMessage(duration, selection, amount);
 
         // stream message to guessers
-        if (socket) {
-            socket.emit('board-scale', lobbyId, message.duration, message.selection, message.scale);
-        }
+        socket.emit('board-scale', lobbyId, message.duration, message.selection, message.scale);
 
-        // apply the updates instantly on drawer side
-        setCards(message.apply(cards, 1));
+        // apply the updates on drawer side
+        applyMessage(message);
     }
 
     // select a card
@@ -280,6 +270,15 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
         setLastUpdate(now);
 
         return Math.min(elapsed, maxDuration);
+    }
+
+    // apply an update message to the cards
+    function applyMessage(message: UpdateMessage): void {
+        // apply the updates instantly
+        const results: CardTransform[] = message.apply(cards, 1);
+
+        // update the state
+        setCards(results);
     }
 
     // template
