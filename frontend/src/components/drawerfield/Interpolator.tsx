@@ -48,7 +48,7 @@ export default function Interpolator(
                 localState = update.apply(localState, progress);
 
                 // if the update is complete, remove it from the queue
-                if (update.duration < 0.001) {
+                if (update.duration === 0) {
                     localQueue.shift();
                 }
 

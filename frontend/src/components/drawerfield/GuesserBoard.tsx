@@ -16,55 +16,61 @@ export default function GuesserBoard({socket}: { socket: Socket }) {
     // handle socket events
     useEffect(() => {
         // add a single card to the board
-        socket.on('board-add', (duration: number, id: number) => {
-            const message: AddMessage = new AddMessage(duration, id);
+        socket.on(AddMessage.eventName, (obj: object) => {
+            const message: AddMessage = new AddMessage();
+            Object.assign(message, obj);
 
             queueMessage(message);
         });
 
         // clear the board
-        socket.on('board-remove', (duration: number, selection: number[]) => {
-            const message: RemoveMessage = new RemoveMessage(duration, selection);
+        socket.on(RemoveMessage.eventName, (obj: object) => {
+            const message: RemoveMessage = new RemoveMessage();
+            Object.assign(message, obj);
 
             queueMessage(message);
         });
 
         // rotate the selection
-        socket.on('board-rotate', (duration: number, selection: number[], angle: number) => {
-            const message: RotateMessage = new RotateMessage(duration, selection, angle);
+        socket.on(RotateMessage.eventName, (obj: object) => {
+            const message: RotateMessage = new RotateMessage();
+            Object.assign(message, obj);
 
             queueMessage(message);
         });
 
         // scale the selection
-        socket.on('board-scale', (duration: number, selection: number[], scale: number) => {
-            const message: ScaleMessage = new ScaleMessage(duration, selection, scale);
+        socket.on(ScaleMessage.eventName, (obj: object) => {
+            const message: ScaleMessage = new ScaleMessage();
+            Object.assign(message, obj);
 
             queueMessage(message);
         });
 
         // move the selection
-        socket.on('board-move', (duration: number, selection: number[], vector: Vector2) => {
-            const message: MoveMessage = new MoveMessage(duration, selection, vector);
+        socket.on(MoveMessage.eventName, (obj: object) => {
+            const message: MoveMessage = new MoveMessage();
+            Object.assign(message, obj);
 
             queueMessage(message);
         });
 
         // clear the board
-        socket.on('board-reset', (duration: number) => {
-            const message: ResetMessage = new ResetMessage(duration);
+        socket.on(ResetMessage.eventName, (obj: object) => {
+            const message: ResetMessage = new ResetMessage();
+            Object.assign(message, obj);
 
             queueMessage(message);
         });
 
         // must remove event listeners, so they are not added multiple times
         return () => {
-            socket.off('board-add');
-            socket.off('board-remove');
-            socket.off('board-rotate');
-            socket.off('board-scale');
-            socket.off('board-move');
-            socket.off('board-reset');
+            socket.off(AddMessage.eventName);
+            socket.off(RemoveMessage.eventName);
+            socket.off(RotateMessage.eventName);
+            socket.off(ScaleMessage.eventName);
+            socket.off(MoveMessage.eventName);
+            socket.off(ResetMessage.eventName);
         }
     }, [socket, queue, setQueue]);
 

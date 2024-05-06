@@ -12,13 +12,19 @@ export abstract class UpdateMessage {
     }
 
     abstract apply(cards: CardTransform[], progress: number): CardTransform[];
+
+    static get eventName(): string {
+        return '';
+    };
+
+    abstract get eventName(): string;
 }
 
 // represents an intent to add a card to the board
 export class AddMessage extends UpdateMessage {
     id: number;
 
-    constructor(duration: number, id: number) {
+    constructor(duration: number = 0, id: number = 0) {
         super(duration);
         this.id = id;
     }
@@ -30,13 +36,21 @@ export class AddMessage extends UpdateMessage {
 
         return cards.concat(card);
     }
+
+    static get eventName(): string {
+        return 'board-add';
+    }
+
+    get eventName(): string {
+        return AddMessage.eventName;
+    }
 }
 
 // represents an intent to remove a selection of cards
 export class RemoveMessage extends UpdateMessage {
     selection: number[];
 
-    constructor(duration: number, selection: number[]) {
+    constructor(duration: number = 0, selection: number[] = []) {
         super(duration);
         this.selection = selection;
     }
@@ -46,6 +60,14 @@ export class RemoveMessage extends UpdateMessage {
 
         return cards.filter(card => !this.selection.includes(card.id));
     }
+
+    static get eventName(): string {
+        return 'board-remove';
+    }
+
+    get eventName(): string {
+        return RemoveMessage.eventName;
+    }
 }
 
 // represents an intent to rotate a selection of cards
@@ -53,7 +75,7 @@ export class RotateMessage extends UpdateMessage {
     selection: number[];
     angle: number;
 
-    constructor(duration: number, selection: number[], angle: number) {
+    constructor(duration: number = 0, selection: number[] = [], angle: number = 0) {
         super(duration);
         this.selection = selection;
         this.angle = angle;
@@ -116,6 +138,14 @@ export class RotateMessage extends UpdateMessage {
         this.duration *= 1 - progress;
         this.angle *= 1 - progress;
     }
+
+    static get eventName(): string {
+        return 'board-rotate';
+    }
+
+    get eventName(): string {
+        return RotateMessage.eventName;
+    }
 }
 
 // represents an intent to scale a selection of cards
@@ -123,7 +153,7 @@ export class ScaleMessage extends UpdateMessage {
     selection: number[];
     scale: number;
 
-    constructor(duration: number, selection: number[], scale: number) {
+    constructor(duration: number = 0, selection: number[] = [], scale: number = 1) {
         super(duration);
         this.selection = selection;
         this.scale = scale;
@@ -190,6 +220,14 @@ export class ScaleMessage extends UpdateMessage {
 
         return scalingFactor;
     }
+
+    static get eventName(): string {
+        return 'board-scale';
+    }
+
+    get eventName(): string {
+        return ScaleMessage.eventName;
+    }
 }
 
 // represents an intent to move a selection of cards
@@ -197,7 +235,7 @@ export class MoveMessage extends UpdateMessage {
     selection: number[];
     vector: Vector2;
 
-    constructor(duration: number, selection: number[], vector: Vector2) {
+    constructor(duration: number = 0, selection: number[] = [], vector: Vector2 = new Vector2(0, 0)) {
         super(duration);
         this.selection = selection;
         this.vector = vector;
@@ -232,17 +270,33 @@ export class MoveMessage extends UpdateMessage {
         this.duration *= 1 - progress;
         this.vector = Vector2.mul(this.vector, 1 - progress);
     }
+
+    static get eventName(): string {
+        return 'board-move';
+    }
+
+    get eventName(): string {
+        return MoveMessage.eventName;
+    }
 }
 
 // represents an intent to reset the board
 export class ResetMessage extends UpdateMessage {
-    constructor(duration: number) {
+    constructor(duration: number = 0) {
         super(duration);
     }
 
     apply(_: CardTransform[], __: number): CardTransform[] {
         this.duration = 0;
         return [];
+    }
+
+    static get eventName(): string {
+        return 'board-reset';
+    }
+
+    get eventName(): string {
+        return ResetMessage.eventName;
     }
 }
 

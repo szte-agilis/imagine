@@ -451,24 +451,24 @@ io.on('connection', (socket) => {
         io.emit('list-lobbies', lobbiesStats());
     });
 
-    socket.on('board-add', (lobbyId, duration, id) => {
-        io.to(lobbyId).emit('board-add', duration, id);
+    socket.on('board-add', (lobbyId, message) => {
+        io.to(lobbyId).emit('board-add', message);
     });
 
-    socket.on('board-remove', (lobbyId, duration, selection) => {
-        io.to(lobbyId).emit('board-remove', duration, selection);
+    socket.on('board-remove', (lobbyId, message) => {
+        io.to(lobbyId).emit('board-remove', message);
     });
 
-    socket.on('board-rotate', (lobbyId, duration, selection, angle) => {
-        io.to(lobbyId).emit('board-rotate', duration, selection, angle);
+    socket.on('board-rotate', (lobbyId, message) => {
+        io.to(lobbyId).emit('board-rotate', message);
     });
 
-    socket.on('board-scale', (lobbyId, duration, selection, scale) => {
-        io.to(lobbyId).emit('board-scale', duration, selection, scale);
+    socket.on('board-scale', (lobbyId, message) => {
+        io.to(lobbyId).emit('board-scale', message);
     });
 
-    socket.on('board-move', (lobbyId, duration, selection, vector) => {
-        io.to(lobbyId).emit('board-move', duration, selection, vector);
+    socket.on('board-move', (lobbyId, message) => {
+        io.to(lobbyId).emit('board-move', message);
     });
 });
 

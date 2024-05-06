@@ -148,14 +148,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
         // create an update message
         const message: AddMessage = new AddMessage(duration, id);
 
-        // stream message to guessers
-        socket.emit('board-add', lobbyId, message.duration, message.id);
-
-        // apply the updates on drawer side
-        applyMessage(message);
-
         // close the deck after adding a card
         setIsDeckOpen(false);
+
+        // update the board
+        streamAndApply(message);
     }
 
     // remove cards from the board
@@ -171,11 +168,8 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
         // create an update message
         const message: RemoveMessage = new RemoveMessage(duration, ids);
 
-        // stream message to guessers
-        socket.emit('board-remove', lobbyId, message.duration, message.selection);
-
-        // apply the updates on drawer side
-        applyMessage(message);
+        // update the board
+        streamAndApply(message);
     }
 
     // move the selected cards
@@ -199,11 +193,8 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
         // create an update message
         const message: MoveMessage = new MoveMessage(duration, selection, vector);
 
-        // stream message to guessers
-        socket.emit('board-move', lobbyId, message.duration, message.selection, message.vector);
-
-        // apply the updates on drawer side
-        applyMessage(message);
+        // update the board
+        streamAndApply(message);
     }
 
     // rotate the selected cards
@@ -217,11 +208,8 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
         // create an update message
         const message: RotateMessage = new RotateMessage(duration, selection, angle);
 
-        // stream message to guessers
-        socket.emit('board-rotate', lobbyId, message.duration, message.selection, message.angle);
-
-        // apply updates on drawer side
-        applyMessage(message);
+        // update the board
+        streamAndApply(message);
     }
 
     // scale the selected cards
@@ -232,11 +220,8 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
         // create an update message
         const message: ScaleMessage = new ScaleMessage(duration, selection, amount);
 
-        // stream message to guessers
-        socket.emit('board-scale', lobbyId, message.duration, message.selection, message.scale);
-
-        // apply the updates on drawer side
-        applyMessage(message);
+        // update the board
+        streamAndApply(message);
     }
 
     // select a card
@@ -272,8 +257,11 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
         return Math.min(elapsed, maxDuration);
     }
 
-    // apply an update message to the cards
-    function applyMessage(message: UpdateMessage): void {
+    // stream the update message and update the board
+    function streamAndApply(message: UpdateMessage): void {
+        // stream the update message
+        socket.emit(message.eventName, lobbyId, message);
+
         // apply the updates instantly
         const results: CardTransform[] = message.apply(cards, 1);
 
