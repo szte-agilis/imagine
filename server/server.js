@@ -241,15 +241,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on('check username', (name) => {
-        let taken = Object.values(takenNames).includes(name);
-        if (!taken) {
-            taken = Object.values(_lobbies)
-                .map((l) => {
-                    return Object.values(l.users);
-                })
-                .flat()
-                .includes(name);
-        }
+        let taken = Object.values(_lobbies).some((lobby) =>
+            Object.values(lobby.users).includes(name)
+        );
         io.to(socket.id).emit('username checked', taken);
     });
 

@@ -17,19 +17,17 @@ export default function App() {
     const [username, setUsername] = useState("");
 
     useEffect(() => {
-        const storedUsername = sessionStorage.getItem("username");
-        if (storedUsername) {
-            setUsername(storedUsername);
-        }
-    }, []);
-
-    useEffect(() => {
         const newSocket = io();
         setSocket(newSocket);
+        return () => newSocket.close();
     }, []);
 
-    function checkUsername(name) {
+    function checkUsername() {
         return new Promise((resolve, reject) => {
+            let timeout = setTimeout(() => {
+                reject(new Error("Server response timed out"));
+            }, 5000); // 5000 ms = 5 seconds
+
             socket.emit('check username', username.trim());
 
             socket.once('username checked', (taken) => {
@@ -131,9 +129,15 @@ export default function App() {
             return;
         }
 
-        if (await checkUsername(username.trim())) {
-            setWarningMessage("Ezzel a névvel már valaki játszik.");
-            setShowWarning(true);
+        try {
+            const isUsernameTaken = await checkUsername();
+            if (isUsernameTaken) {
+                setWarningMessage("Ezzel a névvel már valaki játszik.");
+                setShowWarning(true);
+                return;
+            }
+        } catch (error) {
+            console.error("Error checking username: ", error);
             return;
         }
 
@@ -159,9 +163,15 @@ export default function App() {
             return;
         }
 
-        if (await checkUsername(username.trim())) {
-            setWarningMessage("Ezzel a névvel már valaki játszik.");
-            setShowWarning(true);
+        try {
+            const isUsernameTaken = await checkUsername();
+            if (isUsernameTaken) {
+                setWarningMessage("Ezzel a névvel már valaki játszik.");
+                setShowWarning(true);
+                return;
+            }
+        } catch (error) {
+            console.error("username check timed out: ", error);
             return;
         }
 
