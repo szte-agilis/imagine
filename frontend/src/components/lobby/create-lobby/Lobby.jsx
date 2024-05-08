@@ -78,7 +78,6 @@ export default function App() {
         event.returnValue = '';
     }, [socket, localLobby, localUsername]);
 
-    let categories = ["Gyerek", "Felnőtt", "Vicces", "Mém", "Programozó", "Politika"];
 
     const [LOBBYNAME_MIN, LOBBYNAME_MAX] = [5, 30];
     const [PASSWORD_MIN, PASSWORD_MAX] = [0, 30];
@@ -95,7 +94,7 @@ export default function App() {
         maxPlayers: 10,
         roundTime: 240,
         rounds: 3,
-        category: 'Mém',
+     
     });
 
     function lobbyDataOnlyValidate() {
@@ -114,10 +113,7 @@ export default function App() {
         if (lobbyData.maxPlayers < MAXPLAYERS_MIN || lobbyData.maxPlayers > MAXPLAYERS_MAX) {
             return false;
         }
-        if (!categories.includes(lobbyData.category)) {
-            return false;
-        }
-
+        
         return true;
     }
 
@@ -152,11 +148,7 @@ export default function App() {
             return false;
         }
 
-        if (!categories.includes(lobbyData.category)) {
-            setWarningMessage("Nem megfelelő kategória!");
-            setShowWarning(true);
-            return false;
-        }
+        
 
         return true;
     }
@@ -409,20 +401,7 @@ export default function App() {
                                        className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]">Játékosszám</label>
                             </div>
                         </div>
-                        <label htmlFor="category"
-                               className="block mb-2 text-sm font-medium text-gray-500 dark:text-white"><p
-                            id="category-p">Kategória</p>
-                            <select id="category" name="category" disabled={!IsOwner(localUsername)}
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    value={lobbyData.category}
-                                    onChange={handleFormChange}
-                                    onBlur={handleFormChangeOnBlur}
-                            >
-                                {categories.map((categ, index) => (
-                                    <option key={index} value={categ}>{categ}</option>
-                                ))}
-                            </select>
-                        </label>
+                       
                     </div>
                 </div>
             </div>
