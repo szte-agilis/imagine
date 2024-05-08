@@ -29,6 +29,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
     // the time of the last card update
     const [lastUpdate, setLastUpdate] = useState(0);
 
+    // the saved card ids in each group
+    const [groupCardIds, setGroupCardIds] = useState([[], [], [], []] as number[][])
+
     // the board as an HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
 
@@ -114,6 +117,45 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
             case 'Control':
                 // left control key is pressed
                 setIsCtrlDown(true);
+                break;
+            
+            // Group key events
+            case '1' :
+            case '2' :
+            case '3' :
+            case '4' :
+                var groupIndex : number = parseInt(e.key) - 1;
+
+                if (e.altKey){
+                    // Save id-s into selected group array
+                    var tempIdArray : number[][] = groupCardIds;
+                    groupCardIds[groupIndex] = [] as number[];  // Clear selected group array
+
+                    selection.forEach(index => {
+                        // Remove id from other group(s) if they contain it
+                        var filteredArray : number[][] = tempIdArray.map(row => {
+                            return row.filter(element => element !== cards[index].id);
+                        });
+                        tempIdArray = filteredArray;
+
+                        tempIdArray[groupIndex][index] = cards[index].id;
+                    });
+
+                    setGroupCardIds(tempIdArray);
+                }
+                else{
+                    // Mark cards as selected, if in selected group and on board
+                    var tempIndexArray : number[] = [];
+
+                    cards.forEach((card, index) => {
+
+                        if (groupCardIds[groupIndex].includes(card.id)){
+                            tempIndexArray.push(index);
+                        }
+                    });
+
+                    setSelection(tempIndexArray);
+                }
                 break;
         }
     }
