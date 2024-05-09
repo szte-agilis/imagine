@@ -165,7 +165,7 @@ io.on('connection', (socket) => {
         const lobby = getLobby(lobbyId);
         lobby.timer = lobbyData.roundTime;
         lobby.roundLength = lobbyData.roundTime;
-        lobby.rounds = Number(lobbyData.rounds);
+        lobby.rounds = Number.parseInt(lobbyData.rounds, 10);
         lobby.users = {};
         lobby.gameStarted = true;
         io.emit('list-lobbies', lobbiesStats());
