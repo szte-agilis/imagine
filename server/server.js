@@ -236,7 +236,7 @@ io.on('connection', (socket) => {
                     Array.from(lobby.pointMap.entries())
                 );
                 logger(
-                    'info',
+                    'log',
                     lobby,
                     'drawer awarded(everyone got it): ' + 1000
                 );
