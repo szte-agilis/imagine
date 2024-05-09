@@ -6,6 +6,7 @@ import {cardImages} from '../../data/ImageImports';
 import {Socket} from 'socket.io-client';
 import CardViewer from './CardViewer';
 import {AddMessage, MoveMessage, RemoveMessage, RotateMessage, ScaleMessage, UpdateMessage} from "../../data/UpdateMessages";
+import cardGroups from '../../data/CardGrups';
 
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const cardRemoveMargin: number = 1;
@@ -30,7 +31,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
     const [lastUpdate, setLastUpdate] = useState(0);
 
     // the saved card ids in each group
-    const [groupCardIds, setGroupCardIds] = useState([[], [], [], []] as number[][])
+    const [groupCardIds, setGroupCardIds] = useState([[], [], [], []] as number[][]);
+
+    const [groups,setGroup]=useState([] as cardGroups[]);
 
     // the board as an HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
@@ -152,6 +155,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
 
                         if (groupCardIds[groupIndex].includes(card.id)){
                             tempIndexArray.push(index);
+                            groups.push(new cardGroups(index,groupIndex+1));
+                            setGroup(groups);
+                            console.log(groupIndex);
                         }
                     });
 
@@ -332,6 +338,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
                 cards={cards}
                 selection={selection}
                 onCardSelect={selectCard}
+                groups={groups}
             />
         </div>
     );
