@@ -576,3 +576,8 @@ function guess(guess, solution) {
 
     return false;
 }
+
+process.on('uncaughtException', function (err) {
+    console.error(new Date().toUTCString(), 'uncaughtException:', err.message);
+    console.error(err.stack);
+});
