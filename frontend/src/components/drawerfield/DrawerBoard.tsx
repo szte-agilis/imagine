@@ -128,24 +128,25 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
 
                 if (e.altKey){
                     // Save id-s into selected group array
-                    var tempIdArray : number[][] = groupCardIds;
-                    groupCardIds[groupIndex] = [] as number[];  // Clear selected group array
+                    let tempIdArray : number[][] = groupCardIds.slice();  // Clone array into temporary
+                    tempIdArray[groupIndex] = [] as number[];  // Clear selected group array
 
-                    selection.forEach(index => {
+                    selection.forEach(cardIndex => {
                         // Remove id from other group(s) if they contain it
-                        var filteredArray : number[][] = tempIdArray.map(row => {
-                            return row.filter(element => element !== cards[index].id);
+                        let filteredArray : number[][] = tempIdArray.map((row, index) => {
+                            if (index === groupIndex) return row;  // Don't filter selected group
+                            return row.filter(element => element !== cards[cardIndex].id);
                         });
-                        tempIdArray = filteredArray;
+                        tempIdArray = filteredArray.slice();
 
-                        tempIdArray[groupIndex][index] = cards[index].id;
+                        tempIdArray[groupIndex][cardIndex] = cards[cardIndex].id;
                     });
 
                     setGroupCardIds(tempIdArray);
                 }
                 else{
                     // Mark cards as selected, if in selected group and on board
-                    var tempIndexArray : number[] = [];
+                    const tempIndexArray : number[] = [] as number[];
 
                     cards.forEach((card, index) => {
 
