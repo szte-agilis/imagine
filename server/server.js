@@ -113,9 +113,9 @@ io.on('connection', (socket) => {
         }
 
         socket.join(lobbyId);
-        console.log(`User ${username} joined lobby: ${lobbyId}`);
 
         const lobby = getLobby(lobbyId);
+        logger('log', lobby, username, 'joined');
 
         lobby.users[socket.id] = username;
 
@@ -286,8 +286,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('pass drawer button', (lobbyId) => {
-        logger('log', lobby, 'pass drawer button clicked');
         const lobby = getLobby(lobbyId);
+        logger('log', lobby, 'pass drawer button clicked');
 
         lobby.timer = 0;
     });
@@ -325,8 +325,8 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit('reset canvas', lobbyId);
 
         lobby.counter += 1;
-        console.log('counter' + lobby.counter);
-        console.log('userids' + userIds.length);
+        logger('log', lobby, 'counter', lobby.counter);
+        logger('log', lobby, 'userids', userIds.length);
         if (lobby.counter == userIds.length) {
             lobby.currentRound++;
             lobby.counter = 0;
@@ -376,7 +376,7 @@ io.on('connection', (socket) => {
         lobby.intervalId = setInterval(() => {
             if (lobby.timer > 0) {
                 lobby.timer--;
-                console.log(lobby.timer);
+                // console.log(lobby.timer);
                 io.to(lobbyId).emit('timer', lobby.timer);
                 io.to(lobbyId).emit('solution', pickedSolution);
                 lobby.solution = pickedSolution.solution;
@@ -395,11 +395,19 @@ io.on('connection', (socket) => {
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
-                    console.log('drawer awarded(more correct): ' + 750);
+                    logger(
+                        'log',
+                        lobby,
+                        'drawer awarded(more correct): ' + 750
+                    );
                 } else if (
                     lobby.correctGuesses === 0 // Senki sem talált helyesen
                 ) {
-                    console.log('Nincs helyes tipp, nem kap pontot a rajzoló.');
+                    logger(
+                        'log',
+                        lobby,
+                        'Nincs helyes tipp, nem kap pontot a rajzoló.'
+                    );
                 } else if (
                     lobby.correctGuesses <
                     numberOfPlayers - 1 - lobby.correctGuesses
@@ -413,7 +421,9 @@ io.on('connection', (socket) => {
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
-                    console.log(
+                    logger(
+                        'log',
+                        lobby,
                         'drawer awarded(less correct): ' + 250 //kevesebb a jó tipp -> 250 pont
                     );
                 } else if (
@@ -429,7 +439,9 @@ io.on('connection', (socket) => {
                         'points',
                         Array.from(lobby.pointMap.entries())
                     );
-                    console.log(
+                    logger(
+                        'log',
+                        lobby,
                         'drawer awarded(equal): ' + 500 // Egyenlő rossz tipp mint jó -> 500 pont
                     );
                 }
@@ -446,7 +458,8 @@ io.on('connection', (socket) => {
 
     socket.on('window closed', (lobbyId, username) => {
         socket.disconnect();
-        console.log(`User ${username} left lobby: ${lobbyId}`);
+        const lobby = getLobby(lobbyId);
+        logger('log', lobby, username, 'closed their game');
     });
 
     socket.on('disconnect', () => {
