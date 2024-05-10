@@ -6,7 +6,7 @@ import {cardImages} from '../../data/ImageImports';
 import {Socket} from 'socket.io-client';
 import CardViewer from './CardViewer';
 import {AddMessage, MoveMessage, RemoveMessage, RotateMessage, ScaleMessage, UpdateMessage} from "../../data/UpdateMessages";
-import  '../../data/CardGrupsColors';
+import  {color,neon_color} from '../../data/CardGrupsColors';
 
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const cardRemoveMargin: number = 1;

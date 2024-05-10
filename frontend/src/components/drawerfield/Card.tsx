@@ -1,7 +1,7 @@
 import CardTransform from '../../data/CardTransform';
 import { MouseEventHandler, CSSProperties } from 'react';
 import {cardImages} from '../../data/ImageImports';
-import   '../../data/CardGrupsColors';
+import  {color,neon_color} from '../../data/CardGrupsColors';
 
 export default function Card({ transform,group=0, isSelected = false, selectCallback }: { transform: CardTransform,group:number, isSelected?: boolean, selectCallback: MouseEventHandler }) {
     let c=color(group);
