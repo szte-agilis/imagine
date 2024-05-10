@@ -1,18 +1,28 @@
 import CardTransform from "../../data/CardTransform";
 import Card from "./Card";
-import cardGroups from "../../data/CardGrups";
+
 
 export const BOARD_ASPECT_RATIO: number = 16.0 / 9.0;
+
+const findGroupIndex = (array: number[][], id: number): number  => {
+    for (let i = 0; i < array.length; i++) {
+      const subArray = array[i];
+      if (subArray.includes(id)) {
+        return i; // Visszaadjuk a tömb indexét, amelyben megtaláltuk az azonosítót
+      }
+    }
+    return -1; // Ha az azonosítót nem találjuk meg egyik tömbben sem
+  };
 
 export default function CardViewer(
     {
         cards,
-        groups,
+        groups=[],
         selection = [],
         onCardSelect = (_: number) => {}
     }: {
         cards: CardTransform[],
-        groups:cardGroups[],
+        groups?:number[][],
         selection?: number[],
         onCardSelect?: (i: number) => void
     }) {
@@ -20,12 +30,9 @@ export default function CardViewer(
     return (
         <div className="relative bg-gray-800 overflow-hidden" id="board" style={{aspectRatio: BOARD_ASPECT_RATIO}}>
             {cards.map((transform, index) => {
-             // Ellenőrizzük, hogy van-e csoport az adott kártyához
-             const existingGroup = groups.find(group => group.tag(index) );
-             // Ha találunk egy már létező csoportot, adjuk azt át
-             const group = existingGroup || new cardGroups(index);
+                     let g=findGroupIndex(groups,index)+1;
              return (
-                 <Card key={index} transform={transform} group={group} isSelected={selection.includes(index)} selectCallback={() => onCardSelect(index)} />
+                 <Card key={index} transform={transform} group={g} isSelected={selection.includes(index)} selectCallback={() => onCardSelect(index)} />
              );
             })}
         </div>

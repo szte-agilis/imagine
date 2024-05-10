@@ -5,7 +5,6 @@ import Vector2 from "../../data/Vector2";
 import CardViewer from "./CardViewer";
 import Interpolator from "./Interpolator";
 import {AddMessage, MoveMessage, RemoveMessage, ResetMessage, RotateMessage, ScaleMessage, UpdateMessage} from "../../data/UpdateMessages";
-import cardGroups from '../../data/CardGrups';
 
 export default function GuesserBoard({socket}: { socket: Socket }) {
     // the state of the card array
@@ -14,7 +13,7 @@ export default function GuesserBoard({socket}: { socket: Socket }) {
     // the queue of update messages to be processed
     const [queue, setQueue] = useState([] as UpdateMessage[]);
 
-    const [groups,setGroups]=useState([] as cardGroups[]);
+    
 
     // handle socket events
 
@@ -89,7 +88,7 @@ export default function GuesserBoard({socket}: { socket: Socket }) {
 
             <CardViewer
                 cards={cards}
-                groups={groups}
+                
             />
 
             <Interpolator

@@ -6,7 +6,7 @@ import {cardImages} from '../../data/ImageImports';
 import {Socket} from 'socket.io-client';
 import CardViewer from './CardViewer';
 import {AddMessage, MoveMessage, RemoveMessage, RotateMessage, ScaleMessage, UpdateMessage} from "../../data/UpdateMessages";
-import cardGroups from '../../data/CardGrups';
+import  '../../data/CardGrupsColors';
 
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const cardRemoveMargin: number = 1;
@@ -33,7 +33,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
     // the saved card ids in each group
     const [groupCardIds, setGroupCardIds] = useState([[], [], [], []] as number[][]);
 
-    const [groups,setGroup]=useState([] as cardGroups[]);
+    
 
     // the board as an HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
@@ -155,9 +155,8 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
 
                         if (groupCardIds[groupIndex].includes(card.id)){
                             tempIndexArray.push(index);
-                            groups.push(new cardGroups(index,groupIndex+1));
-                            setGroup(groups);
-                            console.log(groupIndex);
+                            
+                           
                         }
                     });
 
@@ -318,6 +317,8 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
         setCards(results);
     }
 
+   
+
     // template
     return (
         <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700" onWheel={e => handleRotate(e.deltaY > 0 ? 1 : -1)}>
@@ -338,7 +339,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
                 cards={cards}
                 selection={selection}
                 onCardSelect={selectCard}
-                groups={groups}
+                groups={groupCardIds}
             />
         </div>
     );
