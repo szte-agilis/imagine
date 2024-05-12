@@ -8,12 +8,14 @@ const TopicLengthContainer = (props) => {
     } else {
         return (
             <div className="topic-container">
-                <div>
+                <div className="preserveWhiteSpaces">
                     {'Téma: ' +
                         solution.topic +
                         ', ' +
-                        'Megfejtés hossza: ' +
-                        solution.solution.length}
+                        'Megfejtés: ' +
+                        solution.solution
+                            .replace(/\s/g, '  ')
+                            .replace(/\p{L}/gu, '_ ')}
                 </div>
             </div>
         );
