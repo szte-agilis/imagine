@@ -30,9 +30,11 @@ function GameField() {
     const chatWindow = document.getElementById('chat-window');
     const [isGameEnded, setIsGameEnded] = useState(false);
     const [guessSet, setGuessSet] = useState(true);
+    const [isChoosingSolution, setIsChoosingSolution] = useState(false);
     const [showCorrectGuessAnimation, setShowCorrectGuessAnimation] =
         useState(false);
     const [correctGuessInfo, setCorrectGuessInfo] = useState(null);
+    const [correctGuessers, setCorrectGuessers] = useState([]);
     const navigate = useNavigate();
 
     const [solution, setSolution] = useState(null);
@@ -58,6 +60,10 @@ function GameField() {
                     const messageElement = document.createElement('div');
                     if (username === localUsername && guessedCorrectly) {
                         messageElement.textContent = 'Kitaláltad!';
+                        setCorrectGuessers((prevGuessers) => [
+                            ...prevGuessers,
+                            username,
+                        ]);
                     } else {
                         messageElement.textContent = message;
                     }
@@ -84,7 +90,19 @@ function GameField() {
                 if (canDraw === true) {
                     setGuessSet(false);
                 }
-                setSolution();
+                setSolution(null);
+            });
+
+            socket.on('new round', () => {
+                setCorrectGuessers([]);
+            });
+
+            socket.on('new drawer change', () => {
+                setIsChoosingSolution(true);
+            });
+
+            socket.on('game started', () => {
+                setIsChoosingSolution(false);
             });
 
             socket.on('game-data-sent', (lobby) => {
@@ -158,7 +176,7 @@ function GameField() {
     const handlePassDrawer = () => {
         if (socket) {
             socket.emit('pass drawer button', localLobby);
-            setSolution('');
+            setSolution(null);
         }
     };
 
@@ -179,6 +197,7 @@ function GameField() {
             });
             //socket.emit('startGame', localLobby);
             setRandomSolutions([]);
+            setCorrectGuessers([]);
         }
     };
 
@@ -204,8 +223,12 @@ function GameField() {
             event.preventDefault();
             const message = event.target.value.trim();
             if (message !== '') {
-                socket.emit('chat message', localLobby, message);
-                setChatInput('');
+                if (!isChoosingSolution || (isChoosingSolution && canDraw)) {
+                    if (!correctGuessers.includes(localUsername)) {
+                        socket.emit('chat message', localLobby, message);
+                    }
+                    setChatInput('');
+                }
             }
         }
     };
@@ -365,6 +388,9 @@ function GameField() {
                                                                     solution
                                                                 );
                                                                 clearChat();
+                                                                setCorrectGuessers(
+                                                                    []
+                                                                );
                                                                 setSolution(
                                                                     solution
                                                                 );

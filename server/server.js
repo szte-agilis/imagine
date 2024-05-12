@@ -313,6 +313,7 @@ io.on('connection', (socket) => {
             }
         }
         io.to(lobbyId).emit('reset canvas', lobbyId);
+        io.to(lobbyId).emit('new drawer change');
 
         io.to(lobbyId).emit('points', Array.from(lobby.pointMap.entries()));
 
@@ -360,6 +361,8 @@ io.on('connection', (socket) => {
             'points',
             Array.from(lobby.pointMap.entries())
         );
+        io.to(lobbyId).emit('new round');
+        io.to(lobbyId).emit('game started');
 
         lobby.intervalId = setInterval(() => {
             if (lobby.timer > 0) {
