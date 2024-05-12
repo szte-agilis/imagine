@@ -212,24 +212,26 @@ function GameField() {
 
     function hideWarning() {
         let warning = document.getElementById('warning');
-        warning.classList.remove('animated-warning');
-        warning.animate(
-            [
-                { transform: 'scale(1)' },
+        if (warning) {
+            warning.classList.remove('animated-warning');
+            warning.animate(
+                [
+                    { transform: 'scale(1)' },
+                    {
+                        transform: 'scale(0)',
+                        opacity: 0,
+                    },
+                ],
                 {
-                    transform: 'scale(0)',
-                    opacity: 0,
-                },
-            ],
-            {
-                duration: 150,
-                easing: 'ease-in',
-                fill: 'forwards',
-            }
-        ).onfinish = () => {
-            warning.style.display = 'none';
-            setShowWarning(false);
-        };
+                    duration: 150,
+                    easing: 'ease-in',
+                    fill: 'forwards',
+                }
+            ).onfinish = () => {
+                warning.style.display = 'none';
+                setShowWarning(false);
+            };
+        }
     }
 
     function showWarningFunction() {

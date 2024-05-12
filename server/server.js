@@ -204,10 +204,6 @@ io.on('connection', (socket) => {
                     username,
                     lobby.pointMap.get(username) + 1000 + lobby.timer * 5
                 );
-                io.to(lobbyId).emit(
-                    'points',
-                    Array.from(lobby.pointMap.entries())
-                );
             } else {
                 lobby.pointMap.set(
                     username,
@@ -215,10 +211,6 @@ io.on('connection', (socket) => {
                         1000 -
                         lobby.correctGuesses * 50 +
                         lobby.timer * 5
-                );
-                io.to(lobbyId).emit(
-                    'points',
-                    Array.from(lobby.pointMap.entries())
                 );
             }
             lobby.correctGuesses++;
@@ -231,10 +223,6 @@ io.on('connection', (socket) => {
                     lobby.users[lobby.drawerSocketId],
                     lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) + 1000 //mindenki kitalalta -> drawer 1000 pontot kap
                 );
-                io.to(lobby.drawerSocketId).emit(
-                    'points',
-                    Array.from(lobby.pointMap.entries())
-                );
                 logger(
                     'log',
                     lobby,
@@ -243,6 +231,8 @@ io.on('connection', (socket) => {
                 passDrawer(lobbyId);
                 lobby.correctGuesses = 0;
             }
+
+            io.to(lobbyId).emit('points', Array.from(lobby.pointMap.entries()));
         } else {
             io.to(lobbyId).emit('chat message', {
                 message: `${username}: ${msg}`,
@@ -324,6 +314,8 @@ io.on('connection', (socket) => {
         }
         io.to(lobbyId).emit('reset canvas', lobbyId);
 
+        io.to(lobbyId).emit('points', Array.from(lobby.pointMap.entries()));
+
         lobby.counter += 1;
         logger('log', lobby, 'counter', lobby.counter);
         logger('log', lobby, 'userids', userIds.length);
@@ -344,10 +336,6 @@ io.on('connection', (socket) => {
         io.to(lobbyId).emit(
             'chat message',
             `${newDrawerUsername} is now the drawer`
-        );
-        io.to(lobby.drawerSocketId).emit(
-            'points',
-            Array.from(lobby.pointMap.entries())
         );
         logger(
             'log',
@@ -391,10 +379,6 @@ io.on('connection', (socket) => {
                         lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
                             750
                     );
-                    io.to(lobby.drawerSocketId).emit(
-                        'points',
-                        Array.from(lobby.pointMap.entries())
-                    );
                     logger(
                         'log',
                         lobby,
@@ -417,10 +401,6 @@ io.on('connection', (socket) => {
                         lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
                             250
                     );
-                    io.to(lobby.drawerSocketId).emit(
-                        'points',
-                        Array.from(lobby.pointMap.entries())
-                    );
                     logger(
                         'log',
                         lobby,
@@ -434,10 +414,6 @@ io.on('connection', (socket) => {
                         lobby.users[lobby.drawerSocketId],
                         lobby.pointMap.get(lobby.users[lobby.drawerSocketId]) +
                             500
-                    );
-                    io.to(lobby.drawerSocketId).emit(
-                        'points',
-                        Array.from(lobby.pointMap.entries())
                     );
                     logger(
                         'log',
