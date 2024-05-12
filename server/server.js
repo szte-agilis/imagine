@@ -202,15 +202,13 @@ io.on('connection', (socket) => {
             if (lobby.correctGuesses == 0) {
                 lobby.pointMap.set(
                     username,
-                    lobby.pointMap.get(username) + 1000 + lobby.timer * 5
+                    lobby.pointMap.get(username) + (1000 + lobby.timer * 5)
                 );
             } else {
                 lobby.pointMap.set(
                     username,
                     lobby.pointMap.get(username) +
-                        1000 -
-                        lobby.correctGuesses * 50 +
-                        lobby.timer * 5
+                        (1000 - lobby.correctGuesses * 50 + lobby.timer * 5)
                 );
             }
             lobby.correctGuesses++;
