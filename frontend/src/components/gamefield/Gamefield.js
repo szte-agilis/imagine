@@ -404,11 +404,6 @@ function GameField() {
                                         </div>
                                     </div>
                                 )}
-                                {canDraw && solution && (
-                                    <div id="solution" className="div_style">
-                                        Megfejtés: {solution.solution}
-                                    </div>
-                                )}
                             </div>
                             <div id="middle-div">
                                 <Board
@@ -416,7 +411,16 @@ function GameField() {
                                     localLobby={localLobby}
                                     socket={socket}
                                 />
-                                <TopicLengthContainer solution={solution} />
+                                <TopicLengthContainer
+                                    solution={solution}
+                                    guessed={
+                                        (correctGuessInfo &&
+                                            localUsername ===
+                                                correctGuessInfo &&
+                                            showCorrectGuessAnimation) ||
+                                        (canDraw && solution)
+                                    }
+                                />
                             </div>
                             <div
                                 id="chat-container"
