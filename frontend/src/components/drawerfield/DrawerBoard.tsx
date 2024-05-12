@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, CSSProperties} from 'react';
 import Deck from './Deck';
 import CardTransform from '../../data/CardTransform';
 import Vector2 from '../../data/Vector2';
@@ -317,12 +317,30 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
         setCards(results);
     }
 
-   
+    const nonEmptyIndexes = groupCardIds.reduce((acc, array, index) => {
+        if (array.length > 0) {
+          acc.push(index);
+        }
+        return acc;
+      }, []);
 
     // template
     return (
         <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700" onWheel={e => handleRotate(e.deltaY > 0 ? 1 : -1)}>
             <div className="flex justify-center w-full h-8 bg-sky-700 z-30">
+                {nonEmptyIndexes.map((i)=>{
+                    let c=color(i+1);
+                    let style: CSSProperties = {
+                        backgroundColor:`${c}`,
+                        borderRadius: '50%',
+                        width: '20px',
+                        marginRight: '5px',
+                        textAlign: 'center'
+                    };
+                    return(
+                         <span style={style}>{i+1}</span>
+                    );
+                })}
                 <label className="swap text-xl text-gray-300 h-100 px-8 bg-opacity-40 bg-black font-bold">
                     <input type="checkbox" checked={isDeckOpen} onChange={e => setIsDeckOpen(e.target.checked)}/>
                     <div className="swap-on text-red-600">Close deck</div>
