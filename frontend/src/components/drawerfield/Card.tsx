@@ -9,8 +9,9 @@ export default function Card({transform, group = 0, isSelected = false, selectCa
         height: '100%',
         transform: `translate(-50%, -50%) scale(${transform.scale}) rotate(${transform.rotation}deg)`,
         boxShadow: isSelected ? `0px 0px ${3 / transform.scale}px ${0.6 / transform.scale}px ${cardShadowColor(group)}` : 'none',
-        backgroundColor: `${cardBackgroundColors[group]}20`,
-        borderRadius: '6%'
+        backgroundColor: `#ffffff20`,
+        borderRadius: '6%',
+        border: `4px solid ${cardBackgroundColors[group]}`
     };
 
     return (
@@ -25,13 +26,13 @@ export default function Card({transform, group = 0, isSelected = false, selectCa
 }
 
 export const cardBackgroundColors: string[] = [
-    '#ffffff',
-    '#ffea00',
-    '#ff0000',
-    '#008fff',
-    '#1aff00'
+    '#f9f7f300',
+    '#ffde59',
+    '#ff3131',
+    '#0097b2',
+    '#00bf63'
 ];
 
 export function cardShadowColor(groupIndex: number): string {
-    return groupIndex > 0 ? "rgba(255, 255, 255, 0.9)" : "rgba(46, 248, 255, 0.9)";
+    return "#62efbd";
 }
