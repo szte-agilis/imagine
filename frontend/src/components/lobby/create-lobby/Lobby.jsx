@@ -245,7 +245,7 @@ export default function App() {
     function PlayerList() {
         return (
             <div id="player-list">
-                <div id="player-count-div" className="bg-gray-700">
+                <div id="player-count-div" className="bg-gray-700 text-[#62efbd] font-semibold">
                     <p>{users.length} Játékos</p>
                 </div>
                 <div id="list-column" className="bg-gray-800">
@@ -325,7 +325,7 @@ export default function App() {
                     <button id="exit-button" className="btn btn-error" onClick={exit}>Kilépés</button>
                 </div>
                 <div id="settings">
-                    <div id="form-header" className="bg-gray-700">
+                    <div id="form-header" className="bg-gray-700 text-[#62efbd] font-semibold">
                         <p>Beállítások</p>
                     </div>
                     <div className="mx-auto bg-gray-800" id="settings-column">
@@ -356,7 +356,7 @@ export default function App() {
                         </div>
                         <div className="relative z-0 w-full mb-5 group">
                             <input type="password" name="password" id="password" disabled={!IsOwner(localUsername)}
-                                   class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                   className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                    placeholder=" "
                                    value={lobbyData.password}
                                    onChange={handleFormChange}
@@ -370,7 +370,7 @@ export default function App() {
                         <div className="grid md:grid-cols-3 md:gap-6">
                             <div className="relative z-0 w-full mb-5 group">
                                 <input type="number" name="rounds" id="rounds" disabled={!IsOwner(localUsername)}
-                                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                       className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                        placeholder=" " required
                                        value={lobbyData.rounds}
                                        onChange={handleFormChange}
@@ -383,7 +383,7 @@ export default function App() {
                             </div>
                             <div className="relative z-0 w-full mb-5 group">
                                 <input type="number" name="roundTime" id="roundTime" disabled={!IsOwner(localUsername)}
-                                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                       className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                        placeholder=" " required
                                        value={lobbyData.roundTime}
                                        onChange={handleFormChange}
@@ -397,7 +397,7 @@ export default function App() {
                             <div className="relative z-0 w-full mb-5 group">
                                 <input type="number" name="maxPlayers" id="maxPlayers"
                                        disabled={!IsOwner(localUsername)}
-                                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                       className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                        placeholder=" " required
                                        value={lobbyData.maxPlayers}
                                        onChange={handleFormChange}
@@ -413,7 +413,7 @@ export default function App() {
                                className="block mb-2 text-sm font-medium text-gray-500 dark:text-white"><p
                             id="category-p">Kategória</p>
                             <select id="category" name="category" disabled={!IsOwner(localUsername)}
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     value={lobbyData.category}
                                     onChange={handleFormChange}
                                     onBlur={handleFormChangeOnBlur}

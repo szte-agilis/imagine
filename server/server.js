@@ -310,7 +310,7 @@ io.on('connection', (socket) => {
                 break;
             }
         }
-        io.to(lobbyId).emit('reset canvas', lobbyId);
+        io.to(lobbyId).emit('board-reset', { duration: 0 });
         io.to(lobbyId).emit('new drawer change');
 
         io.to(lobbyId).emit('points', Array.from(lobby.pointMap.entries()));
@@ -489,16 +489,24 @@ io.on('connection', (socket) => {
         io.emit('list-lobbies', lobbiesStats());
     });
 
-    socket.on('card-add', (lobbyId, card) => {
-        io.to(lobbyId).emit('card-add', card);
+    socket.on('board-add', (lobbyId, message) => {
+        io.to(lobbyId).emit('board-add', message);
     });
 
-    socket.on('card-modify', (lobbyId, cards) => {
-        io.to(lobbyId).emit('card-modify', cards);
+    socket.on('board-remove', (lobbyId, message) => {
+        io.to(lobbyId).emit('board-remove', message);
     });
 
-    socket.on('card-remove', (lobbyId, indexes) => {
-        io.to(lobbyId).emit('card-remove', indexes);
+    socket.on('board-rotate', (lobbyId, message) => {
+        io.to(lobbyId).emit('board-rotate', message);
+    });
+
+    socket.on('board-scale', (lobbyId, message) => {
+        io.to(lobbyId).emit('board-scale', message);
+    });
+
+    socket.on('board-move', (lobbyId, message) => {
+        io.to(lobbyId).emit('board-move', message);
     });
 });
 

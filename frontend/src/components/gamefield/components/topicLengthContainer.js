@@ -8,7 +8,7 @@ const TopicLengthContainer = (props) => {
     } else {
         if (guessed) {
             return (
-                <div className="topic-container">
+                <div className="topic-container border-2 border-[#62efbd] rounded-xl mt-4">
                     <div className="preserveWhiteSpaces">
                         {'Téma: ' +
                             solution.topic +
@@ -20,7 +20,7 @@ const TopicLengthContainer = (props) => {
             );
         } else {
             return (
-                <div className="topic-container">
+                <div className="topic-container border-2 border-[#62efbd] rounded-xl mt-4">
                     <div className="preserveWhiteSpaces">
                         {'Téma: ' +
                             solution.topic +
