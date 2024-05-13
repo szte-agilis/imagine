@@ -313,9 +313,9 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
 
     // template
     return (
-        <div className="h-full flex flex-col border-4 border-t-0 border-sky-700 bg-sky-700 rounded" onWheel={e => handleRotate(e.deltaY > 0 ? 1 : -1)}>
-            <div className="flex justify-center w-full h-8 bg-sky-700 z-30">
-                <div className="basis-1/2 flex justify-center">
+        <div className="h-full flex flex-col border-4 border-t-0 border-[#62efbd] bg-[#62efbd] rounded-xl" onWheel={e => handleRotate(e.deltaY > 0 ? 1 : -1)}>
+            <div className="flex justify-center w-full h-8 bg-[#62efbd] z-30 rounded-xl">
+            <div className="basis-1/2 flex justify-center">
                     {cardGroups.map((ids, index) => {
                         // group is empty, does not exist
                         if (ids.length === 0) {
@@ -324,19 +324,19 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
 
                         // set the style of the group
                         const style = {
-                            backgroundColor: cardBackgroundColors[index + 1],
+                            backgroundColor: cardBackgroundColors[index+1],
                             textShadow: '0 0 0.125em black'
                         }
 
-                        return <span className="rounded-full size-6 my-1 mx-2 text-center text-white font-bold shadow shadow-black" style={style}>
+                        return <span className="rounded size-6 my-1 mx-2 text-center text-white font-bold shadow shadow-black" style={style}>
                             {index + 1}
                         </span>
                     })}
                 </div>
-                <label className="swap text-xl text-gray-300 h-100 px-8 bg-opacity-40 bg-black font-bold">
+                <label className="swap text-xl w-5/12 text-gray-300 h-100 px-8 bg-[#216e53] font-bold ">
                     <input type="checkbox" checked={isDeckOpen} onChange={e => setIsDeckOpen(e.target.checked)}/>
-                    <div className="swap-on text-red-600">Kártyaasztal</div>
-                    <div className="swap-off text-green-600">Kártyaasztal</div>
+                    <div className="swap-on text-[#f9f7f3] text-center">Kártyapakli bezárása</div>
+                    <div className="swap-off text-[#f9f7f3] text-center">Kártyapakli</div>
                 </label>
                 <div className="basis-1/2"></div>
             </div>

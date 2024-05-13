@@ -78,8 +78,8 @@ export default function GuesserBoard({socket}: { socket: Socket }) {
     }
 
     return (
-        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700 bg-sky-700 rounded">
-            <div className="flex justify-center w-full h-8 bg-sky-700 min-h-8"></div>
+        <div className="h-full flex flex-col relative border-4 border-t-0 border-[#62efbd] bg-[#62efbd] rounded-xl">
+            <div className="flex justify-center w-full h-8 bg-[#62efbd] min-h-8 rounded-t-xl"></div>
 
             <CardViewer
                 cards={cards}

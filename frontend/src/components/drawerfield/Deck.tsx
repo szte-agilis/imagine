@@ -8,7 +8,7 @@ export default function Deck({ onCardSelect, cardIds }: { onCardSelect: (index: 
     };
 
     return (
-        <div className="absolute z-20 bg-opacity-50 bg-slate-950 size-full p-4 overflow-auto fancy-scrollbar">
+        <div className="absolute z-20 bg-opacity-50 bg-slate-950 size-full p-4 overflow-auto fancy-scrollbar rounded-xl">
             <div className="flex flex-wrap justify-center">
                 {cardIds.map((id: number) => {
                     return (

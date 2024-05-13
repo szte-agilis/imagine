@@ -18,7 +18,7 @@ export default function CardViewer(
     }) {
 
     return (
-        <div className="relative overflow-hidden rounded bg-[#252729]" id="board" style={{aspectRatio: BOARD_ASPECT_RATIO}}>
+        <div className="relative overflow-hidden rounded-xl bg-[#252729]" id="board" style={{aspectRatio: BOARD_ASPECT_RATIO}}>
             {cards.map((transform: CardTransform, index: number) =>
                 <Card
                     key={index}
