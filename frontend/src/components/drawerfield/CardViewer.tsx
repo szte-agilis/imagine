@@ -30,7 +30,7 @@ export default function CardViewer(
     return (
         <div className="relative bg-gray-800 overflow-hidden" id="board" style={{aspectRatio: BOARD_ASPECT_RATIO}}>
             {cards.map((transform, index) => {
-                     let g=findGroupIndex(groups,index)+1;
+                     let g=findGroupIndex(groups,transform.id)+1;
              return (
                  <Card key={index} transform={transform} group={g} isSelected={selection.includes(index)} selectCallback={() => onCardSelect(index)} />
              );
