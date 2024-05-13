@@ -93,6 +93,10 @@ function GameField() {
                 setSolution(null);
             });
 
+            socket.on('new round', () => {
+                setCorrectGuessers([]);
+            });
+
             socket.on('new drawer change', () => {
                 setIsChoosingSolution(true);
             });
@@ -244,10 +248,19 @@ function GameField() {
                     easing: 'ease-in',
                     fill: 'forwards',
                 }
-            ).onfinish = () => setShowWarning(false);
+            ).onfinish = () => {
+                warning.style.display = 'none';
+                setShowWarning(false);
+            };
         } else {
             console.error('#warning html element not found');
         }
+    }
+
+    function showWarningFunction() {
+        setShowWarning(true);
+
+        setTimeout(hideWarning, 3000);
     }
 
     const leaveGamePressed = () => {
@@ -357,26 +370,35 @@ function GameField() {
 
                                 {canDraw && randomSolutions.length > 0 && (
                                     <div>
-                                        <h2>Choose a solution:</h2>
-                                        {randomSolutions.map(
-                                            (solution, index) => (
-                                                <button
-                                                    id={index.toString()}
-                                                    className="button_class"
-                                                    key={index}
-                                                    onClick={() => {
-                                                        startGameTimer(
-                                                            solution
-                                                        );
-                                                        clearChat();
-                                                        setCorrectGuessers([]);
-                                                        setSolution(solution);
-                                                    }}
-                                                >
-                                                    {solution}
-                                                </button>
-                                            )
-                                        )}
+                                        <div className="modal-background">
+                                            <div className="modal-content">
+                                                <h2>Choose a solution:</h2>
+                                                <br />
+                                                {randomSolutions.map(
+                                                    (solution, index) => (
+                                                        <button
+                                                            id={index.toString()}
+                                                            className="solution-button button_class"
+                                                            key={index}
+                                                            onClick={() => {
+                                                                startGameTimer(
+                                                                    solution
+                                                                );
+                                                                clearChat();
+                                                                setCorrectGuessers(
+                                                                    []
+                                                                );
+                                                                setSolution(
+                                                                    solution
+                                                                );
+                                                            }}
+                                                        >
+                                                            {solution.solution}
+                                                        </button>
+                                                    )
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>

@@ -112,9 +112,9 @@ io.on('connection', (socket) => {
         }
 
         socket.join(lobbyId);
-        console.log(`User ${username} joined lobby: ${lobbyId}`);
 
         const lobby = getLobby(lobbyId);
+        logger('log', lobby, username, 'joined');
 
         lobby.users[socket.id] = username;
 
@@ -167,6 +167,7 @@ io.on('connection', (socket) => {
         lobby.rounds = Number.parseInt(lobbyData.rounds, 10);
         lobby.users = {};
         lobby.gameStarted = true;
+        logger('log', lobby, 'Starting game with config', lobbyData);
         io.emit('list-lobbies', lobbiesStats());
         io.to(lobbyId).emit('redirect', '/gamefield');
     });

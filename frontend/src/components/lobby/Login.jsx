@@ -128,6 +128,7 @@ export default function App() {
             setShowWarning(true);
             return;
         }
+
         try {
             const isUsernameTaken = await checkUsername();
             if (isUsernameTaken) {
