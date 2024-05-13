@@ -106,7 +106,7 @@ export default function App() {
         if (lobbyData.name.length < LOBBYNAME_MIN || lobbyData.name.length > LOBBYNAME_MAX) {
             return false;
         }
-        if (lobbyData.password.length < PASSWORD_MIN || lobbyData.password.length > PASSWORD_MAX) {
+        if (lobbyData.password.length > PASSWORD_MAX) {
             return false;
         }
         if (lobbyData.rounds < ROUNDS_MIN || lobbyData.rounds > ROUNDS_MAX) {
@@ -138,7 +138,7 @@ export default function App() {
             return false;
         }
 
-        if (lobbyData.password.length < PASSWORD_MIN || lobbyData.password.length > PASSWORD_MAX) {
+        if (lobbyData.password.length > PASSWORD_MAX) {
             setWarningMessage("Nem megfelelő jelszó hossz! [" + PASSWORD_MIN + "," + PASSWORD_MAX + "] ");
             setShowWarning(true);
             return false;

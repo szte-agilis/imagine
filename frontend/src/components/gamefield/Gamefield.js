@@ -30,9 +30,11 @@ function GameField() {
     const chatWindow = document.getElementById('chat-window');
     const [isGameEnded, setIsGameEnded] = useState(false);
     const [guessSet, setGuessSet] = useState(true);
+    const [isChoosingSolution, setIsChoosingSolution] = useState(false);
     const [showCorrectGuessAnimation, setShowCorrectGuessAnimation] =
         useState(false);
     const [correctGuessInfo, setCorrectGuessInfo] = useState(null);
+    const [correctGuessers, setCorrectGuessers] = useState([]);
     const navigate = useNavigate();
 
     const [solution, setSolution] = useState('');
@@ -58,6 +60,10 @@ function GameField() {
                     const messageElement = document.createElement('div');
                     if (username === localUsername && guessedCorrectly) {
                         messageElement.textContent = 'Kitaláltad!';
+                        setCorrectGuessers((prevGuessers) => [
+                            ...prevGuessers,
+                            username,
+                        ]);
                     } else {
                         messageElement.textContent = message;
                     }
@@ -84,10 +90,19 @@ function GameField() {
                 if (canDraw === true) {
                     setGuessSet(false);
                 }
-                setSolution();
+                setSolution(null);
+            });
+
+            socket.on('new drawer change', () => {
+                setIsChoosingSolution(true);
+            });
+
+            socket.on('game started', () => {
+                setIsChoosingSolution(false);
             });
 
             socket.on('new round', (currentRound) => {
+                setCorrectGuessers([]);
                 setCurrentRound(currentRound);
                 if (rounds + 1 === currentRound) {
                     setIsGameEnded(true);
@@ -155,7 +170,7 @@ function GameField() {
     const handlePassDrawer = () => {
         if (socket) {
             socket.emit('pass drawer button', localLobby);
-            setSolution('');
+            setSolution(null);
         }
     };
 
@@ -176,6 +191,7 @@ function GameField() {
             });
             //socket.emit('startGame', localLobby);
             setRandomSolutions([]);
+            setCorrectGuessers([]);
         }
     };
 
@@ -201,29 +217,37 @@ function GameField() {
             event.preventDefault();
             const message = event.target.value.trim();
             if (message !== '') {
-                socket.emit('chat message', localLobby, message);
-                setChatInput('');
+                if (!isChoosingSolution || (isChoosingSolution && canDraw)) {
+                    if (!correctGuessers.includes(localUsername)) {
+                        socket.emit('chat message', localLobby, message);
+                    }
+                    setChatInput('');
+                }
             }
         }
     };
 
     function hideWarning() {
         let warning = document.getElementById('warning');
-        warning.classList.remove('animated-warning');
-        warning.animate(
-            [
-                { transform: 'scale(1)' },
+        if (warning) {
+            warning.classList.remove('animated-warning');
+            warning.animate(
+                [
+                    { transform: 'scale(1)' },
+                    {
+                        transform: 'scale(0)',
+                        opacity: 0,
+                    },
+                ],
                 {
-                    transform: 'scale(0)',
-                    opacity: 0,
-                },
-            ],
-            {
-                duration: 150,
-                easing: 'ease-in',
-                fill: 'forwards',
-            }
-        ).onfinish = () => setShowWarning(false);
+                    duration: 150,
+                    easing: 'ease-in',
+                    fill: 'forwards',
+                }
+            ).onfinish = () => setShowWarning(false);
+        } else {
+            console.error('#warning html element not found');
+        }
     }
 
     const leaveGamePressed = () => {
@@ -345,6 +369,7 @@ function GameField() {
                                                             solution
                                                         );
                                                         clearChat();
+                                                        setCorrectGuessers([]);
                                                         setSolution(solution);
                                                     }}
                                                 >
@@ -354,17 +379,22 @@ function GameField() {
                                         )}
                                     </div>
                                 )}
-                                {canDraw && solution && (
-                                    <div id="solution" className="div_style">
-                                        Megfejtés: {solution}
-                                    </div>
-                                )}
                             </div>
                             <div id="middle-div">
                                 <Board
                                     canDraw={guessSet && canDraw}
                                     lobbyId={localLobby}
                                     socket={socket}
+                                />
+                                <TopicLengthContainer
+                                    solution={solution}
+                                    guessed={
+                                        (correctGuessInfo &&
+                                            localUsername ===
+                                                correctGuessInfo &&
+                                            showCorrectGuessAnimation) ||
+                                        (canDraw && solution)
+                                    }
                                 />
                             </div>
                             <div
