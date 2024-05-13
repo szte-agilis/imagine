@@ -1,6 +1,6 @@
 
     export function color(id:number, def_color:String ="#ffffff10"):String {
-       const c=["#B8860B","#8B0000","#00008B","#006400"];
+       const c=["rgba(184, 134, 11, 0.6)", "rgba(139, 0, 0, 0.6)", "rgba(0, 0, 139, 0.6)", "rgba(0, 100, 64, 0.6)"];
        let s=def_color;
        if(id>0){
         s=c[id-1];
