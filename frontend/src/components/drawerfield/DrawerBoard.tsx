@@ -1,4 +1,4 @@
-import {useState, useEffect, CSSProperties} from 'react';
+import {useState, useEffect} from 'react';
 import Deck from './Deck';
 import CardTransform from '../../data/CardTransform';
 import Vector2 from '../../data/Vector2';
@@ -6,7 +6,7 @@ import {cardImages} from '../../data/ImageImports';
 import {Socket} from 'socket.io-client';
 import CardViewer from './CardViewer';
 import {AddMessage, MoveMessage, RemoveMessage, RotateMessage, ScaleMessage, UpdateMessage} from "../../data/UpdateMessages";
-import  {color,neon_color} from '../../data/CardGrupsColors';
+import {cardBackgroundColors} from "./Card";
 
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const cardRemoveMargin: number = 1;
@@ -31,9 +31,7 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
     const [lastUpdate, setLastUpdate] = useState(0);
 
     // the saved card ids in each group
-    const [groupCardIds, setGroupCardIds] = useState([[], [], [], []] as number[][]);
-
-    
+    const [cardGroups, setCardGroups] = useState([[], [], [], []] as number[][]);
 
     // the board as an HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
@@ -121,22 +119,22 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
                 // left control key is pressed
                 setIsCtrlDown(true);
                 break;
-            
+
             // Group key events
             case '1' :
             case '2' :
             case '3' :
             case '4' :
-                var groupIndex : number = parseInt(e.key) - 1;
+                const groupIndex: number = parseInt(e.key) - 1;
 
-                if (e.altKey){
+                if (e.altKey) {
                     // Save id-s into selected group array
-                    let tempIdArray : number[][] = groupCardIds.slice();  // Clone array into temporary
+                    let tempIdArray: number[][] = cardGroups.slice();  // Clone array into temporary
                     tempIdArray[groupIndex] = [] as number[];  // Clear selected group array
 
                     selection.forEach(cardIndex => {
                         // Remove id from other group(s) if they contain it
-                        let filteredArray : number[][] = tempIdArray.map((row, index) => {
+                        let filteredArray: number[][] = tempIdArray.map((row, index) => {
                             if (index === groupIndex) return row;  // Don't filter selected group
                             return row.filter(element => element !== cards[cardIndex].id);
                         });
@@ -145,18 +143,14 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
                         tempIdArray[groupIndex][cardIndex] = cards[cardIndex].id;
                     });
 
-                    setGroupCardIds(tempIdArray);
-                }
-                else{
+                    setCardGroups(tempIdArray);
+                } else {
                     // Mark cards as selected, if in selected group and on board
-                    const tempIndexArray : number[] = [] as number[];
+                    const tempIndexArray: number[] = [] as number[];
 
                     cards.forEach((card, index) => {
-
-                        if (groupCardIds[groupIndex].includes(card.id)){
+                        if (cardGroups[groupIndex].includes(card.id)) {
                             tempIndexArray.push(index);
-                            
-                           
                         }
                     });
 
@@ -317,48 +311,49 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket
         setCards(results);
     }
 
-    const nonEmptyIndexes = groupCardIds.reduce((acc, array, index) => {
-        if (array.length > 0) {
-          acc.push(index);
-        }
-        return acc;
-      }, []);
-
     // template
     return (
-        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700" onWheel={e => handleRotate(e.deltaY > 0 ? 1 : -1)}>
+        <div className="h-full flex flex-col border-4 border-t-0 border-sky-700 bg-sky-700 rounded" onWheel={e => handleRotate(e.deltaY > 0 ? 1 : -1)}>
             <div className="flex justify-center w-full h-8 bg-sky-700 z-30">
-                {nonEmptyIndexes.map((i)=>{
-                    let c=color(i+1);
-                    let style: CSSProperties = {
-                        backgroundColor:`${c}`,
-                        borderRadius: '50%',
-                        width: '20px',
-                        marginRight: '5px',
-                        textAlign: 'center'
-                    };
-                    return(
-                         <span style={style}>{i+1}</span>
-                    );
-                })}
+                <div className="basis-1/2 flex justify-center">
+                    {cardGroups.map((ids, index) => {
+                        // group is empty, does not exist
+                        if (ids.length === 0) {
+                            return null;
+                        }
+
+                        // set the style of the group
+                        const style = {
+                            backgroundColor: cardBackgroundColors[index + 1],
+                            textShadow: '0 0 0.125em black'
+                        }
+
+                        return <span className="rounded-full size-6 my-1 mx-2 text-center text-white font-bold shadow shadow-black" style={style}>
+                            {index + 1}
+                        </span>
+                    })}
+                </div>
                 <label className="swap text-xl text-gray-300 h-100 px-8 bg-opacity-40 bg-black font-bold">
                     <input type="checkbox" checked={isDeckOpen} onChange={e => setIsDeckOpen(e.target.checked)}/>
-                    <div className="swap-on text-red-600">Close deck</div>
-                    <div className="swap-off text-green-600">Open deck</div>
+                    <div className="swap-on text-red-600">Kártyaasztal</div>
+                    <div className="swap-off text-green-600">Kártyaasztal</div>
                 </label>
+                <div className="basis-1/2"></div>
             </div>
 
-            {isDeckOpen && <Deck
-                onCardSelect={handleAdd}
-                cardIds={cardsInDeck}
-            />}
+            <div className="relative">
+                {isDeckOpen && <Deck
+                    onCardSelect={handleAdd}
+                    cardIds={cardsInDeck}
+                />}
 
-            <CardViewer
-                cards={cards}
-                selection={selection}
-                onCardSelect={selectCard}
-                groups={groupCardIds}
-            />
+                <CardViewer
+                    cards={cards}
+                    selection={selection}
+                    onCardSelect={selectCard}
+                    groups={cardGroups}
+                />
+            </div>
         </div>
     );
 }
