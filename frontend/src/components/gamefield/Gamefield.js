@@ -7,6 +7,7 @@ import './GameEnd.js';
 import GameEnd from './GameEnd.js';
 import { useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
+import TopicLengthContainer from './components/topicLengthContainer';
 
 function GameField() {
     const lobbyData = JSON.parse(sessionStorage.getItem('lobbyData'));
