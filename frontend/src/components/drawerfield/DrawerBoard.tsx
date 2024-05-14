@@ -1,30 +1,25 @@
 import {useState, useEffect} from 'react';
-import CardViewer, {ASPECT_RATIO} from './CardViewer';
 import Deck from './Deck';
-import {CardTransform} from '../../data/CardTransform';
-import {Vector2} from '../../data/Vector2';
-import {transparentCards} from './imageImports';
+import CardTransform from '../../data/CardTransform';
+import Vector2 from '../../data/Vector2';
+import {cardImages} from '../../data/ImageImports';
 import {Socket} from 'socket.io-client';
-
-// the number of milliseconds to wait between card position updates
-// lower number -> faster updates, smoother movement, more network and CPU used
-const updateFrequencyMs: number = 100;
+import CardViewer from './CardViewer';
+import {AddMessage, MoveMessage, RemoveMessage, RotateMessage, ScaleMessage, UpdateMessage} from "../../data/UpdateMessages";
+import {cardBackgroundColors} from "./Card";
 
 // how close do we have to move the card to the edge of the board to remove it (in percentage)
 const cardRemoveMargin: number = 1;
 
-export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null, socket: Socket | null }) {
-    // the array storing the transforms of the currently placed cards
+export default function DrawerBoard({lobbyId, socket}: { lobbyId: string, socket: Socket }) {
+    // the state of the card array
     const [cards, setCards] = useState([] as CardTransform[]);
 
-    // the time of the last card movement update
-    const [lastUpdate, setLastUpdate] = useState(Date.now());
+    // the indexes of the cards in the current selection
+    const [selection, setSelection] = useState([] as number[]);
 
     // is the deck currently open
     const [isDeckOpen, setIsDeckOpen] = useState(false);
-
-    // array to store the indexes of the selected cards
-    const [selectedIndexes, setSelectedIndexes] = useState([] as number[]);
 
     // is the left control key pressed
     const [isCtrlDown, setIsCtrlDown] = useState(false);
@@ -32,312 +27,330 @@ export default function DrawerBoard({lobbyId, socket}: { lobbyId: string | null,
     // is the left mouse button is pressed
     const [isMouseDown, setIsMouseDown] = useState(false);
 
-    // the board HTML element
+    // the time of the last card update
+    const [lastUpdate, setLastUpdate] = useState(0);
+
+    // the saved card ids in each group
+    const [cardGroups, setCardGroups] = useState([[], [], [], []] as number[][]);
+
+    // the board as an HTML element
     const board: HTMLElement = document.getElementById("board") as HTMLElement;
 
     // the array of cards in the deck (all the cards currently not placed on the board)
-    const cardsInDeck: number[] = transparentCards.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
+    const cardsInDeck: number[] = cardImages.map((_, index) => index).filter(id => !cards.some(transform => transform.id === id));
 
-    // add event listeners to the window
-    // wrap it in useEffect ensuring it is added only once
+    // handle keyboard and mouse events
     useEffect(() => {
         window.addEventListener('mousedown', onMouseDown);
         window.addEventListener('mouseup', onMouseUp);
-        window.addEventListener('mousemove', onMouseMove);
         window.addEventListener('keyup', onKeyUp);
         window.addEventListener('keydown', onKeyDown);
+        window.addEventListener('mousemove', onMouseMove);
 
+        // must remove event listeners, so they are not added multiple times
         return () => {
             window.removeEventListener('mousedown', onMouseDown);
             window.removeEventListener('mouseup', onMouseUp);
-            window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('keyup', onKeyUp);
             window.removeEventListener('keydown', onKeyDown);
+            window.removeEventListener('mousemove', onMouseMove);
         }
     });
 
     // handle mouse down event
-    function onMouseDown(_: MouseEvent) {
-        setIsMouseDown(true);
+    function onMouseDown(e: MouseEvent): void {
+        // left mouse button is pressed
+        if (e.button === 0) {
+            setIsMouseDown(true);
+        }
     }
 
     // handle mouse up event
-    function onMouseUp(_: MouseEvent) {
-        // mouse button is no longer pressed
-        setIsMouseDown(false);
+    function onMouseUp(e: MouseEvent): void {
+        // left mouse button released
+        if (e.button === 0) {
+            setIsMouseDown(false);
+        }
 
-        // nothing to do when no cards are selected
-        if(selectedIndexes.length === 0){
+        // no cards are selected, do nothing
+        if (selection.length === 0) {
             return;
         }
 
-        // do not reset selection when ctrl is pressed
+        // ctrl is pressed, do nothing
         if (isCtrlDown) {
-            // still stream updates so the board looks the same for everyone
-            if(socket){
-                socket.emit('card-modify', lobbyId, cards);
-            }
-
             return;
         }
 
-        // get the cards that will stay on the board
-        const remainingCards: CardTransform[] = cards.filter(card => {
-            const position: Vector2 = card.position;
+        // get the ids of the cards that are moved outside the board
+        const idsToRemove = cards.filter((card: CardTransform) => {
+            const pos: Vector2 = card.position;
 
-            return position.x > cardRemoveMargin && position.x < 100 - cardRemoveMargin && position.y > cardRemoveMargin && position.y < 100 - cardRemoveMargin;
-        });
+            return pos.x < cardRemoveMargin || pos.x > 100 - cardRemoveMargin || pos.y < cardRemoveMargin || pos.y > 100 - cardRemoveMargin;
+        }).map((card: CardTransform) => card.id);
 
-        // reset selection and delete the cards moved outside
-        setSelectedIndexes([]);
-        setCards(remainingCards);
+        // reset the selection
+        setSelection([]);
 
-        // stream changes
-        if (socket) {
-            socket.emit('card-modify', lobbyId, remainingCards);
-        }
+        // remove the cards moved outside
+        handleRemove(idsToRemove);
     }
 
     // handle key down events
-    function onKeyDown(e: KeyboardEvent) {
+    function onKeyDown(e: KeyboardEvent): void {
         switch (e.key) {
-            case "ArrowLeft":
-                rotateCards(-1);
+            case 'ArrowLeft':
+                // rotate the selection to the left
+                handleRotate(-1);
                 break;
-            case "ArrowRight":
-                rotateCards(1);
+            case 'ArrowRight':
+                // rotate the selection to the right
+                handleRotate(1);
                 break;
-            case "ArrowUp":
-                resizeCards(1.1);
+            case 'ArrowUp':
+                // scale the selection up
+                handleScale(1.1);
                 break;
-            case "ArrowDown":
-                resizeCards(0.9);
+            case 'ArrowDown':
+                // scale the selection down
+                handleScale(0.9);
                 break;
-            case "Control":
+            case 'Control':
+                // left control key is pressed
                 setIsCtrlDown(true);
+                break;
+
+            // Group key events
+            case '1' :
+            case '2' :
+            case '3' :
+            case '4' :
+                const groupIndex: number = parseInt(e.key) - 1;
+
+                if (e.altKey) {
+                    // Save id-s into selected group array
+                    let tempIdArray: number[][] = cardGroups.slice();  // Clone array into temporary
+                    tempIdArray[groupIndex] = [] as number[];  // Clear selected group array
+
+                    selection.forEach(cardIndex => {
+                        // Remove id from other group(s) if they contain it
+                        let filteredArray: number[][] = tempIdArray.map((row, index) => {
+                            if (index === groupIndex) return row;  // Don't filter selected group
+                            return row.filter(element => element !== cards[cardIndex].id);
+                        });
+                        tempIdArray = filteredArray.slice();
+
+                        tempIdArray[groupIndex][cardIndex] = cards[cardIndex].id;
+                    });
+
+                    setCardGroups(tempIdArray);
+                } else {
+                    // Mark cards as selected, if in selected group and on board
+                    const tempIndexArray: number[] = [] as number[];
+
+                    cards.forEach((card, index) => {
+                        if (cardGroups[groupIndex].includes(card.id)) {
+                            tempIndexArray.push(index);
+                        }
+                    });
+
+                    setSelection(tempIndexArray);
+                }
                 break;
         }
     }
 
     // handle key up events
-    function onKeyUp(e: KeyboardEvent) {
+    function onKeyUp(e: KeyboardEvent): void {
+        // left control key is released
         if (e.key === 'Control') {
             setIsCtrlDown(false);
         }
     }
 
     // handle mouse movement
-    function onMouseMove(e: MouseEvent) {
+    function onMouseMove(e: MouseEvent): void {
         // prevent default dragging behaviour
         e.preventDefault();
-
-        // no cards to move
-        if (selectedIndexes.length === 0) {
-            return;
-        }
 
         // do not move the cards if the mouse is not pressed
         if (!isMouseDown) {
             return;
         }
 
-        // modify the position of all selected cards
-        selectedIndexes.forEach(index => {
-            const position: Vector2 = cards[index].position;
+        // move the selection
+        handleMove(e.movementX, e.movementY);
+    }
 
-            position.x += (e.movementX * 100) / board.offsetWidth;
-            position.y += (e.movementY * 100) / board.offsetHeight;
-        })
+    // add a card to the board
+    function handleAdd(id: number): void {
+        // calculate the duration of the update animation
+        const duration: number = calculateDuration(50);
 
-        const now: number = Date.now();
-        const elapsed: number = now - lastUpdate;
+        // create an update message
+        const message: AddMessage = new AddMessage(duration, id);
 
-        if (elapsed >= updateFrequencyMs) {
-            setLastUpdate(now);
+        // close the deck after adding a card
+        setIsDeckOpen(false);
 
-            if (socket) {
-                socket.emit('card-modify', lobbyId, cards);
-            }
+        // update the board
+        streamAndApply(message);
+    }
+
+    // remove cards from the board
+    function handleRemove(ids: number[]): void {
+        // no cards to remove, do nothing
+        if (ids.length === 0) {
+            return;
         }
 
-        // update cards
-        setCards([...cards]);
+        // calculate the duration of the update animation
+        const duration: number = calculateDuration(50);
+
+        // create an update message
+        const message: RemoveMessage = new RemoveMessage(duration, ids);
+
+        // update the board
+        streamAndApply(message);
+    }
+
+    // move the selected cards
+    function handleMove(x: number, y: number): void {
+        // no movement, do nothing
+        if (x === 0 && y === 0) {
+            return;
+        }
+
+        // no cards are selected, do nothing
+        if (selection.length === 0) {
+            return;
+        }
+
+        // calculate the vector of the movement
+        const vector: Vector2 = new Vector2(x / board.offsetWidth * 100, y / board.offsetHeight * 100);
+
+        // calculate the duration of the update animation
+        const duration: number = calculateDuration(50);
+
+        // create an update message
+        const message: MoveMessage = new MoveMessage(duration, selection, vector);
+
+        // update the board
+        streamAndApply(message);
+    }
+
+    // rotate the selected cards
+    function handleRotate(direction: number): void {
+        // calculate the angle of the rotation
+        const angle: number = 15 * direction;
+
+        // calculate the duration of the update animation
+        const duration: number = calculateDuration(50);
+
+        // create an update message
+        const message: RotateMessage = new RotateMessage(duration, selection, angle);
+
+        // update the board
+        streamAndApply(message);
+    }
+
+    // scale the selected cards
+    function handleScale(amount: number): void {
+        // calculate the duration of the update animation
+        const duration: number = calculateDuration(50);
+
+        // create an update message
+        const message: ScaleMessage = new ScaleMessage(duration, selection, amount);
+
+        // update the board
+        streamAndApply(message);
     }
 
     // select a card
-    function selectCard(index: number) {
+    function selectCard(index: number): void {
         // ctrl is pressed
         if (isCtrlDown) {
-            const matchIndex: number = selectedIndexes.indexOf(index);
+            const matchIndex: number = selection.indexOf(index);
 
             // not selected -> add to selection
             if (matchIndex < 0) {
-                selectedIndexes.push(index);
-                setSelectedIndexes([...selectedIndexes]);
+                setSelection([...selection, index]);
             }
 
             // already selected -> remove from selection
             else {
-                selectedIndexes.splice(matchIndex, 1);
-                setSelectedIndexes([...selectedIndexes]);
+                setSelection(selection.filter((_, i) => i !== matchIndex));
             }
         }
 
         // set single card selection
         else {
-            setSelectedIndexes([index]);
+            setSelection([index]);
         }
     }
 
-    // get the center of the current card selection
-    function getSelectionCenter(): Vector2 {
-        const selectedCards: CardTransform[] = selectedIndexes.map(index => cards[index]);
+    // calculate the duration of the update animation and set the last update time
+    function calculateDuration(maxDuration: number): number {
+        const now: number = Date.now();
+        const elapsed: number = now - lastUpdate;
 
-        const posX: number[] = selectedCards.map(a => a.position.x)
-        const posY: number[] = selectedCards.map(b => b.position.y)
+        setLastUpdate(now);
 
-        const minX: number = Math.min(...posX);
-        const minY: number = Math.min(...posY);
-        const maxX: number = Math.max(...posX);
-        const maxY: number = Math.max(...posY);
-
-        return new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
+        return Math.min(elapsed, maxDuration);
     }
 
-    // add a card to the board
-    function addCard(id: number) {
-        const card: CardTransform = new CardTransform(id, new Vector2(50, 50));
-        setCards([...cards, card]);
-        setIsDeckOpen(false);
+    // stream the update message and update the board
+    function streamAndApply(message: UpdateMessage): void {
+        // stream the update message
+        socket.emit(message.eventName, lobbyId, message);
 
-        if (socket) {
-            socket.emit('card-add', lobbyId, card);
-        }
-    }
+        // apply the updates instantly
+        const results: CardTransform[] = message.apply(cards, 1);
 
-    // rotate the selected cards
-    function rotateCards(direction: number) {
-        if (selectedIndexes.length === 0) {
-            return;
-        }
-
-        const ANGLE_DEG_AMOUNT: number = 15.0;
-        const ANGLE_RAD_AMOUNT: number = ANGLE_DEG_AMOUNT * Math.PI / 180.0;
-
-        const pivotPos: Vector2 = getSelectionCenter();
-        const angleRad: number = ANGLE_RAD_AMOUNT * direction;
-        const angleDeg: number = ANGLE_DEG_AMOUNT * direction;
-        const cosTheta: number = Math.cos(angleRad);
-        const sinTheta: number = Math.sin(angleRad);
-
-        selectedIndexes.forEach((value) => {
-            const card: CardTransform = cards[value];
-            const posX: number = card.position.x
-            const posY: number = card.position.y
-
-            // Normalize x coordinate by aspect ratio
-            const normalizedX = posX * ASPECT_RATIO;
-            const normalizedY = posY;
-
-            // Calculate normalized pivot
-            const normalizedPivotX = pivotPos.x * ASPECT_RATIO;
-            const normalizedPivotY = pivotPos.y;
-
-            // Translate to origin based on normalized pivot
-            const translatedX = normalizedX - normalizedPivotX;
-            const translatedY = normalizedY - normalizedPivotY;
-
-            // Rotate
-            const rotatedX = cosTheta * translatedX - sinTheta * translatedY;
-            const rotatedY = sinTheta * translatedX + cosTheta * translatedY;
-
-            // Translate back and convert back to percentage coordinates
-            const newX = (rotatedX + normalizedPivotX) / ASPECT_RATIO; // De-normalize x coordinate
-            const newY = rotatedY + normalizedPivotY;
-
-            card.position.x = newX;
-            card.position.y = newY;
-
-            card.rotation = (cards[value].rotation + angleDeg + 360) % 360;
-        })
-
-        if (socket) {
-            socket.emit('card-modify', lobbyId, cards);
-        }
-
-        setCards([...cards]);
-    }
-
-    // resize the selected cards
-    function resizeCards(size: number) {
-        if (selectedIndexes.length === 0) {
-            return;
-        }
-
-        let scalingFactor: number = size;
-
-        selectedIndexes.forEach(index => {
-            if (index < 0 || index >= cards.length) {
-                return;
-            }
-
-            let scale = cards[index].scale * size;
-
-            scale = Math.min(0.9, Math.max(0.1, scale));
-
-
-            let actualSize = scale / cards[index].scale;
-
-            if (size < 1) {
-                scalingFactor = Math.max(scalingFactor, actualSize);
-            } else {
-                scalingFactor = Math.min(scalingFactor, actualSize);
-            }
-
-        })
-
-        const pivotPos: Vector2 = getSelectionCenter();
-
-        selectedIndexes.forEach(index => {
-            if (index < 0 || index >= cards.length) {
-                return;
-            }
-
-            cards[index].scale *= scalingFactor;
-
-            // subtraction of card position and center
-            let cardPivotDifference: Vector2 = Vector2.sub(cards[index].position, pivotPos);
-
-            // card and center difference change
-            cardPivotDifference = Vector2.mul(cardPivotDifference, scalingFactor);
-
-            // set card new shifted position
-            cards[index].position = Vector2.add(pivotPos, cardPivotDifference);
-
-        });
-
-        if (socket) {
-            socket.emit('card-modify', lobbyId, cards);
-        }
-
-        setCards([...cards]);
+        // update the state
+        setCards(results);
     }
 
     // template
     return (
-        <div className="h-full flex flex-col relative border-4 border-t-0 border-sky-700" onWheel={e => rotateCards(e.deltaY > 0 ? 1 : -1)}>
-            <div className="flex justify-center w-full h-8 bg-sky-700 z-30">
-                <label className="swap text-xl text-gray-300 h-100 px-8 bg-opacity-40 bg-black font-bold">
-                    <input type="checkbox" checked={isDeckOpen} onChange={e => setIsDeckOpen(e.target.checked)}/>
-                    <div className="swap-on text-red-600">Close deck</div>
-                    <div className="swap-off text-green-600">Open deck</div>
-                </label>
+        <div className="h-full flex flex-col border-4 border-t-0 border-[#62efbd] bg-[#62efbd] rounded-xl" onWheel={e => handleRotate(e.deltaY > 0 ? 1 : -1)}>
+            <div className="flex justify-center w-full h-8 bg-[#62efbd] z-30 rounded-xl">
+                <div className="basis-1/2 flex justify-center">
+                    {cardGroups.map((ids, index) => {
+                        // group is empty, does not exist
+                        if (ids.length === 0) {
+                            return null;
+                        }
+
+                        // set the style of the group
+                        const style = {
+                            backgroundColor: cardBackgroundColors[index + 1],
+                            textShadow: '0 0 0.125em black'
+                        }
+
+                        return <span className="rounded size-6 my-1 mx-2 text-center text-white font-bold shadow shadow-black" style={style}>
+                            {index + 1}
+                        </span>
+                    })}
+                </div>
+                <div className="swap text-xl text-gray-300 px-8 bg-[#216e53] font-bold" onClick={e => setIsDeckOpen(!isDeckOpen)}>
+                    <div className="text-[#f9f7f3] text-center text-nowrap w-80">{isDeckOpen ? 'Kártyapakli bezárása' : 'Kártyapakli'}</div>
+                </div>
+                <div className="basis-1/2"></div>
             </div>
 
-            {isDeckOpen && <Deck onCardSelect={addCard} cardIds={cardsInDeck}/>}
+            <div className="relative">
+                {isDeckOpen && <Deck
+                    onCardSelect={handleAdd}
+                    cardIds={cardsInDeck}
+                />}
 
-            <div id="board" className="flex-grow relative">
-                <CardViewer cards={cards} selectedIndexes={selectedIndexes} selectCallback={selectCard}/>
+                <CardViewer
+                    cards={cards}
+                    selection={selection}
+                    onCardSelect={selectCard}
+                    groups={cardGroups}
+                />
             </div>
         </div>
     );

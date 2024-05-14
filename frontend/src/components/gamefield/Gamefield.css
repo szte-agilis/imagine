@@ -1,20 +1,20 @@
 .button_class {
     border: 1px solid white;
     padding: 5px;
-    border-radius: 5px; /* Changed to hyphenated form */
+    border-radius: 10px; /* Changed to hyphenated form */
     background-color: transparent; /* Changed to hyphenated form */
     color: white;
     cursor: pointer;
 }
 .solution-button {
-    border: 1px solid #00cfbd;
+    border: 1px solid #62efbd;
     padding: 5px;
     font-size: 20px;
     margin-right: 10px;
     margin-left: 10px;
-    border-radius: 5px; /* Changed to hyphenated form */
+    border-radius: 10px; /* Changed to hyphenated form */
     background-color: transparent; /* Changed to hyphenated form */
-    color: #00cfbd;
+    color: #62efbd;
     cursor: pointer;
 }
 .solution-button:hover {
@@ -25,10 +25,8 @@
 }
 #container {
     background-image: url('../../assets/background.jpg') !important;
-    font-family:
-        Comic Sans,
-        cursive;
     height: 100%;
+    color: #62efbd;
 }
 
 .header-bar {
@@ -41,9 +39,10 @@
     font-size: 30px;
     font-weight: bold;
     top: 0;
+    color: white;
     background-color: #252729;
     z-index: 500;
-    margin-bottom: 0.75rem;
+    margin-bottom: 25px;
 }
 .first-three {
     margin-left: 2rem;
@@ -59,10 +58,12 @@
 }
 #chat-container {
     float: right;
-    height: 100%;
+    margin-top: 10px;
+    height: 80vh;
     background-color: #252729;
     color: white;
     border-left: 1px solid #ccc;
+    border-radius: 10px;
     padding: 10px;
     box-sizing: border-box;
     overflow-y: auto;
@@ -91,6 +92,7 @@
     justify-content: space-between;
     align-items: stretch;
     height: 90vh;
+    border-radius: 10px;
 }
 
 #left-div {
@@ -114,14 +116,18 @@
 #left-container {
     display: flex;
     padding-left: 10px;
+    padding-right: 3px;
     flex-direction: column;
     height: 100%;
+    margin-top: 12px;
 }
 
 #leave-button {
     margin-top: 10%;
     margin-bottom: 10%;
     background-color: rgb(153, 11, 11);
+    text-shadow: 0 0 2px black;
+    font-weight: bold;
 }
 
 #leave-popup {
@@ -150,10 +156,10 @@
     background-color: #1f2937;
     padding: 20px 40px;
     border-radius: 10px;
-    border: 2px solid #00cfbd;
+    border: 2px solid #62efbd;
     font-size: 24px;
     font-weight: bold;
-    color: #00cfbd;
+    color: #62efbd;
     animation: fadeInOut 1.5s forwards;
 }
 
@@ -212,8 +218,8 @@
 
 .modal-content {
     background-color: #252729;
-    border: 1px solid #00cfbd;
-    color: #00cfbd;
+    border: 1px solid #62efbd;
+    color: #62efbd;
     padding: 20px;
     text-align: center;
     border-radius: 10px;

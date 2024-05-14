@@ -2,11 +2,13 @@
     display: flex;
     height: 5%;
     width: 220px;
-    background-color: #464646;
+    background-color: #565555;
     align-items: center;
     border-radius: 10px;
+    border: 1px solid #888888;
     overflow: hidden;
-    margin-bottom: 3px;
+    text-shadow: 0 0 2px black;
+    margin-bottom: 12px;
 }
 
 #left-square-lbd {
@@ -14,13 +16,14 @@
     width: 30%;
     padding-top: 5px;
     padding-bottom: 5px;
-    background-color: #666666;
+    background-color: #888888;
     justify-content: center;
     align-items: center;
     display: flex;
     border-radius: 10px;
     color: white;
     font-weight: bold;
+    margin-left: 5px;
 }
 
 #right-rectangles-lbd {
@@ -32,7 +35,7 @@
 
 .top-rectangle-lbd {
     flex: 1;
-    background-color: #666666;
+    background-color: #888888;
     margin-bottom: 10px;
     display: flex;
     justify-content: center;
@@ -44,12 +47,12 @@
 
 .bottom-rectangle-lbd {
     flex: 1;
-    background-color: #666666;
+    background-color: #888888;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 10px;
-    color: goldenrod;
+    color: white;
     font-weight: bold;
 }
 
@@ -58,5 +61,16 @@
 }
 
 .localPlayer {
-    background-color: rgb(3 105 161) !important;
+    background-color: #20ab79 !important;
+    border-color: #62efbd !important;
+}
+
+.localPlayer #left-square-lbd {
+    background-color: #62efbd !important;
+}
+.localPlayer .top-rectangle-lbd {
+    background-color: #62efbd !important;
+}
+.localPlayer .bottom-rectangle-lbd {
+    background-color: #62efbd !important;
 }

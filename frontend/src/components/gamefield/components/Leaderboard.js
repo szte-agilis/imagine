@@ -10,7 +10,6 @@ const Leaderboard = (props) => {
 
     return (
         <div id="leaderborad-container">
-            <h1>Tabella</h1>
             <div>
                 {leaderboardArray.map(([name, points], index) => (
                     <div

@@ -1,6 +1,6 @@
-import { Vector2 } from './Vector2';
+import Vector2 from './Vector2';
 
-export class CardTransform {
+export default class CardTransform {
     id: number;
     position: Vector2;
     rotation: number;
