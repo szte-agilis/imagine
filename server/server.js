@@ -241,9 +241,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('check username', (name) => {
-        let taken = Object.values(_lobbies).some((lobby) =>
-            Object.values(lobby.users).includes(name)
-        );
+        let taken = Object.values(takenNames).includes(name);
+        if (!taken) {
+            taken = Object.values(_lobbies).some((lobby) =>
+                Object.values(lobby.users).includes(name)
+            );
+        }
         logger('log', null, 'Is username taken?', name, taken);
         io.to(socket.id).emit('username checked', taken);
     });
