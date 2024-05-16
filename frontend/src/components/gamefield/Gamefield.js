@@ -23,7 +23,6 @@ function GameField() {
     const [chatInput, setChatInput] = useState('');
     const [currentRound, setCurrentRound] = useState(0);
     const [messages, setMessages] = useState([]);
-    const [showWarning, setShowWarning] = useState(false);
     const [canDraw, setCanDraw] = useState(false);
     const [canChat, setCanChat] = useState(false);
     const [localTimer, setlocalTimer] = useState(0);
@@ -122,21 +121,6 @@ function GameField() {
 
             socket.on('points', (pointsObject) => {
                 setPoints(pointsObject);
-
-                const localUserPoints = pointsObject.find(
-                    ([username]) => username === localUsername
-                );
-                if (localUserPoints) {
-                    const localUserPointsSum = localUserPoints[1];
-                    const overtaken = pointsObject.some(
-                        ([username, points]) =>
-                            username !== localUsername &&
-                            points > localUserPointsSum
-                    );
-                    if (overtaken) {
-                        showWarningFunction();
-                    }
-                }
             });
 
             socket.on('timer', (time) => {
@@ -233,70 +217,12 @@ function GameField() {
         }
     };
 
-    function hideWarning() {
-        let warning = document.getElementById('warning');
-        if (warning) {
-            warning.classList.remove('animated-warning');
-            warning.animate(
-                [
-                    { transform: 'scale(1)' },
-                    {
-                        transform: 'scale(0)',
-                        opacity: 0,
-                    },
-                ],
-                {
-                    duration: 150,
-                    easing: 'ease-in',
-                    fill: 'forwards',
-                }
-            ).onfinish = () => {
-                warning.style.display = 'none';
-                setShowWarning(false);
-            };
-        }
-    }
-
-    function showWarningFunction() {
-        setShowWarning(true);
-
-        setTimeout(hideWarning, 3000);
-    }
-
     const leaveGamePressed = () => {
         setIsGameEnded(true);
     };
 
     return (
         <div id="container">
-            {showWarning && (
-                <div
-                    id="warning"
-                    className="absolute z-50 pointer-events-none w-full text-center py-4 lg:px-4 animated-warning"
-                >
-                    <div
-                        id="warning-msg"
-                        className="p-2 bg-red-100 items-center text-red-700 leading-none lg:rounded-full flex lg:inline-flex"
-                        role="alert"
-                    >
-                        <span className="flex rounded-full bg-red-200 uppercase px-2 py-1 text-xs font-bold mr-3">
-                            Hoppá!
-                        </span>
-                        <span className="font-semibold mr-2 text-left flex-auto text-red-500">
-                            "Hoppá, megelőztek!"
-                        </span>
-                        <svg
-                            id="warning-svg"
-                            onClick={hideWarning}
-                            className="cursor-pointer pointer-events-auto fill-current opacity-75 h-6 w-6 transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none max-w-[40px] max-h-[40px] text-xs hover:bg-gray-900/10 active:bg-gray-900/20 rounded-full "
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                        >
-                            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
-                        </svg>
-                    </div>
-                </div>
-            )}
             {isGameEnded ? (
                 <GameEnd
                     leaderboardArray={points}
