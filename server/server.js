@@ -45,6 +45,10 @@ const solutions = JSON.parse(
     fs.readFileSync(COMMON_STATIC + '/solutions.json', 'utf-8')
 );
 
+const presentationSolutions = JSON.parse(
+    fs.readFileSync(COMMON_STATIC + '/presentation.json', 'utf-8')
+);
+
 io.on('connection', (socket) => {
     /**
      *
@@ -152,7 +156,7 @@ io.on('connection', (socket) => {
 
         if (socket.id === lobby.drawerSocketId) {
             // Send the random solutions to the drawer
-            const randomSolutions = getRandomSolutions();
+            const randomSolutions = getRandomSolutions(lobby);
             io.to(socket.id).emit('choose solution', randomSolutions);
         }
 
@@ -332,7 +336,7 @@ io.on('connection', (socket) => {
         });
 
         io.to(lobby.drawerSocketId).emit('Drawer', true);
-        const randomSolutions = getRandomSolutions();
+        const randomSolutions = getRandomSolutions(lobby);
         io.to(lobby.drawerSocketId).emit('choose solution', randomSolutions);
         const newDrawerUsername = lobby.users[lobby.drawerSocketId];
         io.to(lobbyId).emit(
@@ -522,15 +526,21 @@ server.listen(PORT, () => {
     console.log(`Server is running at: http://localhost:${PORT}`);
 });
 
-function getRandomSolutions() {
+function getRandomSolutions(lobby = null) {
+    const isPresentation = lobby && lobby.password === 'very-secret-123';
+    const solutionList = isPresentation ? presentationSolutions : solutions;
+
     const randomIndices = [];
+
     while (randomIndices.length < 3) {
-        const randomIndex = Math.floor(Math.random() * solutions.length);
+        const randomIndex = Math.floor(Math.random() * solutionList.length);
+
         if (!randomIndices.includes(randomIndex)) {
             randomIndices.push(randomIndex);
         }
     }
-    return randomIndices.map((index) => solutions[index]);
+
+    return randomIndices.map((index) => solutionList[index]);
 }
 
 function guess(guess, solution) {
