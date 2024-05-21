@@ -152,7 +152,11 @@ io.on('connection', (socket) => {
 
         if (socket.id === lobby.drawerSocketId) {
             // Send the random solutions to the drawer
-            const randomSolutions = getRandomSolutions();
+            let randomSolutions = getRandomSolutions();
+            console.log(lobby);
+            if (lobby.name === 'Prezi' && lobby.currentRound === 1) {
+                randomSolutions = getRandomSolutionsPrezi(lobby.currentRound);
+            }
             io.to(socket.id).emit('choose solution', randomSolutions);
         }
 
@@ -321,7 +325,29 @@ io.on('connection', (socket) => {
         });
 
         io.to(lobby.drawerSocketId).emit('Drawer', true);
-        const randomSolutions = getRandomSolutions();
+        let randomSolutions = getRandomSolutions();
+        //itt lehet megadni, hogy pontosan hany jatekos legye a prezi modeban, es mik legyenek a megoldasok
+        const preziSolutions = [
+            [
+                { solution: 'Alma', topic: 'Gyümölcs' },
+                { solution: 'Banán', topic: 'Gyümölcs' },
+                { solution: 'Körte', topic: 'Gyümölcs' },
+            ],
+            [
+                { solution: 'Majom', topic: 'Állat' },
+                { solution: 'Kutya', topic: 'Állat' },
+                { solution: 'kislugyus', topic: 'Állat' },
+            ],
+            [
+                { solution: 'Szék', topic: 'Berendezés' },
+                { solution: 'Asztal', topic: 'Berendezés' },
+                { solution: 'Polc', topic: 'Berendezés' },
+            ],
+        ];
+
+        if (lobby.name === 'Prezi') {
+            randomSolutions = preziSolutions[currentDrawerIndex];
+        }
         io.to(lobby.drawerSocketId).emit('choose solution', randomSolutions);
         const newDrawerUsername = lobby.users[lobby.drawerSocketId];
         io.to(lobbyId).emit(
