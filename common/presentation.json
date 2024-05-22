@@ -1,26 +1,42 @@
 [
   {
-    "solution": "Beszédes Árpád",
-    "topic": "Híres ember"
-  },
-  {
-    "solution": "Csók",
-    "topic": "Fogalom"
-  },
-  {
-    "solution": "Ádám és Éva",
-    "topic": "Híres ember"
-  },
-  {
-    "solution": "Vizsgaidőszak",
-    "topic": "Fogalom"
-  },
-  {
-    "solution": "Kossuth Lajos",
-    "topic": "Híres ember"
-  },
-  {
-    "solution": "Oppenheimer",
+    "solution": "Trónok Harca",
     "topic": "Film vagy sorozat"
+  },
+  {
+    "solution": "Titanic",
+    "topic": "Film vagy sorozat"
+  },
+  {
+    "solution": "Rómeó és Júlia",
+    "topic": "Film vagy sorozat"
+  },
+  {
+    "solution": "A Gyűrűk Ura",
+    "topic": "Film vagy sorozat"
+  },
+  {
+    "solution": "Börtön",
+    "topic": "Helyszín"
+  },
+  {
+    "solution": "Naplemente",
+    "topic": "Természet"
+  },
+  {
+    "solution": "Napozás",
+    "topic": "Tevékenység"
+  },
+  {
+    "solution": "Autóversenyzés",
+    "topic": "Sport"
+  },
+  {
+    "solution": "Koncert",
+    "topic": "Helyszín"
+  },
+  {
+    "solution": "Kutyasétáltatás",
+    "topic": "Tevékenység"
   }
 ]

@@ -233,10 +233,10 @@ function GameField() {
                     <div>
                         <div className="header-bar">
                             <div className="first-three ">
-                                Round ( {currentRound} / {rounds} )
+                                Kör ( {currentRound} / {rounds} )
                             </div>
                             <div className="first-three ">
-                                Time: {localTimer}
+                                Idő: {localTimer}
                             </div>
                             <div className="first-three " id="lobby-id">
                                 Lobby kód: {localLobby}
@@ -301,7 +301,10 @@ function GameField() {
                                     <div>
                                         <div className="modal-background">
                                             <div className="modal-content">
-                                                <h2>Choose a solution:</h2>
+                                                <h2>
+                                                    Válassz mit szeretnél
+                                                    rajzolni:
+                                                </h2>
                                                 <br />
                                                 {randomSolutions.map(
                                                     (solution, index) => (
@@ -373,21 +376,12 @@ function GameField() {
                                         type="text"
                                         value={chatInput}
                                         className="input-style"
-                                        placeholder="Type a message and press Enter"
+                                        placeholder="Írj valamit!"
                                         onKeyPress={handleChatInputKeyPress}
                                         onChange={(event) =>
                                             setChatInput(event.target.value)
                                         }
                                     />
-                                )}
-                                {canDraw && (
-                                    <button
-                                        id="passDrawerButton"
-                                        className="button_class"
-                                        onClick={handlePassDrawer}
-                                    >
-                                        Pass Drawer Role
-                                    </button>
                                 )}
                             </div>
                         </div>
